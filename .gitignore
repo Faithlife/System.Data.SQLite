@@ -1,0 +1,19 @@
+# ignore output folders
+bin/
+build/
+obj/
+
+# ignore user-specific options/cache files
+_ReSharper.*
+Thumbs.db
+*.csproj.user
+*.DotSettings.user
+*.opensdf
+*.[Rr]e[Ss]harper.user
+*.sdf
+*.sln.cache
+*.suo
+*.vcxproj.user
+*.tmp
+*.pidb
+StyleCop.Cache
