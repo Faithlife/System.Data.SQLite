@@ -4,6 +4,7 @@ build/
 obj/
 
 # ignore user-specific options/cache files
+packages/
 _ReSharper.*
 Thumbs.db
 *.csproj.user
