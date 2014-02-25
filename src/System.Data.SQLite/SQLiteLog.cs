@@ -29,7 +29,7 @@
 
 		static SQLiteLog()
 		{
-			NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero).ThrowOnError();
+			NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
 		}
 
 		static void LogCallback(IntPtr pUserData, int errorCode, IntPtr pMessage)
