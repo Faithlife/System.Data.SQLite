@@ -94,12 +94,7 @@ namespace System.Data.SQLite
 
 		protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
 		{
-			VerifyNotDisposed();
-			if (DbConnection == null)
-				throw new InvalidOperationException("Connection property must be non-null.");
-			if (DbTransaction != ((SQLiteConnection) DbConnection).CurrentTransaction)
-				throw new InvalidOperationException("The transaction associated with this command is not the connection's active transaction.");
-			return new SQLiteDataReader(this, behavior);
+			return ExecuteDbDataReaderAsync(behavior, CancellationToken.None).Result;
 		}
 
 		public new SQLiteDataReader ExecuteReader()
@@ -134,19 +129,41 @@ namespace System.Data.SQLite
 			return null;
 		}
 
-		public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
+		public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
 		{
-			throw new NotSupportedException();
+			using (var reader = await ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+			{
+				do
+				{
+					while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+					{
+					}
+				} while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+				return reader.RecordsAffected;
+			}
 		}
 
 		protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
 		{
-			throw new NotSupportedException();
+			VerifyNotDisposed();
+			if (DbConnection == null)
+				throw new InvalidOperationException("Connection property must be non-null.");
+			if (DbTransaction != ((SQLiteConnection) DbConnection).CurrentTransaction)
+				throw new InvalidOperationException("The transaction associated with this command is not the connection's active transaction.");
+			return Task.FromResult<DbDataReader>(new SQLiteDataReader(this, behavior, cancellationToken));
 		}
 
-		public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
+		public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
 		{
-			throw new NotSupportedException();
+			using (var reader = await ExecuteReaderAsync(CommandBehavior.SingleResult | CommandBehavior.SingleRow, cancellationToken).ConfigureAwait(false))
+			{
+				do
+				{
+					if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+						return reader.GetValue(0);
+				} while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+			}
+			return null;
 		}
 
 		protected override void Dispose(bool disposing)

@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Dapper;
 using NUnit.Framework;
 
@@ -113,6 +115,40 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 					Assert.AreEqual(123L, (long) cmd.ExecuteScalar());
 				Assert.AreEqual(1, conn.Execute(@"insert into Test(Id, String) values(2, 'two'); select last_insert_rowid()"));
 				Assert.AreEqual(2, conn.Execute(@"insert into Test(Id, String) values(3, 'three'), (4, 'four'); select last_insert_rowid()"));
+			}
+		}
+
+		[TestCase(0)]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(3)]
+		[TestCase(10)]
+		[TestCase(100)]
+		[TestCase(250)]
+		public void CancelExecuteReader(int milliseconds)
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute(@"create table Test (Id integer primary key);");
+				using (var trans = conn.BeginTransaction())
+				{
+					for (long value = 0; value < 1000; value++)
+						conn.Execute(@"insert into Test(Id) values(@value)", new { value }, trans);
+					trans.Commit();
+				}
+				CancellationTokenSource source = new CancellationTokenSource(TimeSpan.FromMilliseconds(milliseconds));
+				using (var cmd = new SQLiteCommand(@"select a.Id, b.Id, c.Id, d.Id from Test a inner join Test b inner join Test c inner join Test d", conn))
+				using (var reader = cmd.ExecuteReaderAsync(source.Token).Result)
+				{
+					Task<bool> task;
+					do
+					{
+						task = reader.ReadAsync(source.Token);
+						Assert.IsTrue(task.IsCanceled || task.Result);
+					} while (!task.IsCanceled);
+					Assert.IsTrue(task.IsCanceled);
+				}
 			}
 		}
 

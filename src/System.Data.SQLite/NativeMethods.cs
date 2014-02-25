@@ -77,20 +77,23 @@ namespace System.Data.SQLite
 		public unsafe static extern SQLiteErrorCode sqlite3_prepare_v2(SqliteDatabaseHandle db, byte* pSql, int nBytes, out SqliteStatementHandle stmt, out byte* pzTail);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern void sqlite3_progress_handler(SqliteDatabaseHandle db, int virtualMachineInstructions, SQLiteProgressCallback callback, IntPtr userData);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_step(SqliteStatementHandle stmt);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern int sqlite3_total_changes(SqliteDatabaseHandle db);
 
-#if !MAC
 		const string c_dllName = "SQLite.Interop.dll";
 		const CallingConvention c_callingConvention = CallingConvention.Cdecl;
-#else
-#endif
 	}
 
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	internal delegate void SQLiteLogCallback(IntPtr pUserData, int errorCode, IntPtr pMessage);
+
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	internal delegate int SQLiteProgressCallback(IntPtr pUserData);
 
 	// These are the options to the internal sqlite3_config call.
 	internal enum SQLiteConfigOpsEnum

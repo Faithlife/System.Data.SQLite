@@ -10,7 +10,7 @@ namespace System.Data.SQLite
 {
 	public sealed class SQLiteDataReader : DbDataReader
 	{
-		internal SQLiteDataReader(SQLiteCommand command, CommandBehavior behavior)
+		internal SQLiteDataReader(SQLiteCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
 		{
 			m_command = command;
 			m_behavior = behavior;
@@ -20,7 +20,7 @@ namespace System.Data.SQLite
 
 			m_startingChanges = NativeMethods.sqlite3_total_changes(DatabaseHandle);
 			m_commandBytes = SQLiteConnection.ToUtf8(command.CommandText.Trim());
-			NextResult();
+			NextResultAsync(cancellationToken).Wait(cancellationToken);
 		}
 
 		public override void Close()
@@ -41,8 +41,13 @@ namespace System.Data.SQLite
 
 		public override bool NextResult()
 		{
+			return NextResultAsync(CancellationToken.None).Result;
+		}
+
+		public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
+		{
 			if (m_bytesUsed == m_commandBytes.Length)
-				return false;
+				return s_falseTask;
 
 			Utility.Dispose(ref m_statement);
 
@@ -65,6 +70,8 @@ namespace System.Data.SQLite
 						case SQLiteErrorCode.Busy:
 						case SQLiteErrorCode.Locked:
 						case SQLiteErrorCode.CantOpen:
+							if (cancellationToken.IsCancellationRequested)
+								return s_canceledTask;
 							if (random == null)
 								random = new Random();
 							Thread.Sleep(random.Next(1, 150));
@@ -127,15 +134,19 @@ namespace System.Data.SQLite
 					Utility.Dispose(ref m_statement);
 			}
 
-			return true;
+			return s_trueTask;
 		}
 
 		public override bool Read()
 		{
 			VerifyNotDisposed();
-			Random random = null;
+			return ReadCore(CancellationToken.None).Result;
+		}
 
-			while (true)
+		private Task<bool> ReadCore(CancellationToken cancellationToken)
+		{
+			Random random = null;
+			while (!cancellationToken.IsCancellationRequested)
 			{
 				SQLiteErrorCode errorCode = NativeMethods.sqlite3_step(m_statement);
 
@@ -144,26 +155,33 @@ namespace System.Data.SQLite
 				case SQLiteErrorCode.Done:
 					Utility.Dispose(ref m_statement);
 					Reset();
-					return false;
+					return s_falseTask;
 
 				case SQLiteErrorCode.Row:
 					m_hasRead = true;
 					if (m_columnType == null)
 						m_columnType = new DbType?[NativeMethods.sqlite3_column_count(m_statement)];
-					return true;
+					return s_trueTask;
 
 				case SQLiteErrorCode.Busy:
 				case SQLiteErrorCode.Locked:
 				case SQLiteErrorCode.CantOpen:
+					if (cancellationToken.IsCancellationRequested)
+						return s_canceledTask;
 					if (random == null)
 						random = new Random();
 					Thread.Sleep(random.Next(1, 150));
 					break;
 
+				case SQLiteErrorCode.Interrupt:
+					return s_canceledTask;
+
 				default:
 					throw new SQLiteException(errorCode);
 				}
 			}
+
+			return cancellationToken.IsCancellationRequested ? s_canceledTask : s_trueTask;
 		}
 
 		public override bool IsClosed
@@ -459,12 +477,26 @@ namespace System.Data.SQLite
 
 		public override Task<bool> ReadAsync(CancellationToken cancellationToken)
 		{
-			throw new NotSupportedException();
+			VerifyNotDisposed();
+
+			GCHandle cancellationTokenHandle = GCHandle.Alloc(cancellationToken);
+			NativeMethods.sqlite3_progress_handler(DatabaseHandle, 10, IsCanceled, GCHandle.ToIntPtr(cancellationTokenHandle));
+			try
+			{
+				return ReadCore(cancellationToken);
+			}
+			finally
+			{
+				NativeMethods.sqlite3_progress_handler(DatabaseHandle, 0, null, IntPtr.Zero);
+				cancellationTokenHandle.Free();
+			}
 		}
 
-		public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
+		private static int IsCanceled(IntPtr userData)
 		{
-			throw new NotSupportedException();
+			GCHandle cancellationTokenHandle = GCHandle.FromIntPtr(userData);
+			CancellationToken cancellationToken = (CancellationToken) cancellationTokenHandle.Target;
+			return cancellationToken.IsCancellationRequested ? 1 : 0;
 		}
 
 		public override int VisibleFieldCount
@@ -512,6 +544,13 @@ namespace System.Data.SQLite
 			// these are the System.Data.SQLite default format strings (from SQLiteConvert.cs)
 			string formatString = dateTime.Kind == DateTimeKind.Utc ? "yyyy-MM-dd HH:mm:ss.FFFFFFFK" : "yyyy-MM-dd HH:mm:ss.FFFFFFF";
 			return dateTime.ToString(formatString, CultureInfo.InvariantCulture);
+		}
+
+		private static Task<bool> CreateCanceledTask()
+		{
+			var source = new TaskCompletionSource<bool>();
+			source.SetCanceled();
+			return source.Task;
 		}
 
 		static readonly Dictionary<string, DbType> s_sqlTypeToDbType = new Dictionary<string, DbType>(StringComparer.OrdinalIgnoreCase)
@@ -578,6 +617,9 @@ namespace System.Data.SQLite
 		};
 
 		static readonly IntPtr s_sqliteTransient = new IntPtr(-1);
+		static readonly Task<bool> s_canceledTask = CreateCanceledTask();
+		static readonly Task<bool> s_falseTask = Task.FromResult(false);
+		static readonly Task<bool> s_trueTask = Task.FromResult(true);
 
 		SQLiteCommand m_command;
 		readonly CommandBehavior m_behavior;
