@@ -10,19 +10,6 @@ namespace System.Data.SQLite
 {
 	public sealed class SQLiteDataReader : DbDataReader
 	{
-		internal SQLiteDataReader(SQLiteCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
-		{
-			m_command = command;
-			m_behavior = behavior;
-
-			if (string.IsNullOrWhiteSpace(command.CommandText))
-				throw new InvalidOperationException("CommandText must be specified");
-
-			m_startingChanges = NativeMethods.sqlite3_total_changes(DatabaseHandle);
-			m_commandBytes = SQLiteConnection.ToUtf8(command.CommandText.Trim());
-			NextResultAsync(cancellationToken).Wait(cancellationToken);
-		}
-
 		public override void Close()
 		{
 			// NOTE: DbDataReader.Dispose calls Close, so we can't put our logic in Dispose(bool) and call Dispose() from this method.
@@ -140,10 +127,36 @@ namespace System.Data.SQLite
 		public override bool Read()
 		{
 			VerifyNotDisposed();
-			return ReadCore(CancellationToken.None).Result;
+			return ReadAsyncCore(CancellationToken.None).Result;
 		}
 
-		private Task<bool> ReadCore(CancellationToken cancellationToken)
+		internal static DbDataReader Create(SQLiteCommand command, CommandBehavior behavior)
+		{
+			DbDataReader dataReader = new SQLiteDataReader(command, behavior);
+			dataReader.NextResult();
+			return dataReader;
+		}
+
+		internal static async Task<DbDataReader> CreateAsync(SQLiteCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+		{
+			DbDataReader dataReader = new SQLiteDataReader(command, behavior);
+			await dataReader.NextResultAsync(cancellationToken);
+			return dataReader;
+		}
+
+		private SQLiteDataReader(SQLiteCommand command, CommandBehavior behavior)
+		{
+			m_command = command;
+			m_behavior = behavior;
+
+			if (string.IsNullOrWhiteSpace(command.CommandText))
+				throw new InvalidOperationException("CommandText must be specified");
+
+			m_startingChanges = NativeMethods.sqlite3_total_changes(DatabaseHandle);
+			m_commandBytes = SQLiteConnection.ToUtf8(command.CommandText.Trim());
+		}
+
+		private Task<bool> ReadAsyncCore(CancellationToken cancellationToken)
 		{
 			Random random = null;
 			while (!cancellationToken.IsCancellationRequested)
@@ -483,7 +496,7 @@ namespace System.Data.SQLite
 			NativeMethods.sqlite3_progress_handler(DatabaseHandle, 10, IsCanceled, GCHandle.ToIntPtr(cancellationTokenHandle));
 			try
 			{
-				return ReadCore(cancellationToken);
+				return ReadAsyncCore(cancellationToken);
 			}
 			finally
 			{

@@ -94,7 +94,8 @@ namespace System.Data.SQLite
 
 		protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
 		{
-			return ExecuteDbDataReaderAsync(behavior, CancellationToken.None).Result;
+			VerifyValid();
+			return SQLiteDataReader.Create(this, behavior);
 		}
 
 		public new SQLiteDataReader ExecuteReader()
@@ -145,12 +146,8 @@ namespace System.Data.SQLite
 
 		protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
 		{
-			VerifyNotDisposed();
-			if (DbConnection == null)
-				throw new InvalidOperationException("Connection property must be non-null.");
-			if (DbTransaction != ((SQLiteConnection) DbConnection).CurrentTransaction)
-				throw new InvalidOperationException("The transaction associated with this command is not the connection's active transaction.");
-			return Task.FromResult<DbDataReader>(new SQLiteDataReader(this, behavior, cancellationToken));
+			VerifyValid();
+			return SQLiteDataReader.CreateAsync(this, behavior, cancellationToken);
 		}
 
 		public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
@@ -192,6 +189,15 @@ namespace System.Data.SQLite
 		{
 			if (m_parameterCollection == null)
 				throw new ObjectDisposedException(GetType().Name);
+		}
+
+		private void VerifyValid()
+		{
+			VerifyNotDisposed();
+			if (DbConnection == null)
+				throw new InvalidOperationException("Connection property must be non-null.");
+			if (DbTransaction != ((SQLiteConnection) DbConnection).CurrentTransaction)
+				throw new InvalidOperationException("The transaction associated with this command is not the connection's active transaction.");
 		}
 
 		SQLiteParameterCollection m_parameterCollection;
