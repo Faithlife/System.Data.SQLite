@@ -9,6 +9,7 @@ _ReSharper.*
 Thumbs.db
 *.csproj.user
 *.DotSettings.user
+*.nupkg
 *.opensdf
 *.[Rr]e[Ss]harper.user
 *.sdf

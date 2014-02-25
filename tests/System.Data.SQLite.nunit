@@ -1,0 +1,9 @@
+﻿<NUnitProject>
+  <Settings activeconfig="Release" />
+  <Config name="Debug" binpathtype="Auto">
+    <assembly path="System.Data.SQLite.Tests\bin\Debug\System.Data.SQLite.Tests.dll" />
+  </Config>
+  <Config name="Release" binpathtype="Auto">
+    <assembly path="System.Data.SQLite.Tests\bin\Release\System.Data.SQLite.Tests.dll" />
+  </Config>
+</NUnitProject>
