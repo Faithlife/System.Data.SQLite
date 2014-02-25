@@ -514,23 +514,6 @@ namespace System.Data.SQLite
 			return dateTime.ToString(formatString, CultureInfo.InvariantCulture);
 		}
 
-		sealed class ColumnInfo
-		{
-			public ColumnInfo(DbType dbType)
-			{
-				m_dbType = dbType;
-			}
-
-			public DbType DbType
-			{
-				get { return m_dbType; }
-			}
-
-			public SQLiteColumnType SqliteType { get; set; }
-
-			readonly DbType m_dbType;
-		}
-
 		static readonly Dictionary<string, DbType> s_sqlTypeToDbType = new Dictionary<string, DbType>(StringComparer.OrdinalIgnoreCase)
 		{
 			{ "bigint", DbType.Int64 },
