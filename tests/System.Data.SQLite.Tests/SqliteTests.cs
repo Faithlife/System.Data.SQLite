@@ -22,6 +22,7 @@ namespace System.Data.SQLite.Tests
 		{
 			File.Delete(m_path);
 		}
+
 		[Test]
 		public void ReadOnly()
 		{

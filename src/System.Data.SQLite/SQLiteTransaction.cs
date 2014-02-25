@@ -43,7 +43,7 @@ namespace System.Data.SQLite
 			{
 				if (m_connection.IsOnlyTransaction(this))
 				{
-					m_connection.ExecuteNonQuery("ROLLBACK");
+					m_connection.ExecuteNonQuery(this, "ROLLBACK");
 					m_connection.PopTransaction();
 					m_isFinished = true;
 				}

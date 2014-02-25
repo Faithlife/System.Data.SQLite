@@ -48,6 +48,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLiteConnectionStringBuilderTests.cs" />
     <Compile Include="SqliteTests.cs" />
+    <Compile Include="SqliteTransactionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -95,6 +95,8 @@ namespace System.Data.SQLite
 		protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
 		{
 			VerifyNotDisposed();
+			if (DbConnection == null)
+				throw new InvalidOperationException("Connection property must be non-null.");
 			if (DbTransaction != ((SQLiteConnection) DbConnection).CurrentTransaction)
 				throw new InvalidOperationException("The transaction associated with this command is not the connection's active transaction.");
 			return new SQLiteDataReader(this, behavior);
