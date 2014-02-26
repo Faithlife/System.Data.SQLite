@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using Dapper;
 using NUnit.Framework;
 
@@ -11,7 +12,7 @@ namespace System.Data.SQLite.Tests
 		public void SetUp()
 		{
 			m_path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-			m_csb = new SQLiteConnectionStringBuilder { DataSource = m_path };
+			m_csb = new SQLiteConnectionStringBuilder { DataSource = m_path, JournalMode = SQLiteJournalModeEnum.Truncate };
 
 			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
 			{
@@ -77,6 +78,71 @@ namespace System.Data.SQLite.Tests
 
 				using (var cmd = new SQLiteCommand(@"select count(Id) from Test", conn))
 					Assert.AreEqual(0L, (long) cmd.ExecuteScalar());
+			}
+		}
+
+		[Test, Timeout(5000)]
+		public void OverlappingTransactions()
+		{
+			using (var conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute("create table Test (Id int primary key);");
+				conn.Execute("insert into Test(Id) values(1)");
+			}
+
+			using (var barrier = new Barrier(2))
+			{
+				var threads = new[]
+				{
+					new Thread(ThreadProc1),
+					new Thread(ThreadProc2),
+				};
+				foreach (var thread in threads)
+					thread.Start(barrier);
+				foreach (var thread in threads)
+					thread.Join();
+			}
+		}
+
+		private void ThreadProc1(object state)
+		{
+			var barrier = (Barrier) state;
+			using (var conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				using (var trans = conn.BeginTransaction())
+				{
+					conn.ExecuteNonQuery(trans, "select Id from Test");
+					barrier.SignalAndWait();
+
+					conn.ExecuteNonQuery(trans, "update Test set Id = 2;");
+					barrier.SignalAndWait();
+
+					// give the other thread time to attempt begin the transaction, which will hang if both threads
+					// try to write concurrently
+					Thread.Sleep(TimeSpan.FromSeconds(2));
+					trans.Commit();
+				}
+			}
+		}
+
+		private void ThreadProc2(object state)
+		{
+			var barrier = (Barrier) state;
+			using (var conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				barrier.SignalAndWait();
+
+				conn.Open();
+				barrier.SignalAndWait();
+
+				using (var trans = conn.BeginTransaction())
+				{
+					conn.ExecuteNonQuery(trans, "select Id from Test");
+					conn.ExecuteNonQuery(trans, "update Test set Id = 3;");
+					trans.Commit();
+				}
 			}
 		}
 

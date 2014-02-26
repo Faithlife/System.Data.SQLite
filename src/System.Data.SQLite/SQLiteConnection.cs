@@ -38,7 +38,7 @@ namespace System.Data.SQLite
 		protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
 		{
 			if (isolationLevel == IsolationLevel.Unspecified)
-				isolationLevel = IsolationLevel.ReadCommitted;
+				isolationLevel = IsolationLevel.Serializable;
 			if (isolationLevel != IsolationLevel.Serializable && isolationLevel != IsolationLevel.ReadCommitted)
 				throw new ArgumentOutOfRangeException("isolationLevel", isolationLevel, "Specified IsolationLevel value is not supported.");
 

@@ -391,7 +391,8 @@ namespace System.Data.SQLite
 				if (declType != IntPtr.Zero)
 				{
 					string type = SQLiteConnection.FromUtf8(declType);
-					dbType = s_sqlTypeToDbType[type];
+					if (!s_sqlTypeToDbType.TryGetValue(type, out dbType))
+						throw new NotSupportedException("The data type name '{0}' is not supported.".FormatInvariant(type));
 				}
 				else
 				{
@@ -580,6 +581,7 @@ namespace System.Data.SQLite
 			{ "int", DbType.Int32 },
 			{ "integer", DbType.Int64 },
 			{ "long", DbType.Int64 },
+			{ "real", DbType.Double },
 			{ "single", DbType.Single},
 			{ "string", DbType.String },
 			{ "text", DbType.String },
