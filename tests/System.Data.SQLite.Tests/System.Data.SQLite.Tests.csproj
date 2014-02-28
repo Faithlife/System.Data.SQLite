@@ -49,6 +49,7 @@
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqliteCommandTests.cs" />
     <Compile Include="SQLiteConnectionStringBuilderTests.cs" />
     <Compile Include="SqliteTests.cs" />
     <Compile Include="SqliteTransactionTests.cs" />
