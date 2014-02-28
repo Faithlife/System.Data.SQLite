@@ -196,6 +196,8 @@ namespace System.Data.SQLite
 			VerifyNotDisposed();
 			if (DbConnection == null)
 				throw new InvalidOperationException("Connection property must be non-null.");
+			if (DbConnection.State != ConnectionState.Open && DbConnection.State != ConnectionState.Connecting)
+				throw new InvalidOperationException("Connection must be Open; current state is {0}.".FormatInvariant(DbConnection.State));
 			if (DbTransaction != ((SQLiteConnection) DbConnection).CurrentTransaction)
 				throw new InvalidOperationException("The transaction associated with this command is not the connection's active transaction.");
 		}
