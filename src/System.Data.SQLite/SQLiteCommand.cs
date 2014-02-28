@@ -37,7 +37,8 @@ namespace System.Data.SQLite
 
 		public override void Prepare()
 		{
-			Prepare(CancellationToken.None);
+			if (m_statementPreparer == null)
+				m_statementPreparer = new SqliteStatementPreparer(DatabaseHandle, CommandText.Trim());
 		}
 
 		public override string CommandText { get; set; }
@@ -150,8 +151,7 @@ namespace System.Data.SQLite
 		protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
 		{
 			VerifyValid();
-			if (!Prepare(cancellationToken))
-				throw new OperationCanceledException(cancellationToken);
+			Prepare();
 			return SQLiteDataReader.CreateAsync(this, behavior, cancellationToken);
 		}
 
@@ -173,7 +173,7 @@ namespace System.Data.SQLite
 			try
 			{
 				m_parameterCollection = null;
-				Utility.Dispose(ref m_statements);
+				Utility.Dispose(ref m_statementPreparer);
 			}
 			finally
 			{
@@ -191,62 +191,10 @@ namespace System.Data.SQLite
 			get { return false; }
 		}
 
-		internal SqliteStatementList GetStatements()
+		internal SqliteStatementPreparer GetStatementPreparer()
 		{
-			m_statements.AddRef();
-			return m_statements;
-		}
-
-		private bool Prepare(CancellationToken cancellationToken)
-		{
-			if (m_statements == null)
-			{
-				var commandTextBytes = SQLiteConnection.ToUtf8(CommandText.Trim());
-				var statements = new List<SqliteStatementHandle>();
-
-				Random random = null;
-				int bytesUsed = 0;
-				while (bytesUsed < commandTextBytes.Length)
-				{
-					SQLiteErrorCode errorCode;
-					do
-					{
-						unsafe
-						{
-							fixed (byte* sqlBytes = &commandTextBytes[bytesUsed])
-							{
-								byte* remainingSqlBytes;
-								SqliteStatementHandle statement;
-								errorCode = NativeMethods.sqlite3_prepare_v2(DatabaseHandle, sqlBytes, commandTextBytes.Length - bytesUsed, out statement, out remainingSqlBytes);
-								switch (errorCode)
-								{
-								case SQLiteErrorCode.Ok:
-									bytesUsed += (int) (remainingSqlBytes - sqlBytes);
-									statements.Add(statement);
-									break;
-
-								case SQLiteErrorCode.Busy:
-								case SQLiteErrorCode.Locked:
-								case SQLiteErrorCode.CantOpen:
-									if (cancellationToken.IsCancellationRequested)
-										return false;
-									if (random == null)
-										random = new Random();
-									Thread.Sleep(random.Next(1, 150));
-									break;
-
-								default:
-									throw new SQLiteException(errorCode);
-								}
-							}
-						}
-					} while (errorCode != SQLiteErrorCode.Ok);
-				}
-
-				m_statements = new SqliteStatementList(statements);
-			}
-
-			return true;
+			m_statementPreparer.AddRef();
+			return m_statementPreparer;
 		}
 
 		private SqliteDatabaseHandle DatabaseHandle
@@ -274,6 +222,6 @@ namespace System.Data.SQLite
 		}
 
 		SQLiteParameterCollection m_parameterCollection;
-		SqliteStatementList m_statements;
+		SqliteStatementPreparer m_statementPreparer;
 	}
 }

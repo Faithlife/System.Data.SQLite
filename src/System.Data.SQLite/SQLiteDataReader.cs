@@ -13,12 +13,8 @@ namespace System.Data.SQLite
 		public override void Close()
 		{
 			// NOTE: DbDataReader.Dispose calls Close, so we can't put our logic in Dispose(bool) and call Dispose() from this method.
-			if (m_currentStatement != null)
-			{
-				NativeMethods.sqlite3_reset(m_currentStatement);
-				m_currentStatement = null;
-			}
-			Utility.Dispose(ref m_statements);
+			Reset();
+			Utility.Dispose(ref m_statementPreparer);
 
 			if (m_behavior.HasFlag(CommandBehavior.CloseConnection))
 			{
@@ -27,7 +23,6 @@ namespace System.Data.SQLite
 				dbConnection.Dispose();
 			}
 
-			m_hasRead = false;
 			m_command = null;
 		}
 
@@ -40,11 +35,12 @@ namespace System.Data.SQLite
 		{
 			VerifyNotDisposed();
 
-			if (m_currentStatementIndex == m_statements.Count - 1)
+			Reset();
+			m_currentStatementIndex++;
+			m_currentStatement = m_statementPreparer.Get(m_currentStatementIndex, cancellationToken);
+			if (m_currentStatement == null)
 				return s_falseTask;
 
-			m_currentStatementIndex++;
-			m_currentStatement = m_statements[m_currentStatementIndex];
 			bool success = false;
 			try
 			{
@@ -86,7 +82,6 @@ namespace System.Data.SQLite
 					}
 				}
 
-				Reset();
 				success = true;
 			}
 			finally
@@ -122,7 +117,7 @@ namespace System.Data.SQLite
 		{
 			m_command = command;
 			m_behavior = behavior;
-			m_statements = command.GetStatements();
+			m_statementPreparer = command.GetStatementPreparer();
 
 			m_startingChanges = NativeMethods.sqlite3_total_changes(DatabaseHandle);
 			m_currentStatementIndex = -1;
@@ -138,8 +133,6 @@ namespace System.Data.SQLite
 				switch (errorCode)
 				{
 				case SQLiteErrorCode.Done:
-					NativeMethods.sqlite3_reset(m_currentStatement);
-					m_currentStatement = null;
 					Reset();
 					return s_falseTask;
 
@@ -498,6 +491,9 @@ namespace System.Data.SQLite
 
 		private void Reset()
 		{
+			if (m_currentStatement != null)
+				NativeMethods.sqlite3_reset(m_currentStatement);
+			m_currentStatement = null;
 			m_columnType = null;
 			m_hasRead = false;
 		}
@@ -612,7 +608,7 @@ namespace System.Data.SQLite
 		SQLiteCommand m_command;
 		readonly CommandBehavior m_behavior;
 		readonly int m_startingChanges;
-		SqliteStatementList m_statements;
+		SqliteStatementPreparer m_statementPreparer;
 		int m_currentStatementIndex;
 		SqliteStatementHandle m_currentStatement;
 		bool m_hasRead;
