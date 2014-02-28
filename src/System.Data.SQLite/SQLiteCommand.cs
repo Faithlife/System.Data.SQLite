@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,6 +37,7 @@ namespace System.Data.SQLite
 
 		public override void Prepare()
 		{
+			Prepare(CancellationToken.None);
 		}
 
 		public override string CommandText { get; set; }
@@ -95,6 +97,7 @@ namespace System.Data.SQLite
 		protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
 		{
 			VerifyValid();
+			Prepare();
 			return SQLiteDataReader.Create(this, behavior);
 		}
 
@@ -147,6 +150,8 @@ namespace System.Data.SQLite
 		protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
 		{
 			VerifyValid();
+			if (!Prepare(cancellationToken))
+				throw new OperationCanceledException(cancellationToken);
 			return SQLiteDataReader.CreateAsync(this, behavior, cancellationToken);
 		}
 
@@ -168,6 +173,7 @@ namespace System.Data.SQLite
 			try
 			{
 				m_parameterCollection = null;
+				Utility.Dispose(ref m_statements);
 			}
 			finally
 			{
@@ -185,6 +191,69 @@ namespace System.Data.SQLite
 			get { return false; }
 		}
 
+		internal SqliteStatementList GetStatements()
+		{
+			m_statements.AddRef();
+			return m_statements;
+		}
+
+		private bool Prepare(CancellationToken cancellationToken)
+		{
+			if (m_statements == null)
+			{
+				var commandTextBytes = SQLiteConnection.ToUtf8(CommandText.Trim());
+				var statements = new List<SqliteStatementHandle>();
+
+				Random random = null;
+				int bytesUsed = 0;
+				while (bytesUsed < commandTextBytes.Length)
+				{
+					SQLiteErrorCode errorCode;
+					do
+					{
+						unsafe
+						{
+							fixed (byte* sqlBytes = &commandTextBytes[bytesUsed])
+							{
+								byte* remainingSqlBytes;
+								SqliteStatementHandle statement;
+								errorCode = NativeMethods.sqlite3_prepare_v2(DatabaseHandle, sqlBytes, commandTextBytes.Length - bytesUsed, out statement, out remainingSqlBytes);
+								switch (errorCode)
+								{
+								case SQLiteErrorCode.Ok:
+									bytesUsed += (int) (remainingSqlBytes - sqlBytes);
+									statements.Add(statement);
+									break;
+
+								case SQLiteErrorCode.Busy:
+								case SQLiteErrorCode.Locked:
+								case SQLiteErrorCode.CantOpen:
+									if (cancellationToken.IsCancellationRequested)
+										return false;
+									if (random == null)
+										random = new Random();
+									Thread.Sleep(random.Next(1, 150));
+									break;
+
+								default:
+									throw new SQLiteException(errorCode);
+								}
+							}
+						}
+					} while (errorCode != SQLiteErrorCode.Ok);
+				}
+
+				m_statements = new SqliteStatementList(statements);
+			}
+
+			return true;
+		}
+
+		private SqliteDatabaseHandle DatabaseHandle
+		{
+			get { return ((SQLiteConnection) Connection).Handle; }
+		}
+
 		private void VerifyNotDisposed()
 		{
 			if (m_parameterCollection == null)
@@ -200,8 +269,11 @@ namespace System.Data.SQLite
 				throw new InvalidOperationException("Connection must be Open; current state is {0}.".FormatInvariant(DbConnection.State));
 			if (DbTransaction != ((SQLiteConnection) DbConnection).CurrentTransaction)
 				throw new InvalidOperationException("The transaction associated with this command is not the connection's active transaction.");
+			if (string.IsNullOrWhiteSpace(CommandText))
+				throw new InvalidOperationException("CommandText must be specified");
 		}
 
 		SQLiteParameterCollection m_parameterCollection;
+		SqliteStatementList m_statements;
 	}
 }

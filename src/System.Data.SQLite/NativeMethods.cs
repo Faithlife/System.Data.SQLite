@@ -80,6 +80,9 @@ namespace System.Data.SQLite
 		public static extern void sqlite3_progress_handler(SqliteDatabaseHandle db, int virtualMachineInstructions, SQLiteProgressCallback callback, IntPtr userData);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern SQLiteErrorCode sqlite3_reset(SqliteStatementHandle stmt);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_step(SqliteStatementHandle stmt);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]

@@ -13,7 +13,12 @@ namespace System.Data.SQLite
 		public override void Close()
 		{
 			// NOTE: DbDataReader.Dispose calls Close, so we can't put our logic in Dispose(bool) and call Dispose() from this method.
-			Utility.Dispose(ref m_statement);
+			if (m_currentStatement != null)
+			{
+				NativeMethods.sqlite3_reset(m_currentStatement);
+				m_currentStatement = null;
+			}
+			Utility.Dispose(ref m_statements);
 
 			if (m_behavior.HasFlag(CommandBehavior.CloseConnection))
 			{
@@ -33,44 +38,13 @@ namespace System.Data.SQLite
 
 		public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
 		{
-			if (m_bytesUsed == m_commandBytes.Length)
+			VerifyNotDisposed();
+
+			if (m_currentStatementIndex == m_statements.Count - 1)
 				return s_falseTask;
 
-			Utility.Dispose(ref m_statement);
-
-			Random random = null;
-			SQLiteErrorCode errorCode;
-			do
-			{
-				unsafe
-				{
-					fixed (byte* sqlBytes = &m_commandBytes[m_bytesUsed])
-					{
-						byte* remainingSqlBytes;
-						errorCode = NativeMethods.sqlite3_prepare_v2(DatabaseHandle, sqlBytes, m_commandBytes.Length - m_bytesUsed, out m_statement, out remainingSqlBytes);
-						switch (errorCode)
-						{
-						case SQLiteErrorCode.Ok:
-							m_bytesUsed += (int) (remainingSqlBytes - sqlBytes);
-							break;
-
-						case SQLiteErrorCode.Busy:
-						case SQLiteErrorCode.Locked:
-						case SQLiteErrorCode.CantOpen:
-							if (cancellationToken.IsCancellationRequested)
-								return s_canceledTask;
-							if (random == null)
-								random = new Random();
-							Thread.Sleep(random.Next(1, 150));
-							break;
-
-						default:
-							throw new SQLiteException(errorCode);
-						}
-					}
-				}
-			} while (errorCode != SQLiteErrorCode.Ok);
-
+			m_currentStatementIndex++;
+			m_currentStatement = m_statements[m_currentStatementIndex];
 			bool success = false;
 			try
 			{
@@ -79,34 +53,34 @@ namespace System.Data.SQLite
 					string parameterName = parameter.ParameterName;
 					if (parameterName[0] != '@')
 						parameterName = "@" + parameterName;
-					int index = NativeMethods.sqlite3_bind_parameter_index(m_statement, SQLiteConnection.ToUtf8(parameterName));
+					int index = NativeMethods.sqlite3_bind_parameter_index(m_currentStatement, SQLiteConnection.ToUtf8(parameterName));
 					if (index > 0)
 					{
 						object value = parameter.Value;
 						if (value == null || value.Equals(DBNull.Value))
-							NativeMethods.sqlite3_bind_null(m_statement, index).ThrowOnError();
+							NativeMethods.sqlite3_bind_null(m_currentStatement, index).ThrowOnError();
 						else if (value is int || (value is Enum && Enum.GetUnderlyingType(value.GetType()) == typeof(int)))
-							NativeMethods.sqlite3_bind_int(m_statement, index, (int) value).ThrowOnError();
+							NativeMethods.sqlite3_bind_int(m_currentStatement, index, (int) value).ThrowOnError();
 						else if (value is bool)
-							NativeMethods.sqlite3_bind_int(m_statement, index, ((bool) value) ? 1 : 0).ThrowOnError();
+							NativeMethods.sqlite3_bind_int(m_currentStatement, index, ((bool) value) ? 1 : 0).ThrowOnError();
 						else if (value is string)
 							BindText(index, (string) value);
 						else if (value is byte[])
 							BindBlob(index, (byte[]) value);
 						else if (value is long)
-							NativeMethods.sqlite3_bind_int64(m_statement, index, (long) value).ThrowOnError();
+							NativeMethods.sqlite3_bind_int64(m_currentStatement, index, (long) value).ThrowOnError();
 						else if (value is float)
-							NativeMethods.sqlite3_bind_double(m_statement, index, (float) value).ThrowOnError();
+							NativeMethods.sqlite3_bind_double(m_currentStatement, index, (float) value).ThrowOnError();
 						else if (value is double)
-							NativeMethods.sqlite3_bind_double(m_statement, index, (double) value).ThrowOnError();
+							NativeMethods.sqlite3_bind_double(m_currentStatement, index, (double) value).ThrowOnError();
 						else if (value is DateTime)
 							BindText(index, ToString((DateTime) value));
 						else if (value is Guid)
 							BindBlob(index, ((Guid) value).ToByteArray());
 						else if (value is byte)
-							NativeMethods.sqlite3_bind_int(m_statement, index, (byte) value).ThrowOnError();
+							NativeMethods.sqlite3_bind_int(m_currentStatement, index, (byte) value).ThrowOnError();
 						else if (value is short)
-							NativeMethods.sqlite3_bind_int(m_statement, index, (short) value).ThrowOnError();
+							NativeMethods.sqlite3_bind_int(m_currentStatement, index, (short) value).ThrowOnError();
 						else
 							BindText(index, Convert.ToString(value, CultureInfo.InvariantCulture));
 					}
@@ -118,7 +92,7 @@ namespace System.Data.SQLite
 			finally
 			{
 				if (!success)
-					Utility.Dispose(ref m_statement);
+					NativeMethods.sqlite3_reset(m_currentStatement).ThrowOnError();
 			}
 
 			return s_trueTask;
@@ -148,12 +122,10 @@ namespace System.Data.SQLite
 		{
 			m_command = command;
 			m_behavior = behavior;
-
-			if (string.IsNullOrWhiteSpace(command.CommandText))
-				throw new InvalidOperationException("CommandText must be specified");
+			m_statements = command.GetStatements();
 
 			m_startingChanges = NativeMethods.sqlite3_total_changes(DatabaseHandle);
-			m_commandBytes = SQLiteConnection.ToUtf8(command.CommandText.Trim());
+			m_currentStatementIndex = -1;
 		}
 
 		private Task<bool> ReadAsyncCore(CancellationToken cancellationToken)
@@ -161,19 +133,20 @@ namespace System.Data.SQLite
 			Random random = null;
 			while (!cancellationToken.IsCancellationRequested)
 			{
-				SQLiteErrorCode errorCode = NativeMethods.sqlite3_step(m_statement);
+				SQLiteErrorCode errorCode = NativeMethods.sqlite3_step(m_currentStatement);
 
 				switch (errorCode)
 				{
 				case SQLiteErrorCode.Done:
-					Utility.Dispose(ref m_statement);
+					NativeMethods.sqlite3_reset(m_currentStatement);
+					m_currentStatement = null;
 					Reset();
 					return s_falseTask;
 
 				case SQLiteErrorCode.Row:
 					m_hasRead = true;
 					if (m_columnType == null)
-						m_columnType = new DbType?[NativeMethods.sqlite3_column_count(m_statement)];
+						m_columnType = new DbType?[NativeMethods.sqlite3_column_count(m_currentStatement)];
 					return s_trueTask;
 
 				case SQLiteErrorCode.Busy:
@@ -219,13 +192,13 @@ namespace System.Data.SQLite
 
 		public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
 		{
-			var sqliteType = NativeMethods.sqlite3_column_type(m_statement, ordinal);
+			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			if (sqliteType == SQLiteColumnType.Null)
 				return 0;
 			else if (sqliteType != SQLiteColumnType.Blob)
 				throw new InvalidCastException("Cannot convert '{0}' to bytes.".FormatInvariant(sqliteType));
 
-			int availableLength = NativeMethods.sqlite3_column_bytes(m_statement, ordinal);
+			int availableLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
 			if (buffer == null)
 			{
 				// this isn't required by the DbDataReader.GetBytes API documentation, but is what System.Data.SQLite does
@@ -236,7 +209,7 @@ namespace System.Data.SQLite
 			if (bufferOffset + length > buffer.Length)
 				throw new ArgumentException("bufferOffset + length cannot exceed buffer.Length", "length");
 
-			IntPtr ptr = NativeMethods.sqlite3_column_blob(m_statement, ordinal);
+			IntPtr ptr = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
 			int lengthToCopy = Math.Min(availableLength - (int) dataOffset, length);
 			Marshal.Copy(new IntPtr(ptr.ToInt64() + dataOffset), buffer, bufferOffset, lengthToCopy);
 			return lengthToCopy;
@@ -327,7 +300,7 @@ namespace System.Data.SQLite
 		public override bool IsDBNull(int ordinal)
 		{
 			VerifyRead();
-			return NativeMethods.sqlite3_column_type(m_statement, ordinal) == SQLiteColumnType.Null;
+			return NativeMethods.sqlite3_column_type(m_currentStatement, ordinal) == SQLiteColumnType.Null;
 		}
 
 		public override int FieldCount
@@ -335,7 +308,7 @@ namespace System.Data.SQLite
 			get
 			{
 				VerifyNotDisposed();
-				return m_hasRead ? m_columnType.Length : NativeMethods.sqlite3_column_count(m_statement);
+				return m_hasRead ? m_columnType.Length : NativeMethods.sqlite3_column_count(m_currentStatement);
 			}
 		}
 
@@ -387,7 +360,7 @@ namespace System.Data.SQLite
 			}
 			else
 			{
-				IntPtr declType = NativeMethods.sqlite3_column_decltype(m_statement, ordinal);
+				IntPtr declType = NativeMethods.sqlite3_column_decltype(m_currentStatement, ordinal);
 				if (declType != IntPtr.Zero)
 				{
 					string type = SQLiteConnection.FromUtf8(declType);
@@ -401,7 +374,7 @@ namespace System.Data.SQLite
 				m_columnType[ordinal] = dbType;
 			}
 
-			var sqliteType = NativeMethods.sqlite3_column_type(m_statement, ordinal);
+			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			if (dbType == DbType.Object)
 				dbType = s_sqliteTypeToDbType[sqliteType];
 
@@ -411,21 +384,21 @@ namespace System.Data.SQLite
 				return DBNull.Value;
 
 			case SQLiteColumnType.Blob:
-				int byteCount = NativeMethods.sqlite3_column_bytes(m_statement, ordinal);
+				int byteCount = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
 				byte[] bytes = new byte[byteCount];
 				if (byteCount > 0)
 				{
-					IntPtr bytePointer = NativeMethods.sqlite3_column_blob(m_statement, ordinal);
+					IntPtr bytePointer = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
 					Marshal.Copy(bytePointer, bytes, 0, byteCount);
 				}
 				return dbType == DbType.Guid && byteCount == 16 ? (object) new Guid(bytes) : (object) bytes;
 
 			case SQLiteColumnType.Double:
-				double doubleValue = NativeMethods.sqlite3_column_double(m_statement, ordinal);
+				double doubleValue = NativeMethods.sqlite3_column_double(m_currentStatement, ordinal);
 				return dbType == DbType.Single ? (object) (float) doubleValue : (object) doubleValue;
 
 			case SQLiteColumnType.Integer:
-				long integerValue = NativeMethods.sqlite3_column_int64(m_statement, ordinal);
+				long integerValue = NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal);
 				return dbType == DbType.Int32 ? (object) (int) integerValue :
 					dbType == DbType.Boolean ? (object) (integerValue != 0) :
 					dbType == DbType.Int16 ? (object) (short) integerValue :
@@ -435,7 +408,7 @@ namespace System.Data.SQLite
 					(object) integerValue;
 
 			case SQLiteColumnType.Text:
-				string stringValue = SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_text(m_statement, ordinal));
+				string stringValue = SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_text(m_currentStatement, ordinal));
 				return dbType == DbType.DateTime ? (object) DateTime.ParseExact(stringValue, s_dateTimeFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None) :
 					(object) stringValue;
 
@@ -544,13 +517,13 @@ namespace System.Data.SQLite
 
 		private void BindBlob(int ordinal, byte[] blob)
 		{
-			NativeMethods.sqlite3_bind_blob(m_statement, ordinal, blob, blob.Length, s_sqliteTransient).ThrowOnError();
+			NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, blob, blob.Length, s_sqliteTransient).ThrowOnError();
 		}
 
 		private void BindText(int ordinal, string text)
 		{
 			byte[] bytes = SQLiteConnection.ToUtf8(text);
-			NativeMethods.sqlite3_bind_text(m_statement, ordinal, bytes, bytes.Length, s_sqliteTransient).ThrowOnError();
+			NativeMethods.sqlite3_bind_text(m_currentStatement, ordinal, bytes, bytes.Length, s_sqliteTransient).ThrowOnError();
 		}
 
 		private static string ToString(DateTime dateTime)
@@ -639,9 +612,9 @@ namespace System.Data.SQLite
 		SQLiteCommand m_command;
 		readonly CommandBehavior m_behavior;
 		readonly int m_startingChanges;
-		readonly byte[] m_commandBytes;
-		SqliteStatementHandle m_statement;
-		int m_bytesUsed;
+		SqliteStatementList m_statements;
+		int m_currentStatementIndex;
+		SqliteStatementHandle m_currentStatement;
 		bool m_hasRead;
 		DbType?[] m_columnType;
 	}
