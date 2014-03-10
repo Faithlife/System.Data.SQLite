@@ -65,6 +65,9 @@ namespace System.Data.SQLite
 		public static extern IntPtr sqlite3_errstr(SQLiteErrorCode rc);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern IntPtr sqlite3_errmsg(SqliteDatabaseHandle db);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_finalize(IntPtr stmt);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
