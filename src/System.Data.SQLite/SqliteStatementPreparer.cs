@@ -53,7 +53,7 @@ namespace System.Data.SQLite
 							break;
 
 						default:
-							throw new SQLiteException(errorCode);
+							throw new SQLiteException(errorCode, m_database);
 						}
 					}
 				}

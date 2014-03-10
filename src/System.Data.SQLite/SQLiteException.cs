@@ -4,14 +4,19 @@ namespace System.Data.SQLite
 {
 	public sealed class SQLiteException : DbException
 	{
-		public SQLiteException(SQLiteErrorCode errorCode)
-			: base(GetErrorString(errorCode), (int) errorCode)
+		public SQLiteException(SQLiteErrorCode errorCode) : this(errorCode, null)
 		{
 		}
 
-		private static string GetErrorString(SQLiteErrorCode errorCode)
+		internal SQLiteException(SQLiteErrorCode errorCode, SqliteDatabaseHandle database)
+			: base(GetErrorString(errorCode, database), (int) errorCode)
 		{
-			return SQLiteConnection.FromUtf8(NativeMethods.sqlite3_errstr(errorCode));
+		}
+
+		private static string GetErrorString(SQLiteErrorCode errorCode, SqliteDatabaseHandle database)
+		{
+			return database != null ? "{0}: {1}".FormatInvariant(SQLiteConnection.FromUtf8(NativeMethods.sqlite3_errstr(errorCode)), SQLiteConnection.FromUtf8(NativeMethods.sqlite3_errmsg(database)))
+				: SQLiteConnection.FromUtf8(NativeMethods.sqlite3_errstr(errorCode));
 		}
 	}
 }
