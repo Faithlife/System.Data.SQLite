@@ -50,6 +50,9 @@ namespace System.Data.SQLite
 		public static extern long sqlite3_column_int64(SqliteStatementHandle stmt, int index);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern IntPtr sqlite3_column_name(SqliteStatementHandle stmt, int index);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern IntPtr sqlite3_column_text(SqliteStatementHandle stmt, int index);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]

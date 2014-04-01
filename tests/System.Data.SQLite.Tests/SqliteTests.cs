@@ -118,6 +118,44 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 			}
 		}
 
+		[Test]
+		public void GetNameAndOrdinal()
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute(@"create table Test (Id integer primary key, String text); insert into Test(Id, String) values(1, 'one'), (2, 'two'), (3, 'three');");
+				using (var cmd = new SQLiteCommand(@"select String, Id from Test", conn))
+				using (var reader = cmd.ExecuteReader())
+				{
+					Assert.AreEqual(2, reader.FieldCount);
+					Assert.AreEqual("String", reader.GetName(0));
+					Assert.AreEqual("Id", reader.GetName(1));
+					Assert.AreEqual(0, reader.GetOrdinal("String"));
+					Assert.AreEqual(0, reader.GetOrdinal("string"));
+					Assert.AreEqual(1, reader.GetOrdinal("ID"));
+					Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetName(3));
+					Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("fail"));
+
+					while (reader.Read())
+					{
+					}
+				}
+			}
+		}
+
+		[Test]
+		public void Dapper()
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute(@"create table Test (Id integer primary key, String text); insert into Test(Id, String) values(1, 'one'), (2, 'two'), (3, 'three');");
+				var results = conn.Query<long>("select Id from Test where length(String) = @len", new { len = 3 }).ToList();
+				CollectionAssert.AreEqual(new long[] { 1, 2 }, results);
+			}
+		}
+
 		[TestCase(0)]
 		[TestCase(1)]
 		[TestCase(2)]

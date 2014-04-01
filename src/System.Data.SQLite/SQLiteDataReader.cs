@@ -278,7 +278,11 @@ namespace System.Data.SQLite
 
 		public override string GetName(int ordinal)
 		{
-			throw new NotSupportedException();
+			VerifyHasResult();
+			if (ordinal < 0 || ordinal > FieldCount)
+				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+
+			return SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_name(m_currentStatement, ordinal)); 
 		}
 
 		public override int GetValues(object[] values)
@@ -326,7 +330,23 @@ namespace System.Data.SQLite
 
 		public override int GetOrdinal(string name)
 		{
-			throw new NotImplementedException();
+			VerifyHasResult();
+
+			if (m_columnNames == null)
+			{
+				var columnNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+				for (int i = 0; i < FieldCount; i++)
+				{
+					string columnName = SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_name(m_currentStatement, i));
+					columnNames[columnName] = i;
+				}
+				m_columnNames = columnNames;
+			}
+
+			int ordinal;
+			if (!m_columnNames.TryGetValue(name, out ordinal))
+				throw new IndexOutOfRangeException("The column name '{0}' does not exist in the result set.".FormatInvariant(name));
+			return ordinal;
 		}
 
 		public override string GetDataTypeName(int ordinal)
@@ -494,13 +514,21 @@ namespace System.Data.SQLite
 			if (m_currentStatement != null)
 				NativeMethods.sqlite3_reset(m_currentStatement);
 			m_currentStatement = null;
+			m_columnNames = null;
 			m_columnType = null;
 			m_hasRead = false;
 		}
 
-		private void VerifyRead()
+		private void VerifyHasResult()
 		{
 			VerifyNotDisposed();
+			if (m_currentStatement == null)
+				throw new InvalidOperationException("There is no current result set.");
+		}
+
+		private void VerifyRead()
+		{
+			VerifyHasResult();
 			if (!m_hasRead)
 				throw new InvalidOperationException("Read must be called first.");
 		}
@@ -613,5 +641,6 @@ namespace System.Data.SQLite
 		SqliteStatementHandle m_currentStatement;
 		bool m_hasRead;
 		DbType?[] m_columnType;
+		Dictionary<string, int> m_columnNames;
 	}
 }
