@@ -4,6 +4,10 @@ The official ADO.NET wrapper for [SQLite](http://sqlite.org/) can be found at [h
 
 This is an independent implementation of the core of ADO.NET: `IDbConnection`, `IDbCommand`, `IDbDataReader`, `IDbTransaction` (plus a few helpers) -- enough types to let you create and query SQLite databases from managed code, including support for libraries such as [Dapper](https://code.google.com/p/dapper-dot-net/).
 
+## Build Status
+
+[![Build status](https://ci.appveyor.com/api/projects/status/jr53ivspp87r1khl)](https://ci.appveyor.com/project/BradleyGrainger/system-data-sqlite)
+
 ## Why?
 
 There are several problems with the official SQLite wrapper that prompted this replacement:
