@@ -1,16 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 2012
 VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite", "src\System.Data.SQLite\System.Data.SQLite.csproj", "{32486A50-1203-4AD4-90FC-685594C4929E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite.Tests", "tests\System.Data.SQLite.Tests\System.Data.SQLite.Tests.csproj", "{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{84E62E5E-EDC1-4B3F-9395-7AF8C276FE9B}"
 	ProjectSection(SolutionItems) = preProject
 		build.ps1 = build.ps1
 	EndProjectSection
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "System.Data.SQLite", "src\System.Data.SQLite\System.Data.SQLite.shproj", "{0376423D-6D15-4593-BCC2-AAB1EBE30A2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite-Net45", "src\System.Data.SQLite-Net45\System.Data.SQLite-Net45.csproj", "{32486A50-1203-4AD4-90FC-685594C4929E}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "System.Data.SQLite.Tests", "tests\System.Data.SQLite.Tests\System.Data.SQLite.Tests.shproj", "{AFDD67F0-9EE9-460D-A8E4-585A5DC21F01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite.Tests-Net45", "tests\System.Data.SQLite.Tests-Net45\System.Data.SQLite.Tests-Net45.csproj", "{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +30,11 @@ Global
 		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = tests\System.Data.SQLite.Tests-Net45\System.Data.SQLite.Tests-Net45.csproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

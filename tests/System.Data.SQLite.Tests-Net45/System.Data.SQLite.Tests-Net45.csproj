@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems" Label="Shared" Condition="Exists('..\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -17,15 +18,14 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -48,20 +48,9 @@
     <Compile Include="..\..\SolutionVersion.cs">
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqliteCommandTests.cs" />
-    <Compile Include="SQLiteConnectionStringBuilderTests.cs" />
-    <Compile Include="SqliteTests.cs" />
-    <Compile Include="SqliteTransactionTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\System.Data.SQLite\System.Data.SQLite.csproj">
-      <Project>{32486a50-1203-4ad4-90fc-685594c4929e}</Project>
-      <Name>System.Data.SQLite</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\lib\x64\SQLite.Interop.dll">
@@ -77,4 +66,10 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\System.Data.SQLite-Net45\System.Data.SQLite-Net45.csproj">
+      <Project>{32486A50-1203-4AD4-90FC-685594C4929E}</Project>
+      <Name>System.Data.SQLite-Net45</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
