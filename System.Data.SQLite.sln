@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{84E62E5E-EDC1-4B3F-9395-7AF8C276FE9B}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,27 +16,77 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "System.Data.SQLite.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite.Tests-Net45", "tests\System.Data.SQLite.Tests-Net45\System.Data.SQLite.Tests-Net45.csproj", "{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite-MonoTouch", "src\System.Data.SQLite-MonoTouch\System.Data.SQLite-MonoTouch.csproj", "{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite.Tests-MonoTouch", "tests\System.Data.SQLite.Tests-MonoTouch\System.Data.SQLite.Tests-MonoTouch.csproj", "{20215817-078C-4F27-8D72-B016F07DD079}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		tests\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems*{20215817-078c-4f27-8d72-b016f07dd079}*SharedItemsImports = 4
+		src\System.Data.SQLite\System.Data.SQLite.projitems*{0376423d-6d15-4593-bcc2-aab1ebe30a2f}*SharedItemsImports = 13
+		src\System.Data.SQLite\System.Data.SQLite.projitems*{521b6886-fdac-4b62-a1af-81e80e43c9d3}*SharedItemsImports = 4
+		src\System.Data.SQLite\System.Data.SQLite.projitems*{32486a50-1203-4ad4-90fc-685594c4929e}*SharedItemsImports = 4
+		tests\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems*{afdd67f0-9ee9-460d-a8e4-585a5dc21f01}*SharedItemsImports = 13
+		tests\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems*{b1fd79a7-4ef7-4a16-b7ca-827d14ed02e8}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|iPhone = Debug|iPhone
+		Debug|iPhoneSimulator = Debug|iPhoneSimulator
 		Release|Any CPU = Release|Any CPU
+		Release|iPhone = Release|iPhone
+		Release|iPhoneSimulator = Release|iPhoneSimulator
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{32486A50-1203-4AD4-90FC-685594C4929E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{32486A50-1203-4AD4-90FC-685594C4929E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32486A50-1203-4AD4-90FC-685594C4929E}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{32486A50-1203-4AD4-90FC-685594C4929E}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
 		{32486A50-1203-4AD4-90FC-685594C4929E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32486A50-1203-4AD4-90FC-685594C4929E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32486A50-1203-4AD4-90FC-685594C4929E}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{32486A50-1203-4AD4-90FC-685594C4929E}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
 		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = tests\System.Data.SQLite.Tests-Net45\System.Data.SQLite.Tests-Net45.csproj
+		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{B1FD79A7-4EF7-4A16-B7CA-827D14ED02E8}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Release|iPhone.Build.0 = Release|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{20215817-078C-4F27-8D72-B016F07DD079}.Debug|Any CPU.ActiveCfg = Debug|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Debug|Any CPU.Build.0 = Debug|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Debug|iPhone.Build.0 = Debug|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Debug|iPhone.Deploy.0 = Debug|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{20215817-078C-4F27-8D72-B016F07DD079}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{20215817-078C-4F27-8D72-B016F07DD079}.Debug|iPhoneSimulator.Deploy.0 = Debug|iPhoneSimulator
+		{20215817-078C-4F27-8D72-B016F07DD079}.Release|Any CPU.ActiveCfg = Release|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Release|Any CPU.Build.0 = Release|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Release|iPhone.ActiveCfg = Release|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Release|iPhone.Build.0 = Release|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Release|iPhone.Deploy.0 = Release|iPhone
+		{20215817-078C-4F27-8D72-B016F07DD079}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{20215817-078C-4F27-8D72-B016F07DD079}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+		{20215817-078C-4F27-8D72-B016F07DD079}.Release|iPhoneSimulator.Deploy.0 = Release|iPhoneSimulator
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = tests\System.Data.SQLite.Tests-MonoTouch\System.Data.SQLite.Tests-MonoTouch.csproj
 	EndGlobalSection
 EndGlobal

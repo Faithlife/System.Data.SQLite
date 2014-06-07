@@ -41,6 +41,9 @@ namespace System.Data.SQLite
 		public static extern SQLiteErrorCode sqlite3_bind_text(SqliteStatementHandle stmt, int ordinal, byte[] value, int count, IntPtr free);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern SQLiteErrorCode sqlite3_close(IntPtr db);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_close_v2(IntPtr db);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
@@ -112,7 +115,11 @@ namespace System.Data.SQLite
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern int sqlite3_total_changes(SqliteDatabaseHandle db);
 
+#if NET45
 		const string c_dllName = "SQLite.Interop.dll";
+#else
+		const string c_dllName = "sqlite3";
+#endif
 		const CallingConvention c_callingConvention = CallingConvention.Cdecl;
 	}
 

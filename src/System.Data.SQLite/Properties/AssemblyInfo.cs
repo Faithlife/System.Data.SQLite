@@ -11,3 +11,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: InternalsVisibleTo("System.Data.SQLite.Tests")]
+[assembly: InternalsVisibleTo("SystemDataSQLiteTestsMonoTouch")]

@@ -32,6 +32,9 @@
 			NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
 		}
 
+#if MONOTOUCH
+		[MonoTouch.MonoPInvokeCallback(typeof(SQLiteLogCallback))]
+#endif
 		static void LogCallback(IntPtr pUserData, int errorCode, IntPtr pMessage)
 		{
 			lock (s_lock)

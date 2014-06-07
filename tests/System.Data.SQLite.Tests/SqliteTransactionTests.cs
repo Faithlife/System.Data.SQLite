@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Threading;
+#if NET45
 using Dapper;
+#endif
 using NUnit.Framework;
 
 namespace System.Data.SQLite.Tests
@@ -113,10 +115,10 @@ namespace System.Data.SQLite.Tests
 				conn.Open();
 				using (var trans = conn.BeginTransaction())
 				{
-					conn.ExecuteNonQuery(trans, "select Id from Test");
+					conn.Execute("select Id from Test", transaction: trans);
 					barrier.SignalAndWait();
 
-					conn.ExecuteNonQuery(trans, "update Test set Id = 2;");
+					conn.Execute("update Test set Id = 2;", transaction: trans);
 					barrier.SignalAndWait();
 
 					// give the other thread time to attempt begin the transaction, which will hang if both threads
@@ -139,8 +141,8 @@ namespace System.Data.SQLite.Tests
 
 				using (var trans = conn.BeginTransaction())
 				{
-					conn.ExecuteNonQuery(trans, "select Id from Test");
-					conn.ExecuteNonQuery(trans, "update Test set Id = 3;");
+					conn.Execute("select Id from Test", transaction: trans);
+					conn.Execute("update Test set Id = 3;", transaction: trans);
 					trans.Commit();
 				}
 			}
