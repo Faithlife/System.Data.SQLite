@@ -44,12 +44,21 @@ namespace System.Data.SQLite
 			bool success = false;
 			try
 			{
-				foreach (SQLiteParameter parameter in m_command.Parameters)
+				for (int i = 0; i < m_command.Parameters.Count; i++)
 				{
+					SQLiteParameter parameter = m_command.Parameters[i];
 					string parameterName = parameter.ParameterName;
-					if (parameterName[0] != '@')
-						parameterName = "@" + parameterName;
-					int index = NativeMethods.sqlite3_bind_parameter_index(m_currentStatement, SQLiteConnection.ToUtf8(parameterName));
+					int index;
+					if (parameterName != null)
+					{
+						if (parameterName[0] != '@')
+							parameterName = "@" + parameterName;
+						index = NativeMethods.sqlite3_bind_parameter_index(m_currentStatement, SQLiteConnection.ToUtf8(parameterName));
+					}
+					else
+					{
+						index = i + 1;
+					}
 					if (index > 0)
 					{
 						object value = parameter.Value;

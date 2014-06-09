@@ -134,6 +134,12 @@ namespace System.Data.SQLite
 			get { throw new NotSupportedException(); }
 		}
 
+		public new SQLiteParameter this[int index]
+		{
+			get { return m_parameters[index]; }
+			set { m_parameters[index] = value; }
+		}
+
 		readonly List<SQLiteParameter> m_parameters;
 	}
 }

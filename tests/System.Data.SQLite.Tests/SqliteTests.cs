@@ -167,6 +167,27 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 		}
 
 		[Test]
+		public void IndexedParameters()
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute(@"create table Test (Id integer primary key, String text);");
+				using (var cmd = new SQLiteCommand(@"insert into Test(Id, String) values(?, ?)", conn))
+				{
+					cmd.Parameters.Add(new SQLiteParameter { DbType = DbType.Int32, Value = 1 });
+					cmd.Parameters.Add(new SQLiteParameter { DbType = DbType.String, Value = "test" });
+					cmd.ExecuteNonQuery();
+				}
+				using (var reader = conn.ExecuteReader(@"select String from Test where Id = 1"))
+				{
+					Assert.IsTrue(reader.Read());
+					Assert.AreEqual("test", reader.GetString(0));
+				}
+			}
+		}
+
+		[Test]
 		public void Dapper()
 		{
 			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
