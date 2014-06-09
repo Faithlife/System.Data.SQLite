@@ -29,6 +29,8 @@
     <ConsolePause>false</ConsolePause>
     <DefineConstants>MONOTOUCH;MONO</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
