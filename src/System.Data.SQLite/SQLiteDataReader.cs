@@ -53,7 +53,7 @@ namespace System.Data.SQLite
 					{
 						if (parameterName[0] != '@')
 							parameterName = "@" + parameterName;
-						index = NativeMethods.sqlite3_bind_parameter_index(m_currentStatement, SQLiteConnection.ToUtf8(parameterName));
+						index = NativeMethods.sqlite3_bind_parameter_index(m_currentStatement, SQLiteConnection.ToNullTerminatedUtf8(parameterName));
 					}
 					else
 					{
