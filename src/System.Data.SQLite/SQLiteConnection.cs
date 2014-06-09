@@ -261,6 +261,11 @@ namespace System.Data.SQLite
 					length++;
 			}
 
+			return FromUtf8(ptr, length);
+		}
+
+		internal static string FromUtf8(IntPtr ptr, int length)
+		{
 			byte[] bytes = new byte[length];
 			Marshal.Copy(ptr, bytes, 0, length);
 			return Encoding.UTF8.GetString(bytes);
