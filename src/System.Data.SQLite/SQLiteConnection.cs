@@ -78,7 +78,7 @@ namespace System.Data.SQLite
 			Match m = s_vfsRegex.Match(dataSource);
 			string fileName = m.Groups["fileName"].Value;
 			string vfsName = m.Groups["vfsName"].Value;
-			var errorCode = NativeMethods.sqlite3_open_v2(ToUtf8(fileName), out m_db, openFlags, string.IsNullOrEmpty(vfsName) ? null : ToUtf8(vfsName));
+			var errorCode = NativeMethods.sqlite3_open_v2(ToNullTerminatedUtf8(fileName), out m_db, openFlags, string.IsNullOrEmpty(vfsName) ? null : ToNullTerminatedUtf8(vfsName));
 
 			bool success = false;
 			try
@@ -240,6 +240,15 @@ namespace System.Data.SQLite
 		internal static byte[] ToUtf8(string value)
 		{
 			return Encoding.UTF8.GetBytes(value);
+		}
+
+		internal static byte[] ToNullTerminatedUtf8(string value)
+		{
+			var encoding = Encoding.UTF8;
+			int len = encoding.GetByteCount(value);
+			byte[] bytes = new byte[len + 1];
+			encoding.GetBytes(value, 0, value.Length, bytes, 0);
+			return bytes;
 		}
 
 		internal static string FromUtf8(IntPtr ptr)
