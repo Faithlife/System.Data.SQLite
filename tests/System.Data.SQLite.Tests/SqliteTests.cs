@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using Dapper;
 #endif
 using NUnit.Framework;
+#if NETFX_CORE
+using Windows.Storage;
+#endif
 
 namespace System.Data.SQLite.Tests
 {
@@ -17,7 +20,11 @@ namespace System.Data.SQLite.Tests
 		[SetUp]
 		public void SetUp()
 		{
+#if NETFX_CORE
+			m_path = Path.GetRandomFileName();
+#else
 			m_path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+#endif
 			m_csb = new SQLiteConnectionStringBuilder { DataSource = m_path };
 		}
 
@@ -203,6 +210,7 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 		}
 #endif
 
+#if !NETFX_CORE
 		[TestCase(0)]
 		[TestCase(1)]
 		[TestCase(2)]
@@ -236,6 +244,7 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 				}
 			}
 		}
+#endif
 
 		[Test]
 #if MONOANDROID

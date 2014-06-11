@@ -20,3 +20,4 @@ Thumbs.db
 *.pidb
 StyleCop.Cache
 *.userprefs
+AppPackages/

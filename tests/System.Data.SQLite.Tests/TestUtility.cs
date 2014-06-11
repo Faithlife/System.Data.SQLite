@@ -1,4 +1,5 @@
 ﻿using System.Data.SQLite;
+using System.Reflection;
 
 namespace System.Data.SQLite.Tests
 {
@@ -29,7 +30,7 @@ namespace System.Data.SQLite.Tests
 			command.Transaction = transaction;
 			if (parameters != null)
 			{
-				foreach (var prop in parameters.GetType().GetProperties())
+				foreach (var prop in parameters.GetType().GetTypeInfo().DeclaredProperties)
 				{
 					var param = command.CreateParameter();
 					param.ParameterName = prop.Name;

@@ -13,7 +13,11 @@ namespace System.Data.SQLite.Tests
 		[SetUp]
 		public void SetUp()
 		{
+#if NETFX_CORE
+			m_path = Path.GetRandomFileName();
+#else
 			m_path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+#endif
 			m_csb = new SQLiteConnectionStringBuilder { DataSource = m_path, JournalMode = SQLiteJournalModeEnum.Truncate };
 
 			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
@@ -83,6 +87,7 @@ namespace System.Data.SQLite.Tests
 			}
 		}
 
+#if !NETFX_CORE
 		[Test, Timeout(5000)]
 		public void OverlappingTransactions()
 		{
@@ -147,6 +152,7 @@ namespace System.Data.SQLite.Tests
 				}
 			}
 		}
+#endif
 
 		string m_path;
 		SQLiteConnectionStringBuilder m_csb;
