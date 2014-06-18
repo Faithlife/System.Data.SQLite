@@ -36,7 +36,6 @@
   </PropertyGroup>
   <Import Project="..\System.Data.SQLite\System.Data.SQLite.projitems" Label="Shared" Condition="Exists('..\System.Data.SQLite\System.Data.SQLite.projitems')" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <ItemGroup />
   <ItemGroup>
     <Compile Include="..\..\SolutionVersion.cs">
       <Link>Properties\SolutionVersion.cs</Link>
@@ -45,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Portable.Data">
-      <HintPath>..\..\packages\Logos.PclContrib.Portable.Data.0.1.0.0\lib\portable-net4+sl5+netcore45+wp8+MonoAndroid1+MonoTouch1\Portable.Data.dll</HintPath>
+      <HintPath>..\..\packages\Logos.PclContrib.Portable.Data.0.1.1.0\lib\portable-net4+sl5+netcore45+wp8+MonoAndroid1+MonoTouch1\Portable.Data.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

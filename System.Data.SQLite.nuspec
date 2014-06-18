@@ -10,7 +10,7 @@
     <copyright>Copyright 2014 Faithlife / Logos Bible Software</copyright>
     <dependencies>
       <group targetFramework="portable-net45+win+wp8+MonoAndroid+MonoTouch">
-        <dependency id="Logos.PclContrib.Portable.Data" version="0.1" />
+        <dependency id="Logos.PclContrib.Portable.Data" version="0.1.1" />
       </group>
     </dependencies>
   </metadata>

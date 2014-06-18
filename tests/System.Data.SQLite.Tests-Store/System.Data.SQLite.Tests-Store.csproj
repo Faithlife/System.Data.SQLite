@@ -159,7 +159,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Portable.Data">
-      <HintPath>..\..\packages\Logos.PclContrib.Portable.Data.0.1.0.0\lib\portable-net4+sl5+netcore45+wp8+MonoAndroid1+MonoTouch1\Portable.Data.dll</HintPath>
+      <HintPath>..\..\packages\Logos.PclContrib.Portable.Data.0.1.1.0\lib\portable-net4+sl5+netcore45+wp8+MonoAndroid1+MonoTouch1\Portable.Data.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
