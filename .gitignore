@@ -21,3 +21,4 @@ Thumbs.db
 StyleCop.Cache
 *.userprefs
 AppPackages/
+.DS_Store
