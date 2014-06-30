@@ -44,6 +44,7 @@
     <Compile Include="..\..\SolutionVersion.cs">
       <Link>Properties\SolutionVersion.cs</Link>
     </Compile>
+    <Compile Include="SqliteBackupHandle.cs" />
     <Compile Include="SqliteStatementPreparer.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="LogEventArgs.cs" />

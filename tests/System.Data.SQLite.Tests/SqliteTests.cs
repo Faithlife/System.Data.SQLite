@@ -285,6 +285,23 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 			}
 		}
 
+		[Test]
+		public void BackUpDatabase()
+		{
+			using (SQLiteConnection disk = new SQLiteConnection(m_csb.ConnectionString))
+			using (SQLiteConnection memory = new SQLiteConnection("Data Source=:memory:"))
+			{
+				disk.Open();
+				disk.Execute(@"create table Test (Id integer primary key, String text); insert into Test(Id, String) values(1, 'one'), (2, 'two'), (3, 'three');");
+
+				memory.Open();
+				disk.BackupDatabase(memory, "main", "main", -1, null, 0);
+				
+				var results = memory.Query<long>("select Id from Test where length(String) = @len", new { len = 3 }).ToList();
+				CollectionAssert.AreEqual(new long[] { 1, 2 }, results);
+			}
+		}
+
 		// these test cases illustrate the type conversions allowed by this wrapper; the extra conversions permitted by the official System.Data.SQLite wrapper are given in the comments following each test case
 		[TestCase("bool", false, "Boolean", false)] // System.Data.SQLite: "Byte", (byte) 0, "Double", 0.0, "Float", 0.0f, "Int16", (short) 0, "Int32", 0, "Int64", 0L
 		[TestCase("bool", true, "Boolean", true)] // System.Data.SQLite: "Byte", (byte) 1, "Double", 1.0, "Float", 1.0f, "Int16", (short) 1, "Int32", 1, "Int64", 1L

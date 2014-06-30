@@ -5,6 +5,21 @@ namespace System.Data.SQLite
 	internal static class NativeMethods
 	{
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern SqliteBackupHandle sqlite3_backup_init(SqliteDatabaseHandle pDest, byte[] zDestName, SqliteDatabaseHandle pSource, byte[] zSourceName);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern SQLiteErrorCode sqlite3_backup_step(SqliteBackupHandle p, int nPage);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern SQLiteErrorCode sqlite3_backup_finish(IntPtr p);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern int sqlite3_backup_remaining(SqliteBackupHandle p);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern int sqlite3_backup_pagecount(SqliteBackupHandle p);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_bind_blob(SqliteStatementHandle stmt, int ordinal, byte[] value, int count, IntPtr free);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
@@ -65,10 +80,13 @@ namespace System.Data.SQLite
 		public static extern int sqlite3_db_readonly(SqliteDatabaseHandle db, [MarshalAs(UnmanagedType.LPStr)] string zDbName);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
-		public static extern IntPtr sqlite3_errstr(SQLiteErrorCode rc);
+		public static extern SQLiteErrorCode sqlite3_errcode(SqliteDatabaseHandle db);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern IntPtr sqlite3_errmsg(SqliteDatabaseHandle db);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern IntPtr sqlite3_errstr(SQLiteErrorCode rc);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_finalize(IntPtr stmt);

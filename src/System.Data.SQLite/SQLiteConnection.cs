@@ -176,6 +176,61 @@ namespace System.Data.SQLite
 			get { throw new NotSupportedException(); }
 		}
 
+		/// <summary>Backs up the database, using the specified database connection as the destination.</summary>
+		/// <param name="destination">The destination database connection.</param>
+		/// <param name="destinationName">The destination database name (usually <c>"main"</c>).</param>
+		/// <param name="sourceName">The source database name (usually <c>"main"</c>).</param>
+		/// <param name="pages">The number of pages to copy, or negative to copy all remaining pages.</param>
+		/// <param name="callback">The method to invoke between each step of the backup process.  This
+		/// parameter may be <c>null</c> (i.e., no callbacks will be performed).</param>
+		/// <param name="retryMilliseconds">The number of milliseconds to sleep after encountering a locking error
+		/// during the backup process.  A value less than zero means that no sleep should be performed.</param>
+		public void BackupDatabase(SQLiteConnection destination, string destinationName, string sourceName, int pages, SQLiteBackupCallback callback, int retryMilliseconds)
+		{
+			VerifyNotDisposed();
+			if (m_connectionState != ConnectionState.Open)
+				throw new InvalidOperationException("Source database is not open.");
+			if (destination == null)
+				throw new ArgumentNullException("destination");
+			if (destination.m_connectionState != ConnectionState.Open)
+				throw new ArgumentException("Destination database is not open.", "destination");
+			if (destinationName == null)
+				throw new ArgumentNullException("destinationName");
+			if (sourceName == null)
+				throw new ArgumentNullException("sourceName");
+			if (pages == 0)
+				throw new ArgumentException("pages must not be 0.", "pages");
+
+			using (SqliteBackupHandle backup = NativeMethods.sqlite3_backup_init(destination.m_db, ToNullTerminatedUtf8(destinationName), m_db, ToNullTerminatedUtf8(sourceName)))
+			{
+				if (backup == null)
+					throw new SQLiteException(NativeMethods.sqlite3_errcode(m_db), m_db);
+
+				while (true)
+				{
+					SQLiteErrorCode error = NativeMethods.sqlite3_backup_step(backup, pages);
+
+					if (error == SQLiteErrorCode.Done)
+					{
+						break;
+					}
+					else if (error == SQLiteErrorCode.Ok || error == SQLiteErrorCode.Busy || error == SQLiteErrorCode.Locked)
+					{
+						bool retry = error != SQLiteErrorCode.Ok;
+						if (callback != null && !callback(this, sourceName, destination, destinationName, pages, NativeMethods.sqlite3_backup_remaining(backup), NativeMethods.sqlite3_backup_pagecount(backup), retry))
+							break;
+
+						if (retry && retryMilliseconds > 0)
+							Thread.Sleep(retryMilliseconds);
+					}
+					else
+					{
+						throw new SQLiteException(error, m_db);
+					}
+				}
+			}
+		}
+
 		protected override DbProviderFactory DbProviderFactory
 		{
 			get { throw new NotSupportedException(); }
@@ -294,4 +349,18 @@ namespace System.Data.SQLite
 		ConnectionState m_connectionState;
 		bool m_isDisposed;
 	}
+
+	/// <summary>
+	/// Raised between each backup step.
+	/// </summary>
+	/// <param name="source">The source database connection.</param>
+	/// <param name="sourceName">The source database name.</param>
+	/// <param name="destination">The destination database connection.</param>
+	/// <param name="destinationName">The destination database name.</param>
+	/// <param name="pages">The number of pages copied with each step.</param>
+	/// <param name="remainingPages">The number of pages remaining to be copied.</param>
+	/// <param name="totalPages">The total number of pages in the source database.</param>
+	/// <param name="retry">Set to true if the operation needs to be retried due to database locking issues; otherwise, set to false.</param>
+	/// <returns><c>true</c> to continue with the backup process; otherwise  <c>false</c> to halt the backup process, rolling back any changes that have been made so far.</returns>
+	public delegate bool SQLiteBackupCallback(SQLiteConnection source, string sourceName, SQLiteConnection destination, string destinationName, int pages, int remainingPages, int totalPages, bool retry);
 }
