@@ -2,13 +2,15 @@
 
 namespace System.Data.SQLite
 {
-	internal sealed class SqliteDatabaseHandle : CriticalHandleZeroOrMinusOneIsInvalid
+	internal sealed class SqliteDatabaseHandle : SafeHandleZeroOrMinusOneIsInvalid
 	{
 		public SqliteDatabaseHandle()
+			: base(ownsHandle: true)
 		{
 		}
 
 		public SqliteDatabaseHandle(IntPtr handle)
+			: base(ownsHandle: true)
 		{
 			SetHandle(handle);
 		}

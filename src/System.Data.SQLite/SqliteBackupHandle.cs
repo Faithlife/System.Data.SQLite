@@ -2,9 +2,10 @@
 
 namespace System.Data.SQLite
 {
-	internal sealed class SqliteBackupHandle : CriticalHandleZeroOrMinusOneIsInvalid
+	internal sealed class SqliteBackupHandle : SafeHandleZeroOrMinusOneIsInvalid
 	{
 		public SqliteBackupHandle()
+			: base(ownsHandle: true)
 		{
 		}
 
