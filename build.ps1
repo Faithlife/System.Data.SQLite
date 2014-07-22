@@ -5,6 +5,7 @@ properties {
 Task Default -depends NuGetPack
 
 Task Build {
+  Exec { nuget restore }
   Exec { msbuild /m:4 /property:Configuration=$configuration System.Data.SQLite.sln }
 }
 
