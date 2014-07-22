@@ -1,0 +1,4 @@
+tests:
+  assemblies:
+    - *\tests\System.Data.SQLite.Tests-Net45\bin\$(configuration)\System.Data.SQLite.Tests.dll
+
