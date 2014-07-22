@@ -1,11 +1,12 @@
-﻿using System.Data.SQLite;
+﻿using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Reflection;
+using NUnit.Framework;
 
 namespace System.Data.SQLite.Tests
 {
 	internal static class TestUtility
 	{
-#if !NET45
 		public static int Execute(this IDbConnection connection, string commandText, object parameters = null, IDbTransaction transaction = null)
 		{
 			using (var command = connection.CreateCommand())
@@ -24,6 +25,12 @@ namespace System.Data.SQLite.Tests
 			}
 		}
 
+		public static IEnumerable<T> ReadAll<T>(this IDataReader reader)
+		{
+			while (reader.Read())
+				yield return (T) reader.GetValue(0);
+		}
+
 		static void SetupCommand(IDbCommand command, string commandText, object parameters, IDbTransaction transaction)
 		{
 			command.CommandText = commandText;
@@ -39,6 +46,5 @@ namespace System.Data.SQLite.Tests
 				}
 			}
 		}
-#endif
 	}
 }
