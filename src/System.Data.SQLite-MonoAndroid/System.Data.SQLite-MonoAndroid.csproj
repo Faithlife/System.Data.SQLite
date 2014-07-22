@@ -47,8 +47,8 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <Import Project="..\System.Data.SQLite\System.Data.SQLite.projitems" Label="Shared" Condition="Exists('..\System.Data.SQLite\System.Data.SQLite.projitems')" />
-  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
-  <ItemGroup />
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" Condition="Exists('$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets')" />
+  <Import Project="..\..\Xamarin.NotInstalled.targets" Condition="!Exists('$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets')" />
   <ItemGroup>
     <Compile Include="..\..\SolutionVersion.cs">
       <Link>Properties\SolutionVersion.cs</Link>

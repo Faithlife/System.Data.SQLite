@@ -62,12 +62,12 @@
     <AndroidResource Include="Resources\drawable\Icon.png" />
   </ItemGroup>
   <Import Project="..\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems" Label="Shared" Condition="Exists('..\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems')" />
-  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" Condition="Exists('$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets')" />
+  <Import Project="..\..\Xamarin.NotInstalled.targets" Condition="!Exists('$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets')" />
   <ItemGroup>
     <ProjectReference Include="..\..\src\System.Data.SQLite-MonoAndroid\System.Data.SQLite-MonoAndroid.csproj">
       <Project>{FA808549-DA0D-49C3-A28E-012B4D953026}</Project>
       <Name>System.Data.SQLite-MonoAndroid</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
 </Project>

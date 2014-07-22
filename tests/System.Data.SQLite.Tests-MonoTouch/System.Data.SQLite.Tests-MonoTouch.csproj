@@ -113,7 +113,8 @@
     </Compile>
   </ItemGroup>
   <Import Project="..\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems" Label="Shared" Condition="Exists('..\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems')" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" Condition="Exists('$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets')" />
+  <Import Project="..\..\Xamarin.NotInstalled.targets" Condition="!Exists('$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets')" />
   <ItemGroup>
     <ProjectReference Include="..\..\src\System.Data.SQLite-MonoTouch\System.Data.SQLite-MonoTouch.csproj">
       <Project>{521B6886-FDAC-4B62-A1AF-81E80E43C9D3}</Project>
