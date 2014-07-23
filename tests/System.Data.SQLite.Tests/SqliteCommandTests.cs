@@ -9,7 +9,11 @@ namespace System.Data.SQLite.Tests
 		[SetUp]
 		public void SetUp()
 		{
+#if NETFX_CORE
+			m_path = Path.GetRandomFileName();
+#else
 			m_path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+#endif
 			m_csb = new SQLiteConnectionStringBuilder { DataSource = m_path, JournalMode = SQLiteJournalModeEnum.Truncate };
 		}
 

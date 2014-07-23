@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{0376423D-6D15-4593-BCC2-AAB1EBE30A2F}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>System.Data.SQLite</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)LogEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NativeMethods.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SqliteBackupHandle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteColumnType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteConnection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteConnectionStringBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteDataReader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteErrorCode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteException.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteLog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteOpenFlags.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteParameter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteParameterCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SQLiteTransaction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SqliteDatabaseHandle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SqliteStatementHandle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SqliteStatementPreparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+</Project>

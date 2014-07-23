@@ -82,7 +82,9 @@ namespace System.Data.SQLite
 
 		protected override DbTransaction DbTransaction { get; set; }
 
+#if !PORTABLE
 		public override bool DesignTimeVisible { get; set; }
+#endif
 
 		public override void Cancel()
 		{
@@ -134,6 +136,7 @@ namespace System.Data.SQLite
 			return null;
 		}
 
+#if !PORTABLE
 		public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
 		{
 			using (var reader = await ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
@@ -167,6 +170,7 @@ namespace System.Data.SQLite
 			}
 			return null;
 		}
+#endif
 
 		protected override void Dispose(bool disposing)
 		{
@@ -181,6 +185,7 @@ namespace System.Data.SQLite
 			}
 		}
 
+#if !PORTABLE
 		protected override object GetService(Type service)
 		{
 			throw new NotSupportedException();
@@ -190,6 +195,7 @@ namespace System.Data.SQLite
 		{
 			get { return false; }
 		}
+#endif
 
 		internal SqliteStatementPreparer GetStatementPreparer()
 		{
