@@ -103,6 +103,17 @@ namespace System.Data.SQLite.Tests
 			Assert.AreEqual(expected, csb.JournalMode);
 		}
 
+		[TestCase("1048576", 1048576)]
+		[TestCase("4294967296", 4294967296L)]
+		[TestCase("FALSE", 0, ExpectedException = typeof(FormatException))]
+		[TestCase(null, 0)]
+		[TestCase("", 0)]
+		public void MmapSize(string text, long expected)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "_MmapSize=" + text };
+			Assert.AreEqual(expected, csb.MmapSize);
+		}
+
 		[TestCase("1024", 1024)]
 		[TestCase("4096", 4096)]
 		[TestCase("FALSE", 0, ExpectedException = typeof(FormatException))]

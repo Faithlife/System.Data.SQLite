@@ -105,6 +105,9 @@ namespace System.Data.SQLite
 				if (connectionStringBuilder.PageSize != 0)
 					this.ExecuteNonQuery("pragma page_size={0}".FormatInvariant(connectionStringBuilder.PageSize));
 
+				if (connectionStringBuilder.ContainsKey(SQLiteConnectionStringBuilder.MmapSizeKey))
+					this.ExecuteNonQuery("pragma mmap_size={0}".FormatInvariant(connectionStringBuilder.MmapSize));
+
 				if (connectionStringBuilder.ForeignKeys)
 					this.ExecuteNonQuery("pragma foreign_keys = on");
 

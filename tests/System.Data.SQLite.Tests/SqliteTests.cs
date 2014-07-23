@@ -14,9 +14,17 @@ using Windows.Storage;
 
 namespace System.Data.SQLite.Tests
 {
-	[TestFixture]
+	[TestFixture(0)]
+	[TestFixture(1073741824)]
 	public class SqliteTests
 	{
+		readonly int m_mmapSize;
+
+		public SqliteTests(int mmapSize)
+		{
+			m_mmapSize = mmapSize;
+		}
+
 		[SetUp]
 		public void SetUp()
 		{
@@ -25,7 +33,7 @@ namespace System.Data.SQLite.Tests
 #else
 			m_path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 #endif
-			m_csb = new SQLiteConnectionStringBuilder { DataSource = m_path };
+			m_csb = new SQLiteConnectionStringBuilder { DataSource = m_path, MmapSize = m_mmapSize };
 		}
 
 		[TearDown]

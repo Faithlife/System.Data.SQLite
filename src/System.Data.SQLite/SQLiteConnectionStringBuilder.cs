@@ -116,6 +116,25 @@ namespace System.Data.SQLite
 		internal const string JournalModeKey = "Journal Mode";
 
 		/// <summary>
+		/// Gets/sets the maximum size of memory-mapped I/O for this connection.
+		/// </summary>
+		/// <remarks>See <a href="http://www.sqlite.org/mmap.html">Memory-Mapped I/O</a>.</remarks>
+		public long MmapSize
+		{
+			get
+			{
+				object value;
+				TryGetValue(MmapSizeKey, out value);
+				return Convert.ToInt64(value, CultureInfo.InvariantCulture);
+			}
+			set
+			{
+				this[MmapSizeKey] = value;
+			}
+		}
+		internal const string MmapSizeKey = "_MmapSize";
+
+		/// <summary>
 		/// Gets/Sets the page size for the connection.
 		/// </summary>
 		public int PageSize
