@@ -12,13 +12,17 @@
       <group targetFramework="portable-net45+win+wp8+MonoAndroid+MonoTouch">
         <dependency id="Logos.PclContrib.Portable.Data" version="0.1.1" />
       </group>
+      <group targetFramework="net45"></group>
+      <group targetFramework="MonoMac"></group>
+      <group targetFramework="MonoAndroid"></group>
+      <group targetFramework="MonoTouch"></group>
     </dependencies>
   </metadata>
   <files>   
     <file src="src\System.Data.SQLite-Portable\bin\$configuration$\System.Data.SQLite.*" target="lib\portable-net45+win+wp8+MonoAndroid+MonoTouch\" />
     <file src="src\System.Data.SQLite-Net45\bin\$configuration$\System.Data.SQLite.*" target="lib\Net45\" />
     <file src="src\System.Data.SQLite-Mac\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoMac\" />
-    <file src="src\System.Data.SQLite-MonoAndroid\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoAndroid\" />
-    <file src="src\System.Data.SQLite-MonoTouch\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoTouch\" />
+    <file src="src\System.Data.SQLite-MonoAndroid\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoAndroid\" exclude="**\*.mdb" />
+    <file src="src\System.Data.SQLite-MonoTouch\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoTouch\" exclude="**\*.mdb" />
   </files>
 </package>
