@@ -1,0 +1,10 @@
+platform: AnyCPU
+
+configuration: Release
+ 
+before_build: nuget restore
+
+test:
+  assemblies:
+    - tests\System.Data.SQLite.Tests-Net45\bin\$(configuration)\System.Data.SQLite.Tests.dll
+

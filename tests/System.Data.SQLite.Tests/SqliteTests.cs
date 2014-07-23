@@ -4,8 +4,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+#if NET45
 using Dapper;
+#endif
 using NUnit.Framework;
+#if NETFX_CORE
+using Windows.Storage;
+#endif
 
 namespace System.Data.SQLite.Tests
 {
@@ -15,7 +20,11 @@ namespace System.Data.SQLite.Tests
 		[SetUp]
 		public void SetUp()
 		{
+#if NETFX_CORE
+			m_path = Path.GetRandomFileName();
+#else
 			m_path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+#endif
 			m_csb = new SQLiteConnectionStringBuilder { DataSource = m_path };
 		}
 
@@ -166,6 +175,7 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 			}
 		}
 
+#if NET45
 		[Test]
 		public void IndexedParameters()
 		{
@@ -198,7 +208,9 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 				CollectionAssert.AreEqual(new long[] { 1, 2 }, results);
 			}
 		}
+#endif
 
+#if !NETFX_CORE
 		[TestCase(0)]
 		[TestCase(1)]
 		[TestCase(2)]
@@ -232,8 +244,12 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 				}
 			}
 		}
+#endif
 
 		[Test]
+#if MONOANDROID
+		[Ignore]
+#endif
 		public void SubscribeUnsubscribeLog()
 		{
 			int logCount = 0;
@@ -296,9 +312,12 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 
 				memory.Open();
 				disk.BackupDatabase(memory, "main", "main", -1, null, 0);
-				
-				var results = memory.Query<long>("select Id from Test where length(String) = @len", new { len = 3 }).ToList();
-				CollectionAssert.AreEqual(new long[] { 1, 2 }, results);
+
+				using (var reader = memory.ExecuteReader("select Id from Test where length(String) = @len", new { len = 3 }))
+				{
+					var results = reader.ReadAll<long>().ToList();
+					Assert.That(results, Is.EqualTo(new long[] { 1, 2 }));
+				}
 			}
 		}
 
@@ -378,7 +397,7 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 						}
 						catch (TargetInvocationException ex)
 						{
-							Assert.Contains(ex.InnerException.GetType(), new[] { typeof(InvalidCastException), typeof(FormatException), typeof(OverflowException) });
+							Assert.IsTrue(new[] { typeof(InvalidCastException), typeof(FormatException), typeof(OverflowException) }.Contains(ex.InnerException.GetType()));
 						}
 					}
 				}

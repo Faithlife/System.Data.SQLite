@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -11,3 +12,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: InternalsVisibleTo("System.Data.SQLite.Tests")]
+[assembly: InternalsVisibleTo("SystemDataSQLiteTestsMonoTouch")]
+[assembly: CLSCompliant(true)]

@@ -151,6 +151,7 @@ namespace System.Data.SQLite
 			return new SQLiteCommand(this);
 		}
 
+#if !PORTABLE
 		public override DataTable GetSchema()
 		{
 			throw new NotSupportedException();
@@ -170,6 +171,7 @@ namespace System.Data.SQLite
 		{
 			throw new NotSupportedException();
 		}
+#endif
 
 		public override int ConnectionTimeout
 		{
@@ -258,6 +260,7 @@ namespace System.Data.SQLite
 			}
 		}
 
+#if !PORTABLE
 		protected override object GetService(Type service)
 		{
 			throw new NotSupportedException();
@@ -267,6 +270,7 @@ namespace System.Data.SQLite
 		{
 			get { return false; }
 		}
+#endif
 
 		internal SQLiteTransaction CurrentTransaction
 		{
@@ -323,7 +327,7 @@ namespace System.Data.SQLite
 		{
 			byte[] bytes = new byte[length];
 			Marshal.Copy(ptr, bytes, 0, length);
-			return Encoding.UTF8.GetString(bytes);
+			return Encoding.UTF8.GetString(bytes, 0, length);
 		}
 
 		private void SetState(ConnectionState newState)

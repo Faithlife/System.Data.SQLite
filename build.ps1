@@ -2,10 +2,11 @@ properties {
   $configuration = "Release"
 }
 
-Task Default -depends SourceIndex
+Task Default -depends NuGetPack
 
 Task Build {
-  Exec { msbuild /m:4 /property:Configuration=$configuration System.Data.SQLite.sln }
+  Exec { nuget restore }
+  Exec { msbuild /m:4 /p:Configuration=$configuration /p:Platform="Any CPU" /p:VisualStudioVersion=12.0 System.Data.SQLite.sln }
 }
 
 Task Tests -depends Build {
@@ -15,9 +16,13 @@ Task Tests -depends Build {
 
 Task SourceIndex -depends Tests {
   $headSha = & "C:\Program Files (x86)\Git\bin\git.exe" rev-parse HEAD
-  Exec { tools\SourceIndex\github-sourceindexer.ps1 -symbolsFolder src\System.Data.SQLite\bin\$configuration -userId LogosBible -repository System.Data.SQLite -branch $headSha -sourcesRoot ${pwd} -dbgToolsPath "C:\Program Files (x86)\Windows Kits\8.0\Debuggers\x86" -gitHubUrl "https://raw.github.com" -serverIsRaw -verbose }
+  foreach ($project in @("System.Data.SQLite-Mac", "System.Data.SQLite-MonoAndroid", "System.Data.SQLite-MonoTouch", "System.Data.SQLite-Net45", "System.Data.SQLite-Portable")) {
+    Exec { tools\SourceIndex\github-sourceindexer.ps1 -symbolsFolder src\$project\bin\$configuration -userId LogosBible -repository System.Data.SQLite -branch $headSha -sourcesRoot ${pwd} -dbgToolsPath "C:\Program Files (x86)\Windows Kits\8.1\Debuggers\x86" -gitHubUrl "https://raw.github.com" -serverIsRaw -ignoreUnknown -verbose }
+  }
 }
 
 Task NuGetPack -depends SourceIndex {
-  Exec { nuget pack src\System.Data.SQLite\System.Data.SQLite.csproj -Prop Configuration=$configuration -Symbols }
+  mkdir build -force
+  $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("src\System.Data.SQLite-Net45\bin\$configuration\System.Data.SQLite.dll").FileVersion
+  Exec { nuget pack System.Data.SQLite.nuspec -Version $version -Prop Configuration=$configuration -Symbols -OutputDirectory build }
 }
