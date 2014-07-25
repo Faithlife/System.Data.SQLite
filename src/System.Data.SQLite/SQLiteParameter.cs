@@ -12,11 +12,7 @@ namespace System.Data.SQLite
 
 		public override string ParameterName { get; set; }
 
-		public override int Size
-		{
-			get { throw new NotSupportedException(); }
-			set { throw new NotSupportedException(); }
-		}
+		public override int Size { get; set; }
 
 		public override string SourceColumn
 		{
