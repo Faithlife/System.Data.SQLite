@@ -36,7 +36,8 @@ namespace System.Data.SQLite.Tests
 		static void SetupCommand(IDbCommand command, string commandText, object parameters, IDbTransaction transaction)
 		{
 			command.CommandText = commandText;
-			command.Transaction = transaction;
+			if (transaction != null)
+				command.Transaction = transaction;
 			if (parameters != null)
 			{
 				foreach (var prop in parameters.GetType().GetTypeInfo().DeclaredProperties)
