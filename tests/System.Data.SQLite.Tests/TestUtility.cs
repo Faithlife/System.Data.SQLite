@@ -7,6 +7,7 @@ namespace System.Data.SQLite.Tests
 {
 	internal static class TestUtility
 	{
+#if !NET45
 		public static int Execute(this IDbConnection connection, string commandText, object parameters = null, IDbTransaction transaction = null)
 		{
 			using (var command = connection.CreateCommand())
@@ -15,6 +16,7 @@ namespace System.Data.SQLite.Tests
 				return command.ExecuteNonQuery();
 			}
 		}
+#endif
 
 		public static IDataReader ExecuteReader(this IDbConnection connection, string commandText, object parameters = null, IDbTransaction transaction = null)
 		{
