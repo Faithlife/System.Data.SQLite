@@ -225,7 +225,7 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 				conn.Open();
 				using (var trans = conn.BeginTransaction())
 				{
-					conn.Execute(@"create table Test (Id integer primary key, String text); insert into Test(Id, String) values(1, 'one'), (2, 'two'), (3, 'three');");
+					conn.Execute(@"create table Test (Id integer primary key, String text); insert into Test(Id, String) values(1, 'one'), (2, 'two'), (3, 'three');", transaction: trans);
 					trans.Commit();
 				}
 
