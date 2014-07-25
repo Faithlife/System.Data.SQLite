@@ -104,6 +104,9 @@ namespace System.Data.SQLite
 		public unsafe static extern SQLiteErrorCode sqlite3_prepare_v2(SqliteDatabaseHandle db, byte* pSql, int nBytes, out SqliteStatementHandle stmt, out byte* pzTail);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern void sqlite3_profile(SqliteDatabaseHandle db, SqliteProfileCallback callback, IntPtr userData);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern void sqlite3_progress_handler(SqliteDatabaseHandle db, int virtualMachineInstructions, SQLiteProgressCallback callback, IntPtr userData);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
@@ -125,6 +128,9 @@ namespace System.Data.SQLite
 
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	internal delegate void SQLiteLogCallback(IntPtr pUserData, int errorCode, IntPtr pMessage);
+
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	internal delegate void SqliteProfileCallback(IntPtr pUserData, IntPtr pSql, ulong time);
 
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	internal delegate int SQLiteProgressCallback(IntPtr pUserData);

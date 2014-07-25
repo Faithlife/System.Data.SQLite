@@ -27,6 +27,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)SqliteDatabaseHandle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SqliteStatementHandle.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SqliteStatementPreparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StatementCompletedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Properties\AssemblyInfo.cs" />
   </ItemGroup>

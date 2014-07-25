@@ -15,6 +15,7 @@ namespace System.Data.SQLite
 		{
 			SQLiteLog.Initialize();
 			m_transactions = new Stack<SQLiteTransaction>();
+			m_profileCallback = ProfileCallback;
 		}
 
 		public SQLiteConnection(string connectionString)
@@ -116,6 +117,9 @@ namespace System.Data.SQLite
 
 				if (connectionStringBuilder.ContainsKey(SQLiteConnectionStringBuilder.SynchronousKey))
 					this.ExecuteNonQuery("pragma synchronous={0}".FormatInvariant(connectionStringBuilder.SyncMode));
+
+				if (m_statementCompleted != null)
+					NativeMethods.sqlite3_profile(m_db, m_profileCallback, IntPtr.Zero);
 
 				SetState(ConnectionState.Open);
 				success = true;
@@ -236,6 +240,28 @@ namespace System.Data.SQLite
 			}
 		}
 
+		public event StatementCompletedEventHandler StatementCompleted
+		{
+			add
+			{
+				if (value == null)
+					throw new ArgumentNullException("value");
+
+				if (m_statementCompleted == null && m_db != null)
+					NativeMethods.sqlite3_profile(m_db, m_profileCallback, IntPtr.Zero);
+				m_statementCompleted += value;
+			}
+			remove
+			{
+				if (value == null)
+					throw new ArgumentNullException("value");
+
+				m_statementCompleted -= value;
+				if (m_statementCompleted == null && m_db != null)
+					NativeMethods.sqlite3_profile(m_db, null, IntPtr.Zero);
+			}
+		}
+
 		protected override DbProviderFactory DbProviderFactory
 		{
 			get { throw new NotSupportedException(); }
@@ -251,6 +277,8 @@ namespace System.Data.SQLite
 					{
 						while (m_transactions.Count > 0)
 							m_transactions.Pop().Dispose();
+						if (m_statementCompleted != null)
+							NativeMethods.sqlite3_profile(m_db, null, IntPtr.Zero);
 						Utility.Dispose(ref m_db);
 						SetState(ConnectionState.Closed);
 					}
@@ -343,6 +371,13 @@ namespace System.Data.SQLite
 			}
 		}
 
+		private void ProfileCallback(IntPtr puserdata, IntPtr pSql, ulong nanoseconds)
+		{
+			StatementCompletedEventHandler handler = m_statementCompleted;
+			if (handler != null)
+				handler(this, new StatementCompletedEventArgs(FromUtf8(pSql), TimeSpan.FromMilliseconds(nanoseconds / 1000000.0)));
+		}
+
 		private void VerifyNotDisposed()
 		{
 			if (m_isDisposed)
@@ -353,8 +388,10 @@ namespace System.Data.SQLite
 
 		SqliteDatabaseHandle m_db;
 		readonly Stack<SQLiteTransaction> m_transactions;
+		readonly SqliteProfileCallback m_profileCallback;
 		ConnectionState m_connectionState;
 		bool m_isDisposed;
+		StatementCompletedEventHandler m_statementCompleted;
 	}
 
 	/// <summary>

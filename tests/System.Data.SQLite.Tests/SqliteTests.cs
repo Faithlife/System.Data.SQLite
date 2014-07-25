@@ -235,6 +235,38 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 		}
 #endif
 
+		[Test]
+		public void Profile()
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				string loggedSql = null;
+				StatementCompletedEventHandler handler = (sender, args) => { loggedSql = args.Sql; };
+
+				conn.StatementCompleted += handler;
+				conn.Open();
+
+				string sql = @"create table Test (Id integer primary key, String text);";
+				conn.Execute(sql);
+				Assert.AreEqual(sql, loggedSql);
+
+				conn.StatementCompleted -= handler;
+				loggedSql = null;
+				sql = @"insert into Test(Id, String) values(1, 'one');";
+				conn.Execute(sql);
+				Assert.IsNull(loggedSql);
+
+				conn.StatementCompleted += handler;
+				loggedSql = null;
+				sql = @"insert into Test(Id, String) values(2, 'two');";
+				conn.Execute(sql);
+				Assert.AreEqual(sql, loggedSql);
+
+				conn.Close();
+				conn.StatementCompleted -= handler;
+			}
+		}
+
 #if !NETFX_CORE
 		[TestCase(0)]
 		[TestCase(1)]
