@@ -84,6 +84,16 @@ namespace System.Data.SQLite.Tests
 		}
 
 		[Test]
+		public void DataSource()
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				Assert.AreEqual(m_path, conn.DataSource);
+			}
+		}
+
+		[Test]
 		public void TypeMapping()
 		{
 			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))

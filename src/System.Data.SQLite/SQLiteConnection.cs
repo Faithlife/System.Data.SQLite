@@ -66,8 +66,8 @@ namespace System.Data.SQLite
 				throw new InvalidOperationException("Cannot Open when State is {0}.".FormatInvariant(State));
 
 			var connectionStringBuilder = new SQLiteConnectionStringBuilder { ConnectionString = ConnectionString };
-			var dataSource = connectionStringBuilder.DataSource;
-			if (string.IsNullOrEmpty(dataSource))
+			m_dataSource = connectionStringBuilder.DataSource;
+			if (string.IsNullOrEmpty(m_dataSource))
 				throw new InvalidOperationException("Connection String Data Source must be set.");
 
 			SQLiteOpenFlags openFlags = connectionStringBuilder.ReadOnly ? SQLiteOpenFlags.ReadOnly : SQLiteOpenFlags.ReadWrite;
@@ -76,7 +76,7 @@ namespace System.Data.SQLite
 
 			SetState(ConnectionState.Connecting);
 
-			Match m = s_vfsRegex.Match(dataSource);
+			Match m = s_vfsRegex.Match(m_dataSource);
 			string fileName = m.Groups["fileName"].Value;
 			string vfsName = m.Groups["vfsName"].Value;
 			var errorCode = NativeMethods.sqlite3_open_v2(ToNullTerminatedUtf8(fileName), out m_db, openFlags, string.IsNullOrEmpty(vfsName) ? null : ToNullTerminatedUtf8(vfsName));
@@ -145,7 +145,7 @@ namespace System.Data.SQLite
 
 		public override string DataSource
 		{
-			get { throw new NotSupportedException(); }
+			get { return m_dataSource; }
 		}
 
 		public override string ServerVersion
@@ -392,6 +392,7 @@ namespace System.Data.SQLite
 		ConnectionState m_connectionState;
 		bool m_isDisposed;
 		StatementCompletedEventHandler m_statementCompleted;
+		string m_dataSource;
 	}
 
 	/// <summary>
