@@ -216,6 +216,23 @@ values(1, 'two', 3, 4, 5, 6, 1, 0);");
 				CollectionAssert.AreEqual(new long[] { 1, 2 }, results);
 			}
 		}
+
+		[Test]
+		public void DapperTransaction()
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				using (var trans = conn.BeginTransaction())
+				{
+					conn.Execute(@"create table Test (Id integer primary key, String text); insert into Test(Id, String) values(1, 'one'), (2, 'two'), (3, 'three');");
+					trans.Commit();
+				}
+
+				var results = conn.Query<long>("select Id from Test where length(String) = @len", new { len = 3 }).ToList();
+				CollectionAssert.AreEqual(new long[] { 1, 2 }, results);
+			}
+		}
 #endif
 
 #if !NETFX_CORE

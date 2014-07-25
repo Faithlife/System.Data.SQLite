@@ -151,7 +151,7 @@ namespace System.Data.SQLite
 
 		protected override DbCommand CreateDbCommand()
 		{
-			return new SQLiteCommand(this);
+			return new SQLiteCommand(null, this, CurrentTransaction);
 		}
 
 #if !PORTABLE
