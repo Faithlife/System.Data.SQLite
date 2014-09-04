@@ -1,7 +1,13 @@
 ﻿using System.Data.Common;
+#if NET45 || MAC
+using System.Runtime.Serialization;
+#endif
 
 namespace System.Data.SQLite
 {
+#if NET45 || MAC
+	[Serializable]
+#endif
 	public sealed class SQLiteException : DbException
 	{
 		public SQLiteException(SQLiteErrorCode errorCode)
@@ -13,6 +19,13 @@ namespace System.Data.SQLite
 			: base(GetErrorString(errorCode, database), (int) errorCode)
 		{
 		}
+
+#if NET45 || MAC
+		private SQLiteException(SerializationInfo info, StreamingContext context)
+			: base(info, context)
+		{
+		}
+#endif
 
 		private static string GetErrorString(SQLiteErrorCode errorCode, SqliteDatabaseHandle database)
 		{
