@@ -19,12 +19,13 @@ namespace System.Data.SQLite.Tests
 			Assert.IsNull(csb.Password);
 			Assert.IsFalse(csb.ReadOnly);
 			Assert.AreEqual(SynchronizationModes.Normal, csb.SyncMode);
+			Assert.AreEqual(SQLiteTemporaryStore.Default, csb.TempStore);
 		}
 
 		[Test]
 		public void ParseConnectionString()
 		{
-			var csb = new SQLiteConnectionStringBuilder { ConnectionString = "Data Source=\"C:\\temp\\test.db\";Synchronous=full;Read Only=true;FailIfMissing=True;Foreign Keys=true;Cache Size=6000;Page Size=2048;default timeout=30;password=S3kr3t" };
+			var csb = new SQLiteConnectionStringBuilder { ConnectionString = "Data Source=\"C:\\temp\\test.db\";Synchronous=full;Read Only=true;FailIfMissing=True;Foreign Keys=true;Cache Size=6000;Page Size=2048;default timeout=30;password=S3kr3t;_TempStore=memory" };
 			Assert.AreEqual(6000, csb.CacheSize);
 			Assert.AreEqual(@"C:\temp\test.db", csb.DataSource);
 			Assert.AreEqual(30, csb.DefaultTimeout);
@@ -35,6 +36,7 @@ namespace System.Data.SQLite.Tests
 			Assert.AreEqual("S3kr3t", csb.Password);
 			Assert.IsTrue(csb.ReadOnly);
 			Assert.AreEqual(SynchronizationModes.Full, csb.SyncMode);
+			Assert.AreEqual(SQLiteTemporaryStore.Memory, csb.TempStore);
 		}
 
 		[TestCase("1000", 1000)]
@@ -145,6 +147,17 @@ namespace System.Data.SQLite.Tests
 		{
 			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Synchronous=" + text };
 			Assert.AreEqual(expected, csb.SyncMode);
+		}
+
+		[TestCase("memory", SQLiteTemporaryStore.Memory)]
+		[TestCase("MEMORY", SQLiteTemporaryStore.Memory)]
+		[TestCase("File", SQLiteTemporaryStore.File)]
+		[TestCase("", SQLiteTemporaryStore.Default)]
+		[TestCase(null, SQLiteTemporaryStore.Default)]
+		public void TempStore(string text, SQLiteTemporaryStore expected)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "_TempStore=" + text };
+			Assert.AreEqual(expected, csb.TempStore);
 		}
 	}
 }

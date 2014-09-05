@@ -207,6 +207,26 @@ namespace System.Data.SQLite
 		}
 		internal const string SynchronousKey = "Synchronous";
 
+		/// <summary>
+		/// Gets/sets the storage location for temporary tables and indices. Default is "Default".
+		/// </summary>
+		public SQLiteTemporaryStore TempStore
+		{
+			get
+			{
+				object value;
+				TryGetValue(TempStoreKey, out value);
+				return value is string ? Utility.ParseEnum<SQLiteTemporaryStore>((string) value) :
+					value is SQLiteTemporaryStore ? (SQLiteTemporaryStore) value :
+					SQLiteTemporaryStore.Default;
+			}
+			set
+			{
+				this[TempStoreKey] = value;
+			}
+		}
+		internal const string TempStoreKey = "_TempStore";
+
 		private static bool ValueIsTrue(object value)
 		{
 			if (value is bool)
@@ -305,5 +325,27 @@ namespace System.Data.SQLite
 		/// slower.
 		/// </summary>
 		Full = 2
+	}
+
+	/// <summary>
+	/// Determines where temporary tables and indices are stored.
+	/// </summary>
+	/// <remarks>See <a href="http://www.sqlite.org/pragma.html#pragma_temp_store">pragma temp_store</a>.</remarks>
+	public enum SQLiteTemporaryStore
+	{
+		/// <summary>
+		/// The SQLite library determines where temporary tables and indices are stored.
+		/// </summary>
+		Default = 0,
+
+		/// <summary>
+		/// Temporary tables and indices are stored in a file. 
+		/// </summary>
+		File = 1,
+
+		/// <summary>
+		/// Temporary tables and indices are kept in memory as if they were pure in-memory databases.
+		/// </summary>
+		Memory = 2,
 	}
 }
