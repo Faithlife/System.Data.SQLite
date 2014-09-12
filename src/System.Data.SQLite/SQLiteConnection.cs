@@ -118,6 +118,9 @@ namespace System.Data.SQLite
 				if (connectionStringBuilder.ContainsKey(SQLiteConnectionStringBuilder.SynchronousKey))
 					this.ExecuteNonQuery("pragma synchronous={0}".FormatInvariant(connectionStringBuilder.SyncMode));
 
+				if (connectionStringBuilder.TempStore != SQLiteTemporaryStore.Default)
+					this.ExecuteNonQuery("pragma temp_store={0}".FormatInvariant(connectionStringBuilder.TempStore));
+
 				if (m_statementCompleted != null)
 					NativeMethods.sqlite3_profile(m_db, m_profileCallback, IntPtr.Zero);
 
