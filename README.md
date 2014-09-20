@@ -24,6 +24,7 @@ There are several problems with the official SQLite wrapper that prompted this r
 There are also improvements we can make in a custom wrapper:
 
 * `DbDataReader.ReadAsync(CancellationToken)` is overridden to support cancellation from another thread (via [`sqlite_progress_handler`](http://www.sqlite.org/c3ref/progress_handler.html)).
+* Added [`SQLiteConnection.StatementCompleted`](https://github.com/LogosBible/System.Data.SQLite/search?q=StatementCompleted) to return the results of [`sqlite3_profile`](http://www.sqlite.org/c3ref/profile.html).
 
 ## Notes
 
