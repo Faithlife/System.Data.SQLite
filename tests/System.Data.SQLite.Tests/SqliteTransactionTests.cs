@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 #if NET45
 using Dapper;
 #endif
@@ -150,6 +152,44 @@ namespace System.Data.SQLite.Tests
 					conn.Execute("update Test set Id = 3;", transaction: trans);
 					trans.Commit();
 				}
+			}
+		}
+
+		[Test, Timeout(2000)]
+		public void ConcurrentReads()
+		{
+			using (var conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute("create table Test (Id int primary key);");
+				conn.Execute("insert into Test(Id) values(1), (2), (3), (4), (5), (6), (7), (8), (9), (10);");
+			}
+
+			const int  c_threadCount = 8;
+			using (var barrier = new Barrier(c_threadCount))
+				Task.WaitAll(Enumerable.Range(0, c_threadCount).Select(x => Task.Run(() => ConcurrentReadTask(barrier))).ToArray());
+		}
+
+		private void ConcurrentReadTask(Barrier barrier)
+		{
+			using (var conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				barrier.SignalAndWait();
+
+				int count = 0;
+
+				using (var cmd = new SQLiteCommand("select Id from Test;", conn))
+				using (var reader = cmd.ExecuteReader())
+				{
+					while (reader.Read())
+					{
+						count++;
+						Thread.Sleep(TimeSpan.FromMilliseconds(100));
+					} 
+				}
+
+				Assert.AreEqual(10, count);
 			}
 		}
 #endif
