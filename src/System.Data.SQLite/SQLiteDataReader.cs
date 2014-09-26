@@ -503,8 +503,11 @@ namespace System.Data.SQLite
 		{
 			VerifyNotDisposed();
 
+			if (!cancellationToken.CanBeCanceled)
+				return ReadAsyncCore(cancellationToken);
+
 			GCHandle cancellationTokenHandle = GCHandle.Alloc(cancellationToken);
-			NativeMethods.sqlite3_progress_handler(DatabaseHandle, 10, IsCanceled, GCHandle.ToIntPtr(cancellationTokenHandle));
+			NativeMethods.sqlite3_progress_handler(DatabaseHandle, 10, s_isCanceled, GCHandle.ToIntPtr(cancellationTokenHandle));
 			try
 			{
 				return ReadAsyncCore(cancellationToken);
@@ -660,6 +663,7 @@ namespace System.Data.SQLite
 		static readonly Task<bool> s_canceledTask = CreateCanceledTask();
 		static readonly Task<bool> s_falseTask = Task.FromResult(false);
 		static readonly Task<bool> s_trueTask = Task.FromResult(true);
+		static readonly SQLiteProgressCallback s_isCanceled = IsCanceled;
 
 		SQLiteCommand m_command;
 		readonly CommandBehavior m_behavior;
