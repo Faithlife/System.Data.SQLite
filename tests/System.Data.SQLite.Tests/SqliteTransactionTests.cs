@@ -155,7 +155,7 @@ namespace System.Data.SQLite.Tests
 			}
 		}
 
-		[Test, Timeout(2000)]
+		[Test, Timeout(5000)]
 		public void ConcurrentReads()
 		{
 			using (var conn = new SQLiteConnection(m_csb.ConnectionString))
