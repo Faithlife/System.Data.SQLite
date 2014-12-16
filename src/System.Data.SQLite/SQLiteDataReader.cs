@@ -503,20 +503,7 @@ namespace System.Data.SQLite
 		{
 			VerifyNotDisposed();
 
-			if (!cancellationToken.CanBeCanceled)
-				return ReadAsyncCore(cancellationToken);
-
-			GCHandle cancellationTokenHandle = GCHandle.Alloc(cancellationToken);
-			NativeMethods.sqlite3_progress_handler(DatabaseHandle, 10, s_isCanceled, GCHandle.ToIntPtr(cancellationTokenHandle));
-			try
-			{
-				return ReadAsyncCore(cancellationToken);
-			}
-			finally
-			{
-				NativeMethods.sqlite3_progress_handler(DatabaseHandle, 0, null, IntPtr.Zero);
-				cancellationTokenHandle.Free();
-			}
+			return ReadAsyncCore(cancellationToken);
 		}
 #endif
 
