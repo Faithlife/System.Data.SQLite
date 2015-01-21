@@ -7,6 +7,7 @@ Task Default -depends NuGetPack
 Task Build {
   Exec { nuget restore }
   Exec { msbuild /m:4 /p:Configuration=$configuration /p:Platform="Any CPU" /p:VisualStudioVersion=12.0 System.Data.SQLite.sln }
+  Exec { msbuild /m:4 /p:Configuration=$configuration /p:Platform="Xamarin iOS" /p:VisualStudioVersion=12.0 System.Data.SQLite.sln }
 }
 
 Task Tests -depends Build {
