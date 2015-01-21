@@ -7,15 +7,16 @@
     <owners>Logos Bible Software</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An independent implementation of the core of ADO.NET.</description>
-    <copyright>Copyright 2014 Faithlife / Logos Bible Software</copyright>
+    <copyright>Copyright 2014-2015 Faithlife / Logos Bible Software</copyright>
     <dependencies>
-      <group targetFramework="portable-net45+win+wp8+MonoAndroid+MonoTouch">
+      <group targetFramework="portable-net45+win+wp8+MonoAndroid+MonoTouch+Xamarin.iOS10">
         <dependency id="Logos.PclContrib.Portable.Data" version="0.1.1" />
       </group>
       <group targetFramework="net45"></group>
       <group targetFramework="MonoMac"></group>
       <group targetFramework="MonoAndroid"></group>
       <group targetFramework="MonoTouch"></group>
+      <group targetFramework="Xamarin.iOS"></group>
     </dependencies>
   </metadata>
   <files>   
@@ -24,5 +25,6 @@
     <file src="src\System.Data.SQLite-Mac\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoMac\" />
     <file src="src\System.Data.SQLite-MonoAndroid\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoAndroid\" exclude="**\*.mdb" />
     <file src="src\System.Data.SQLite-MonoTouch\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoTouch\" exclude="**\*.mdb" />
+    <file src="src\System.Data.SQLite-Xamarin.iOS\bin\$configuration$\System.Data.SQLite.*" target="lib\Xamarin.iOS\" exclude="**\*.mdb" />
   </files>
 </package>
