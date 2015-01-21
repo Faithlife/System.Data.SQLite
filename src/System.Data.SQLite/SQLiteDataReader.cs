@@ -509,6 +509,8 @@ namespace System.Data.SQLite
 
 #if MONOTOUCH
 		[MonoTouch.MonoPInvokeCallback(typeof(SQLiteProgressCallback))]
+#elif XAMARIN_IOS
+		[ObjCRuntime.MonoPInvokeCallback(typeof(SQLiteProgressCallback))]
 #endif
 		private static int IsCanceled(IntPtr userData)
 		{

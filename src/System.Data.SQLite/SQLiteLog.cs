@@ -34,6 +34,8 @@
 
 #if MONOTOUCH
 		[MonoTouch.MonoPInvokeCallback(typeof(SQLiteLogCallback))]
+#elif XAMARIN_IOS
+		[ObjCRuntime.MonoPInvokeCallback(typeof(SQLiteLogCallback))]
 #endif
 		static void LogCallback(IntPtr pUserData, int errorCode, IntPtr pMessage)
 		{
