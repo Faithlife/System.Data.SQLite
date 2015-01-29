@@ -118,11 +118,7 @@ namespace System.Data.SQLite
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern int sqlite3_total_changes(SqliteDatabaseHandle db);
 
-#if NET45
-		const string c_dllName = "SQLite.Interop.dll";
-#else
 		const string c_dllName = "sqlite3";
-#endif
 		const CallingConvention c_callingConvention = CallingConvention.Cdecl;
 	}
 
