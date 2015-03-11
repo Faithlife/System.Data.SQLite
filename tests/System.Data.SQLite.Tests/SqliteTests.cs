@@ -106,25 +106,29 @@ Int32 int not null,
 NullableInt32 int,
 Int64 integer not null,
 NullableInt64 integer,
+Double double not null,
+NullableDouble double,
 Bool bool not null,
 NullableBool bool
 );");
-				conn.Execute(@"insert into Test (Id, String, Int32, NullableInt32, Int64, NullableInt64, Bool, NullableBool)
-values(1, 'two', 3, 4, 5, 6, 1, 0);");
+				conn.Execute(@"insert into Test (Id, String, Int32, NullableInt32, Int64, NullableInt64, Double, NullableDouble, Bool, NullableBool)
+values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 
 				using (var reader = conn.ExecuteReader(@"select * from Test"))
 				{
 					Assert.IsTrue(reader.Read());
-					object[] values = new object[8];
-					Assert.AreEqual(8, reader.GetValues(values));
+					object[] values = new object[10];
+					Assert.AreEqual(10, reader.GetValues(values));
 					Assert.AreEqual(1L, (long) values[0]);
 					Assert.AreEqual("two", (string) values[1]);
 					Assert.AreEqual(3, (int) values[2]);
 					Assert.AreEqual(4, (int) values[3]);
 					Assert.AreEqual(5L, (long) values[4]);
 					Assert.AreEqual(6L, (long) values[5]);
-					Assert.AreEqual(true, (bool) values[6]);
-					Assert.AreEqual(false, (bool) values[7]);
+					Assert.AreEqual(7.8910d, (double) values[6]);
+					Assert.AreEqual(11.121314d, (double) values[7]);
+					Assert.AreEqual(true, (bool) values[8]);
+					Assert.AreEqual(false, (bool) values[9]);
 				}
 			}
 		}
