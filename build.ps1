@@ -26,5 +26,5 @@ Task SourceIndex -depends Tests {
 Task NuGetPack -depends SourceIndex {
   mkdir build -force
   $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("src\System.Data.SQLite-Net45\bin\$configuration\System.Data.SQLite.dll").FileVersion
-  Exec { nuget pack System.Data.SQLite.nuspec -Version $version -Prop Configuration=$configuration -Symbols -OutputDirectory build }
+  Exec { tools\NuGet\NuGet pack System.Data.SQLite.nuspec -Version $version -Prop Configuration=$configuration -Symbols -OutputDirectory build }
 }
