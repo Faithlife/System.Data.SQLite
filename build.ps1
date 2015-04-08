@@ -19,7 +19,7 @@ Task Tests -depends Build {
 Task SourceIndex -depends Tests {
   $headSha = & $gitPath rev-parse HEAD
   foreach ($project in @("System.Data.SQLite-Mac", "System.Data.SQLite-MonoAndroid", "System.Data.SQLite-MonoTouch", "System.Data.SQLite-Net45", "System.Data.SQLite-Portable")) {
-    Exec { tools\SourceIndex\github-sourceindexer.ps1 -symbolsFolder src\$project\bin\$configuration -userId LogosBible -repository System.Data.SQLite -branch $headSha -sourcesRoot ${pwd} -dbgToolsPath "C:\Program Files (x86)\Windows Kits\8.1\Debuggers\x64" -gitHubUrl "https://raw.github.com" -serverIsRaw -ignoreUnknown -verbose }
+    Exec { tools\SourceIndex\github-sourceindexer.ps1 -symbolsFolder src\$project\bin\$configuration -userId LogosBible -repository System.Data.SQLite -branch $headSha -sourcesRoot ${pwd} -dbgToolsPath "C:\Program Files (x86)\Windows Kits\8.1\Debuggers\x86" -gitHubUrl "https://raw.github.com" -serverIsRaw -ignoreUnknown -verbose }
   }
 }
 
