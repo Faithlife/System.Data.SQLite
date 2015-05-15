@@ -29,7 +29,10 @@
 
 		static SQLiteLog()
 		{
+#if !XAMARIN_IOS
+			// This crashes AMD64 builds on iOS - See https://bugzilla.xamarin.com/show_bug.cgi?id=30144
 			NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
+#endif
 		}
 
 #if MONOTOUCH
