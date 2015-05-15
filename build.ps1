@@ -5,7 +5,15 @@ properties {
 
 Task Default -depends NuGetPack
 
-Task Build {
+Task Clean {
+  Get-ChildItem "src\*\bin" | Remove-Item -force -recurse -ErrorAction Stop
+  Get-ChildItem "src\*\obj" | Remove-Item -force -recurse -ErrorAction Stop
+  if (Test-Path build) {
+    Remove-Item build -force -recurse -ErrorAction Stop
+  }
+}
+
+Task Build -depends Clean {
   Exec { tools\NuGet\NuGet restore }
   Exec { msbuild /m:4 /p:Configuration=$configuration /p:Platform="Any CPU" /p:VisualStudioVersion=12.0 System.Data.SQLite.sln }
   Exec { msbuild /m:4 /p:Configuration=$configuration /p:Platform="Xamarin iOS" /p:VisualStudioVersion=12.0 System.Data.SQLite.sln }
