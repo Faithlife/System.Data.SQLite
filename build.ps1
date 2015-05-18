@@ -1,9 +1,11 @@
 properties {
   $configuration = "Release"
   $gitPath = "C:\Program Files (x86)\Git\bin\git.exe"
+  $apiKey = $null
+  $nugetPackageSource = $null
 }
 
-Task Default -depends NuGetPack
+Task Default -depends NuGetPack, NuGetPublish
 
 Task Clean {
   Get-ChildItem "src\*\bin" | Remove-Item -force -recurse -ErrorAction Stop
@@ -35,4 +37,8 @@ Task NuGetPack -depends SourceIndex {
   mkdir build -force
   $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("src\System.Data.SQLite-Net45\bin\$configuration\System.Data.SQLite.dll").FileVersion
   Exec { tools\NuGet\NuGet pack System.Data.SQLite.nuspec -Version $version -Prop Configuration=$configuration -Symbols -OutputDirectory build }
+}
+
+Task NuGetPublish -depends NuGetPack -precondition { return $apiKey -and $nugetPackageSource } {
+  Exec { tools\NuGet\NuGet push build\Logos.System.Data.SQLite.$version.nupkg -ApiKey $apiKey -Source $nugetPackageSource }
 }
