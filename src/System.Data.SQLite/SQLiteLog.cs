@@ -29,8 +29,13 @@
 
 		static SQLiteLog()
 		{
-#if !XAMARIN_IOS
-			// This crashes AMD64 builds on iOS - See https://bugzilla.xamarin.com/show_bug.cgi?id=30144
+#if XAMARIN_IOS
+			// Workaround Mono limitation with AMD64 varargs methods - See https://bugzilla.xamarin.com/show_bug.cgi?id=30144
+			if (IntPtr.Size == 8 && ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.DEVICE)
+				NativeMethods.sqlite3_config_log_arm64(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, s_callback, IntPtr.Zero);
+			else
+				NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
+#else
 			NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
 #endif
 		}

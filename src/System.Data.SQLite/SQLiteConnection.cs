@@ -250,18 +250,30 @@ namespace System.Data.SQLite
 				if (value == null)
 					throw new ArgumentNullException("value");
 
+#if XAMARIN_IOS || MONOTOUCH
+				// Xamarin.iOS and MonoTouch cannot support StatementCompletedHandler due to AOT limitations
+				// Specifically, Reverse Callbacks must be static. Instance callbacks are not supported
+				// http://developer.xamarin.com/guides/ios/advanced_topics/limitations/#Reverse_Callbacks
+#else
 				if (m_statementCompleted == null && m_db != null)
 					NativeMethods.sqlite3_profile(m_db, m_profileCallback, IntPtr.Zero);
 				m_statementCompleted += value;
+#endif
 			}
 			remove
 			{
 				if (value == null)
 					throw new ArgumentNullException("value");
 
+#if XAMARIN_IOS || MONOTOUCH
+				// Xamarin.iOS and MonoTouch cannot support StatementCompletedHandler due to AOT limitations
+				// Specifically, Reverse Callbacks must be static. Instance callbacks are not supported
+				// http://developer.xamarin.com/guides/ios/advanced_topics/limitations/#Reverse_Callbacks
+#else
 				m_statementCompleted -= value;
 				if (m_statementCompleted == null && m_db != null)
 					NativeMethods.sqlite3_profile(m_db, null, IntPtr.Zero);
+#endif
 			}
 		}
 

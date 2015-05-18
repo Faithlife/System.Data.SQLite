@@ -79,6 +79,9 @@ namespace System.Data.SQLite
 		[DllImport(c_dllName, EntryPoint = "sqlite3_config", CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_config_log(SQLiteConfigOpsEnum op, SQLiteLogCallback func, IntPtr pvUser);
 
+		[DllImport(c_dllName, EntryPoint = "sqlite3_config", CallingConvention = c_callingConvention)]
+		public static extern SQLiteErrorCode sqlite3_config_log_arm64(SQLiteConfigOpsEnum op, IntPtr p2, IntPtr p3, IntPtr p4, IntPtr p5, IntPtr p6, IntPtr p7, IntPtr p8, SQLiteLogCallback func, IntPtr pvUser);
+
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern int sqlite3_db_readonly(SqliteDatabaseHandle db, [MarshalAs(UnmanagedType.LPStr)] string zDbName);
 
