@@ -1,19 +1,30 @@
 properties {
   $configuration = "Release"
   $gitPath = "C:\Program Files (x86)\Git\bin\git.exe"
+  $outputDir = "build"
+  $apiKey = $null
+  $nugetPackageSource = $null
 }
 
-Task Default -depends NuGetPack
+Task Default -depends NuGetPack, NuGetPublish
 
-Task Build {
+Task Clean {
+  Get-ChildItem "src\*\bin" | Remove-Item -force -recurse -ErrorAction Stop
+  Get-ChildItem "src\*\obj" | Remove-Item -force -recurse -ErrorAction Stop
+  if (Test-Path $outputDir) {
+    Remove-Item $outputDir -force -recurse -ErrorAction Stop
+  }
+}
+
+Task Build -depends Clean {
   Exec { tools\NuGet\NuGet restore }
   Exec { msbuild /m:4 /p:Configuration=$configuration /p:Platform="Any CPU" /p:VisualStudioVersion=12.0 System.Data.SQLite.sln }
   Exec { msbuild /m:4 /p:Configuration=$configuration /p:Platform="Xamarin iOS" /p:VisualStudioVersion=12.0 System.Data.SQLite.sln }
 }
 
 Task Tests -depends Build {
-  mkdir build -force
-  Exec { tools\NUnit\nunit-console.exe /nologo /framework=4.0 /xml=build\System.Data.SQLite.xml /config=$configuration tests\System.Data.SQLite.nunit }
+  mkdir $outputDir -force
+  Exec { tools\NUnit\nunit-console.exe /nologo /framework=4.0 /xml=$outputDir\System.Data.SQLite.xml /config=$configuration tests\System.Data.SQLite.nunit }
 }
 
 Task SourceIndex -depends Tests {
@@ -24,7 +35,11 @@ Task SourceIndex -depends Tests {
 }
 
 Task NuGetPack -depends SourceIndex {
-  mkdir build -force
+  mkdir $outputDir -force
   $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("src\System.Data.SQLite-Net45\bin\$configuration\System.Data.SQLite.dll").FileVersion
-  Exec { tools\NuGet\NuGet pack System.Data.SQLite.nuspec -Version $version -Prop Configuration=$configuration -Symbols -OutputDirectory build }
+  Exec { tools\NuGet\NuGet pack System.Data.SQLite.nuspec -Version $version -Prop Configuration=$configuration -Symbols -OutputDirectory $outputDir }
+}
+
+Task NuGetPublish -depends NuGetPack -precondition { return $apiKey -and $nugetPackageSource } {
+  Exec { tools\NuGet\NuGet push $outputDir\Logos.System.Data.SQLite.$version.nupkg -ApiKey $apiKey -Source $nugetPackageSource }
 }
