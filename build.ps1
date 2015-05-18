@@ -39,7 +39,7 @@ Task SourceIndex -depends Tests {
 Task NuGetPack -depends SourceIndex {
   mkdir $outputDir -force
   $script:version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("src\System.Data.SQLite-Net45\bin\$configuration\System.Data.SQLite.dll").FileVersion
-  Exec { tools\NuGet\NuGet pack System.Data.SQLite.nuspec -Version $version -Prop Configuration=$configuration -Symbols -OutputDirectory $outputDir }
+  Exec { tools\NuGet\NuGet pack System.Data.SQLite.nuspec -Version $script:version -Prop Configuration=$configuration -Symbols -OutputDirectory $outputDir }
 }
 
 Task NuGetPublish -depends NuGetPack -precondition { return $apiKey -and $nugetPackageSource } {
