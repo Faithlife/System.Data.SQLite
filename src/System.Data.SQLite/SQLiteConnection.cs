@@ -15,7 +15,6 @@ namespace System.Data.SQLite
 		{
 			SQLiteLog.Initialize();
 			m_transactions = new Stack<SQLiteTransaction>();
-			m_profileCallback = ProfileCallback;
 		}
 
 		public SQLiteConnection(string connectionString)
@@ -122,7 +121,7 @@ namespace System.Data.SQLite
 					this.ExecuteNonQuery("pragma temp_store={0}".FormatInvariant(connectionStringBuilder.TempStore));
 
 				if (m_statementCompleted != null)
-					NativeMethods.sqlite3_profile(m_db, m_profileCallback, IntPtr.Zero);
+					SetProfileCallback(s_profileCallback);
 
 				SetState(ConnectionState.Open);
 				success = true;
@@ -250,30 +249,19 @@ namespace System.Data.SQLite
 				if (value == null)
 					throw new ArgumentNullException("value");
 
-#if XAMARIN_IOS || MONOTOUCH
-				// Xamarin.iOS and MonoTouch cannot support StatementCompletedHandler due to AOT limitations
-				// Specifically, Reverse Callbacks must be static. Instance callbacks are not supported
-				// http://developer.xamarin.com/guides/ios/advanced_topics/limitations/#Reverse_Callbacks
-#else
 				if (m_statementCompleted == null && m_db != null)
-					NativeMethods.sqlite3_profile(m_db, m_profileCallback, IntPtr.Zero);
+					SetProfileCallback(s_profileCallback);
+
 				m_statementCompleted += value;
-#endif
 			}
 			remove
 			{
 				if (value == null)
 					throw new ArgumentNullException("value");
 
-#if XAMARIN_IOS || MONOTOUCH
-				// Xamarin.iOS and MonoTouch cannot support StatementCompletedHandler due to AOT limitations
-				// Specifically, Reverse Callbacks must be static. Instance callbacks are not supported
-				// http://developer.xamarin.com/guides/ios/advanced_topics/limitations/#Reverse_Callbacks
-#else
 				m_statementCompleted -= value;
 				if (m_statementCompleted == null && m_db != null)
-					NativeMethods.sqlite3_profile(m_db, null, IntPtr.Zero);
-#endif
+					SetProfileCallback(null);
 			}
 		}
 
@@ -293,7 +281,7 @@ namespace System.Data.SQLite
 						while (m_transactions.Count > 0)
 							m_transactions.Pop().Dispose();
 						if (m_statementCompleted != null)
-							NativeMethods.sqlite3_profile(m_db, null, IntPtr.Zero);
+							SetProfileCallback(null);
 						Utility.Dispose(ref m_db);
 						SetState(ConnectionState.Closed);
 					}
@@ -376,6 +364,16 @@ namespace System.Data.SQLite
 			return Encoding.UTF8.GetString(bytes, 0, length);
 		}
 
+		private void SetProfileCallback(SqliteProfileCallback callback)
+		{
+			if (callback != null && !m_handle.IsAllocated)
+				m_handle = GCHandle.Alloc(this);
+			else if (callback == null && m_handle.IsAllocated)
+				m_handle.Free();
+
+			NativeMethods.sqlite3_profile(m_db, callback, m_handle.IsAllocated ? GCHandle.ToIntPtr(m_handle) : IntPtr.Zero);
+		}
+
 		private void SetState(ConnectionState newState)
 		{
 			if (m_connectionState != newState)
@@ -386,11 +384,18 @@ namespace System.Data.SQLite
 			}
 		}
 
-		private void ProfileCallback(IntPtr puserdata, IntPtr pSql, ulong nanoseconds)
+#if MONOTOUCH
+		[MonoTouch.MonoPInvokeCallback(typeof(SqliteProfileCallback))]
+#elif XAMARIN_IOS
+		[ObjCRuntime.MonoPInvokeCallback(typeof(SqliteProfileCallback))]
+#endif
+		private static void ProfileCallback(IntPtr puserdata, IntPtr pSql, ulong nanoseconds)
 		{
-			StatementCompletedEventHandler handler = m_statementCompleted;
+			var handle = GCHandle.FromIntPtr(puserdata);
+			var connection = (SQLiteConnection) handle.Target;
+			StatementCompletedEventHandler handler = connection.m_statementCompleted;
 			if (handler != null)
-				handler(this, new StatementCompletedEventArgs(FromUtf8(pSql), TimeSpan.FromMilliseconds(nanoseconds / 1000000.0)));
+				handler(connection, new StatementCompletedEventArgs(FromUtf8(pSql), TimeSpan.FromMilliseconds(nanoseconds / 1000000.0)));
 		}
 
 		private void VerifyNotDisposed()
@@ -403,8 +408,9 @@ namespace System.Data.SQLite
 
 		SqliteDatabaseHandle m_db;
 		readonly Stack<SQLiteTransaction> m_transactions;
-		readonly SqliteProfileCallback m_profileCallback;
+		static readonly SqliteProfileCallback s_profileCallback = ProfileCallback;
 		ConnectionState m_connectionState;
+		GCHandle m_handle;
 		bool m_isDisposed;
 		StatementCompletedEventHandler m_statementCompleted;
 		string m_dataSource;
