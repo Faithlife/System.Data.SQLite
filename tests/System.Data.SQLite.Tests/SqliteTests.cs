@@ -262,11 +262,7 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 
 				string sql = @"create table Test (Id integer primary key, String text);";
 				conn.Execute(sql);
-#if XAMARIN_IOS || MONOTOUCH
-				Assert.IsNull(loggedSql);
-#else
 				Assert.AreEqual(sql, loggedSql);
-#endif
 
 				conn.StatementCompleted -= handler;
 				loggedSql = null;
@@ -278,11 +274,7 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 				loggedSql = null;
 				sql = @"insert into Test(Id, String) values(2, 'two');";
 				conn.Execute(sql);
-#if XAMARIN_IOS || MONOTOUCH
-				Assert.IsNull(loggedSql);
-#else
 				Assert.AreEqual(sql, loggedSql);
-#endif
 
 				conn.Close();
 				conn.StatementCompleted -= handler;
