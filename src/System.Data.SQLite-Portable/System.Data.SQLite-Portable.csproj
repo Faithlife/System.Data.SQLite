@@ -42,4 +42,10 @@
     </Compile>
     <Compile Include="Thread.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PortableContrib\src\Faithlife.PortableContrib\Faithlife.PortableContrib.csproj">
+      <Project>{fbdbfd6f-34b3-422d-a92e-b05d55b75351}</Project>
+      <Name>Faithlife.PortableContrib</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
