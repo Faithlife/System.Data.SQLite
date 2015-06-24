@@ -20,6 +20,7 @@
     <PackageCertificateKeyFile>System.Data.SQLite.Tests-Store_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxBundle>Never</AppxBundle>
     <AllowCrossPlatformRetargeting>False</AllowCrossPlatformRetargeting>
+    <PackageCertificateThumbprint>7E9A64996B8FBF4A6FBFD4B89DAB146882DC7AE9</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
