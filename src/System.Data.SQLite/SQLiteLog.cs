@@ -11,11 +11,17 @@
 		{
 			add
 			{
+				if (s_loggingDisabled)
+					throw new InvalidOperationException("SQLite logging is disabled.");
+
 				lock (s_lock)
 					Handlers += value;
 			}
 			remove
 			{
+				if (s_loggingDisabled)
+					throw new InvalidOperationException("SQLite logging is disabled.");
+
 				lock (s_lock)
 					Handlers -= value;
 			}
@@ -29,6 +35,16 @@
 
 		static SQLiteLog()
 		{
+#if NET45
+			string disableSqliteLogging = System.Configuration.ConfigurationManager.AppSettings["disableSqliteLogging"];
+			bool settingValue;
+			if (disableSqliteLogging != null && bool.TryParse(disableSqliteLogging, out settingValue) && settingValue)
+			{
+				s_loggingDisabled = true;
+				return;
+			}
+#endif
+
 #if XAMARIN_IOS
 			// Workaround Mono limitation with AMD64 varargs methods - See https://bugzilla.xamarin.com/show_bug.cgi?id=30144
 			if (IntPtr.Size == 8 && ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.DEVICE)
@@ -56,6 +72,7 @@
 
 		static readonly object s_lock = new object();
 		static readonly SQLiteLogCallback s_callback = LogCallback;
+		static readonly bool s_loggingDisabled = false;
 		static event SQLiteLogEventHandler Handlers;
 	}
 
