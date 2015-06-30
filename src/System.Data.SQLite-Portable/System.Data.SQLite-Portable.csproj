@@ -43,11 +43,9 @@
     <Compile Include="Thread.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Portable.Data">
-      <HintPath>..\..\packages\Logos.PclContrib.Portable.Data.0.1.1.0\lib\portable-net4+sl5+netcore45+wp8+MonoAndroid1+MonoTouch1\Portable.Data.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\..\..\PortableContrib\src\Faithlife.PortableContrib\Faithlife.PortableContrib.csproj">
+      <Project>{fbdbfd6f-34b3-422d-a92e-b05d55b75351}</Project>
+      <Name>Faithlife.PortableContrib</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
