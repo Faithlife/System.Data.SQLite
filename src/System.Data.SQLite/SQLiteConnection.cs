@@ -95,9 +95,17 @@ namespace System.Data.SQLite
 					NativeMethods.sqlite3_key(m_db, passwordBytes, passwordBytes.Length).ThrowOnError();
 				}
 
-				int isReadOnly = NativeMethods.sqlite3_db_readonly(m_db, "main");
-				if (isReadOnly == 1 && !connectionStringBuilder.ReadOnly)
-					throw new SQLiteException(SQLiteErrorCode.ReadOnly);
+				bool allowOpenReadOnly = true;
+#if MONOANDROID
+				// opening read-only throws "EntryPointNotFoundException: sqlite3_db_readonly" on Android API 15 and below (JellyBean is API 16)
+				allowOpenReadOnly = Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.JellyBean;
+#endif
+				if (allowOpenReadOnly)
+				{
+					int isReadOnly = NativeMethods.sqlite3_db_readonly(m_db, "main");
+					if (isReadOnly == 1 && !connectionStringBuilder.ReadOnly)
+						throw new SQLiteException(SQLiteErrorCode.ReadOnly);
+				}
 
 				if (connectionStringBuilder.CacheSize != 0)
 					this.ExecuteNonQuery("pragma cache_size={0}".FormatInvariant(connectionStringBuilder.CacheSize));
