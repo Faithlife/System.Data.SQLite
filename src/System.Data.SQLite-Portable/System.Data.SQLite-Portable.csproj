@@ -43,9 +43,13 @@
     <Compile Include="Thread.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\PortableContrib\src\Faithlife.PortableContrib\Faithlife.PortableContrib.csproj">
-      <Project>{fbdbfd6f-34b3-422d-a92e-b05d55b75351}</Project>
-      <Name>Faithlife.PortableContrib</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Faithlife.PortableContrib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Faithlife.PortableContrib.1.0.0.0\lib\portable-net45+netcore45+wpa81\Faithlife.PortableContrib.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
 </Project>

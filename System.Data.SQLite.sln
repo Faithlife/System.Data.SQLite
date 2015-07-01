@@ -36,8 +36,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite-Xamarin.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.SQLite.Tests-Xamarin.iOS", "tests\System.Data.SQLite.Tests-Xamarin.iOS\System.Data.SQLite.Tests-Xamarin.iOS.csproj", "{6715BE21-C8FA-4690-90C8-1FDD4895E51C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faithlife.PortableContrib", "..\PortableContrib\src\Faithlife.PortableContrib\Faithlife.PortableContrib.csproj", "{FBDBFD6F-34B3-422D-A92E-B05D55B75351}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		tests\System.Data.SQLite.Tests\System.Data.SQLite.Tests.projitems*{20215817-078c-4f27-8d72-b016f07dd079}*SharedItemsImports = 4
@@ -361,26 +359,6 @@ Global
 		{6715BE21-C8FA-4690-90C8-1FDD4895E51C}.Release|x86.ActiveCfg = Release|iPhoneSimulator
 		{6715BE21-C8FA-4690-90C8-1FDD4895E51C}.Release|Xamarin iOS.ActiveCfg = Release|iPhoneSimulator
 		{6715BE21-C8FA-4690-90C8-1FDD4895E51C}.Release|Xamarin iOS.Build.0 = Release|iPhoneSimulator
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Debug|Xamarin iOS.ActiveCfg = Debug|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|ARM.ActiveCfg = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|x64.ActiveCfg = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|x86.ActiveCfg = Release|Any CPU
-		{FBDBFD6F-34B3-422D-A92E-B05D55B75351}.Release|Xamarin iOS.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

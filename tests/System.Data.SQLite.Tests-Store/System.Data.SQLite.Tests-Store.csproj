@@ -140,6 +140,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Faithlife.PortableContrib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Faithlife.PortableContrib.1.0.0.0\lib\portable-net45+netcore45+wpa81\Faithlife.PortableContrib.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.core">
       <HintPath>..\..\packages\NUnitTestAdapter.1.0\lib\nunit.core.dll</HintPath>
       <Private>False</Private>
@@ -161,10 +166,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\PortableContrib\src\Faithlife.PortableContrib\Faithlife.PortableContrib.csproj">
-      <Project>{fbdbfd6f-34b3-422d-a92e-b05d55b75351}</Project>
-      <Name>Faithlife.PortableContrib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\System.Data.SQLite-Portable\System.Data.SQLite-Portable.csproj">
       <Project>{8089943c-cf7f-4452-bc59-1835f0c1349e}</Project>
       <Name>System.Data.SQLite-Portable</Name>
