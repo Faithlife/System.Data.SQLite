@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>System.Data.SQLite</RootNamespace>
     <AssemblyName>System.Data.SQLite</AssemblyName>
-    <TargetFrameworkProfile>Profile7</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
   </PropertyGroup>
