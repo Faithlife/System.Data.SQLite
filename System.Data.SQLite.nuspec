@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Logos.System.Data.SQLite</id>
+    <id>Faithlife.System.Data.SQLite</id>
     <version>$version$</version>
-    <authors>Logos Bible Software</authors>
-    <owners>Logos Bible Software</owners>
+    <authors>Faithlife Corporation</authors>
+    <owners>Faithlife Corporation</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An independent implementation of the core of ADO.NET.</description>
     <copyright>Copyright 2014-2015 Faithlife / Logos Bible Software</copyright>
     <dependencies>
-      <group targetFramework="portable-net45+win+wp8+MonoAndroid+MonoTouch+Xamarin.iOS10">
-        <dependency id="Logos.PclContrib.Portable.Data" version="0.1.1" />
+      <group targetFramework="portable-net45+netcore45+wpa81">
+        <dependency id="Faithlife.PortableContrib" version="1.0.0" />
       </group>
       <group targetFramework="net45"></group>
       <group targetFramework="MonoMac"></group>
@@ -20,7 +20,7 @@
     </dependencies>
   </metadata>
   <files>   
-    <file src="src\System.Data.SQLite-Portable\bin\$configuration$\System.Data.SQLite.*" target="lib\portable-net45+win+wp8+MonoAndroid+MonoTouch\" />
+    <file src="src\System.Data.SQLite-Portable\bin\$configuration$\System.Data.SQLite.*" target="lib\portable-net45+netcore45+wpa81\" />
     <file src="src\System.Data.SQLite-Net45\bin\$configuration$\System.Data.SQLite.*" target="lib\Net45\" />
     <file src="src\System.Data.SQLite-Mac\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoMac\" />
     <file src="src\System.Data.SQLite-MonoAndroid\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoAndroid\" exclude="**\*.mdb" />

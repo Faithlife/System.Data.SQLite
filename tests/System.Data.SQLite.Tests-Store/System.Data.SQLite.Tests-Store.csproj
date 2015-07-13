@@ -140,6 +140,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Faithlife.PortableContrib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Faithlife.PortableContrib.1.0.0.0\lib\portable-net45+netcore45+wpa81\Faithlife.PortableContrib.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.core">
       <HintPath>..\..\packages\NUnitTestAdapter.1.0\lib\nunit.core.dll</HintPath>
       <Private>False</Private>
@@ -158,9 +163,6 @@
     <Reference Include="NUnit.VisualStudio.TestAdapter">
       <HintPath>..\..\packages\NUnitTestAdapter.1.0\lib\NUnit.VisualStudio.TestAdapter.dll</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="Portable.Data">
-      <HintPath>..\..\packages\Logos.PclContrib.Portable.Data.0.1.1.0\lib\portable-net4+sl5+netcore45+wp8+MonoAndroid1+MonoTouch1\Portable.Data.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -1,11 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{84E62E5E-EDC1-4B3F-9395-7AF8C276FE9B}"
 	ProjectSection(SolutionItems) = preProject
 		build.ps1 = build.ps1
+		System.Data.SQLite.nuspec = System.Data.SQLite.nuspec
 	EndProjectSection
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "System.Data.SQLite", "src\System.Data.SQLite\System.Data.SQLite.shproj", "{0376423D-6D15-4593-BCC2-AAB1EBE30A2F}"
