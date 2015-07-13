@@ -43,5 +43,5 @@ Task NuGetPack -depends SourceIndex {
 }
 
 Task NuGetPublish -depends NuGetPack -precondition { return $apiKey -and $nugetPackageSource } {
-  Exec { tools\NuGet\NuGet push $outputDir\Logos.System.Data.SQLite.$script:version.nupkg -ApiKey $apiKey -Source $nugetPackageSource }
+  Exec { tools\NuGet\NuGet push $outputDir\Faithlife.System.Data.SQLite.$script:version.nupkg -ApiKey $apiKey -Source $nugetPackageSource }
 }
