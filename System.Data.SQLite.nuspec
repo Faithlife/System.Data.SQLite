@@ -6,8 +6,8 @@
     <authors>Faithlife Corporation</authors>
     <owners>Faithlife Corporation</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>An independent implementation of the core of ADO.NET.</description>
-    <copyright>Copyright 2014-2015 Faithlife / Logos Bible Software</copyright>
+    <description>An independent implementation of an ADO.NET provider for SQLite.</description>
+    <copyright>Copyright 2014-2015 Faithlife Corporation</copyright>
     <dependencies>
       <group targetFramework="portable-net45+netcore45+wpa81">
         <dependency id="Faithlife.PortableContrib" version="1.0.0" />

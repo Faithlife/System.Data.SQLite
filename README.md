@@ -26,13 +26,13 @@ If you’re looking for the official ADO.NET wrapper for [SQLite](http://sqlite.
 ## Enhancements
 
 * `DbDataReader.ReadAsync(CancellationToken)` is overridden to support cancellation from another thread (via [`sqlite_progress_handler`](http://www.sqlite.org/c3ref/progress_handler.html)).
-* Added [`SQLiteConnection.StatementCompleted`](https://github.com/LogosBible/System.Data.SQLite/search?q=StatementCompleted) to return the results of [`sqlite3_profile`](http://www.sqlite.org/c3ref/profile.html).
+* Added [`SQLiteConnection.StatementCompleted`](https://github.com/Faithlife/System.Data.SQLite/search?q=StatementCompleted) to return the results of [`sqlite3_profile`](http://www.sqlite.org/c3ref/profile.html).
 
 ## Compatibility
 
 This library is generally compatible with the official System.Data.SQLite API, but a few changes were made where necessary:
-* [SQLiteConnectionStringBuilder](https://github.com/LogosBible/System.Data.SQLite/blob/master/src/System.Data.SQLite/SQLiteConnectionStringBuilder.cs) does not support all the official connection string properties.
-* [SQLiteDataReader](https://github.com/LogosBible/System.Data.SQLite/blob/master/src/System.Data.SQLite/SQLiteDataReader.cs) performs fewer implicit conversions.
+* [SQLiteConnectionStringBuilder](https://github.com/Faithlife/System.Data.SQLite/blob/master/src/System.Data.SQLite/SQLiteConnectionStringBuilder.cs) does not support all the official connection string properties.
+* [SQLiteDataReader](https://github.com/Faithlife/System.Data.SQLite/blob/master/src/System.Data.SQLite/SQLiteDataReader.cs) performs fewer implicit conversions.
 * Not all SQL type aliases (`text`, `int`, `blob`, etc.) are supported.
 
 This wrapper is managed-only; you still need a copy of the native SQLite library. A recent copy is provided in the `lib` folder (for the unit tests).
