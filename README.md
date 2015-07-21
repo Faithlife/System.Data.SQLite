@@ -25,7 +25,6 @@ If you’re looking for the official ADO.NET wrapper for [SQLite](http://sqlite.
 
 ## Enhancements
 
-* `DbDataReader.ReadAsync(CancellationToken)` is overridden to support cancellation from another thread (via [`sqlite_progress_handler`](http://www.sqlite.org/c3ref/progress_handler.html)).
 * Added [`SQLiteConnection.StatementCompleted`](https://github.com/Faithlife/System.Data.SQLite/search?q=StatementCompleted) to return the results of [`sqlite3_profile`](http://www.sqlite.org/c3ref/profile.html).
 
 ## Compatibility

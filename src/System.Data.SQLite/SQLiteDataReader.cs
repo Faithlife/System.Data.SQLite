@@ -507,18 +507,6 @@ namespace System.Data.SQLite
 		}
 #endif
 
-#if MONOTOUCH
-		[MonoTouch.MonoPInvokeCallback(typeof(SQLiteProgressCallback))]
-#elif XAMARIN_IOS
-		[ObjCRuntime.MonoPInvokeCallback(typeof(SQLiteProgressCallback))]
-#endif
-		private static int IsCanceled(IntPtr userData)
-		{
-			GCHandle cancellationTokenHandle = GCHandle.FromIntPtr(userData);
-			CancellationToken cancellationToken = (CancellationToken) cancellationTokenHandle.Target;
-			return cancellationToken.IsCancellationRequested ? 1 : 0;
-		}
-
 		public override int VisibleFieldCount
 		{
 			get { return FieldCount; }
@@ -652,7 +640,6 @@ namespace System.Data.SQLite
 		static readonly Task<bool> s_canceledTask = CreateCanceledTask();
 		static readonly Task<bool> s_falseTask = Task.FromResult(false);
 		static readonly Task<bool> s_trueTask = Task.FromResult(true);
-		static readonly SQLiteProgressCallback s_isCanceled = IsCanceled;
 
 		SQLiteCommand m_command;
 		readonly CommandBehavior m_behavior;
