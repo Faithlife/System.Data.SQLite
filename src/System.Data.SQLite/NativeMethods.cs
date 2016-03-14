@@ -101,7 +101,7 @@ namespace System.Data.SQLite
 		public static extern SQLiteErrorCode sqlite3_finalize(IntPtr stmt);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
-		public static extern SQLiteErrorCode sqlite3_interrupt(SqliteDatabaseHandle db);
+		public static extern void sqlite3_interrupt(SqliteDatabaseHandle db);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_key(SqliteDatabaseHandle db, byte[] key, int keylen);
