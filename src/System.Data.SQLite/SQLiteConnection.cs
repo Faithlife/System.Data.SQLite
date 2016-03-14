@@ -107,6 +107,10 @@ namespace System.Data.SQLite
 						throw new SQLiteException(SQLiteErrorCode.ReadOnly);
 				}
 
+				// wait up to ten seconds (in native code) when there is DB contention, but still give managed code a
+				// chance to respond to cancellation periodically
+				NativeMethods.sqlite3_busy_timeout(m_db, 10000);
+
 				if (connectionStringBuilder.CacheSize != 0)
 					this.ExecuteNonQuery("pragma cache_size={0}".FormatInvariant(connectionStringBuilder.CacheSize));
 

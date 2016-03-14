@@ -41,6 +41,9 @@ namespace System.Data.SQLite
 		public static extern SQLiteErrorCode sqlite3_bind_text(SqliteStatementHandle stmt, int ordinal, byte[] value, int count, IntPtr free);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern SQLiteErrorCode sqlite3_busy_timeout(SqliteDatabaseHandle db, int ms);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_close(IntPtr db);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
@@ -96,6 +99,9 @@ namespace System.Data.SQLite
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_finalize(IntPtr stmt);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern SQLiteErrorCode sqlite3_interrupt(SqliteDatabaseHandle db);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_key(SqliteDatabaseHandle db, byte[] key, int keylen);

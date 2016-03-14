@@ -24,7 +24,6 @@ namespace System.Data.SQLite
 			if (m_bytesUsed == m_commandTextBytes.Length)
 				return null;
 
-			Random random = null;
 			SQLiteErrorCode errorCode;
 			do
 			{
@@ -47,9 +46,7 @@ namespace System.Data.SQLite
 						case SQLiteErrorCode.CantOpen:
 							if (cancellationToken.IsCancellationRequested)
 								return null;
-							if (random == null)
-								random = new Random();
-							Thread.Sleep(random.Next(1, 150));
+							Thread.Sleep(20);
 							break;
 
 						default:

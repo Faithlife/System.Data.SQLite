@@ -143,38 +143,38 @@ namespace System.Data.SQLite
 
 		private Task<bool> ReadAsyncCore(CancellationToken cancellationToken)
 		{
-			Random random = null;
-			while (!cancellationToken.IsCancellationRequested)
+			using (cancellationToken.Register(s_interrupt, DatabaseHandle, useSynchronizationContext: false))
 			{
-				SQLiteErrorCode errorCode = NativeMethods.sqlite3_step(m_currentStatement);
-
-				switch (errorCode)
+				while (!cancellationToken.IsCancellationRequested)
 				{
-				case SQLiteErrorCode.Done:
-					Reset();
-					return s_falseTask;
+					SQLiteErrorCode errorCode = NativeMethods.sqlite3_step(m_currentStatement);
 
-				case SQLiteErrorCode.Row:
-					m_hasRead = true;
-					if (m_columnType == null)
-						m_columnType = new DbType?[NativeMethods.sqlite3_column_count(m_currentStatement)];
-					return s_trueTask;
+					switch (errorCode)
+					{
+					case SQLiteErrorCode.Done:
+						Reset();
+						return s_falseTask;
 
-				case SQLiteErrorCode.Busy:
-				case SQLiteErrorCode.Locked:
-				case SQLiteErrorCode.CantOpen:
-					if (cancellationToken.IsCancellationRequested)
+					case SQLiteErrorCode.Row:
+						m_hasRead = true;
+						if (m_columnType == null)
+							m_columnType = new DbType?[NativeMethods.sqlite3_column_count(m_currentStatement)];
+						return s_trueTask;
+
+					case SQLiteErrorCode.Busy:
+					case SQLiteErrorCode.Locked:
+					case SQLiteErrorCode.CantOpen:
+						if (cancellationToken.IsCancellationRequested)
+							return s_canceledTask;
+						Thread.Sleep(20);
+						break;
+
+					case SQLiteErrorCode.Interrupt:
 						return s_canceledTask;
-					if (random == null)
-						random = new Random();
-					Thread.Sleep(random.Next(1, 150));
-					break;
 
-				case SQLiteErrorCode.Interrupt:
-					return s_canceledTask;
-
-				default:
-					throw new SQLiteException(errorCode);
+					default:
+						throw new SQLiteException(errorCode);
+					}
 				}
 			}
 
@@ -516,6 +516,8 @@ namespace System.Data.SQLite
 		{
 			get { return ((SQLiteConnection) m_command.Connection).Handle; }
 		}
+
+		private static readonly Action<Object> s_interrupt = obj => NativeMethods.sqlite3_interrupt((SqliteDatabaseHandle) obj);
 
 		private void Reset()
 		{
