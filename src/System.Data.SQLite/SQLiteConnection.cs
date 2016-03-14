@@ -86,13 +86,15 @@ namespace System.Data.SQLite
 				if (errorCode != SQLiteErrorCode.Ok)
 				{
 					SetState(ConnectionState.Broken);
-					errorCode.ThrowOnError();
+					throw new SQLiteException(errorCode, m_db);
 				}
 
 				if (!string.IsNullOrEmpty(connectionStringBuilder.Password))
 				{
 					byte[] passwordBytes = Encoding.UTF8.GetBytes(connectionStringBuilder.Password);
-					NativeMethods.sqlite3_key(m_db, passwordBytes, passwordBytes.Length).ThrowOnError();
+					errorCode = NativeMethods.sqlite3_key(m_db, passwordBytes, passwordBytes.Length);
+					if (errorCode != SQLiteErrorCode.Ok)
+						throw new SQLiteException(errorCode, m_db);
 				}
 
 				bool allowOpenReadOnly = true;

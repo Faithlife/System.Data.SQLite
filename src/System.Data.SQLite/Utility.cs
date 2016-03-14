@@ -48,11 +48,5 @@ namespace System.Data.SQLite
 		{
 			return (T) Enum.Parse(typeof(T), value, true);
 		}
-
-		public static void ThrowOnError(this SQLiteErrorCode errorCode)
-		{
-			if (errorCode != SQLiteErrorCode.Ok)
-				throw new SQLiteException(errorCode);
-		}
 	}
 }

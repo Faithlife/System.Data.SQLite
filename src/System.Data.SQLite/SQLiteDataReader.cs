@@ -70,29 +70,29 @@ namespace System.Data.SQLite
 					{
 						object value = parameter.Value;
 						if (value == null || value.Equals(DBNull.Value))
-							NativeMethods.sqlite3_bind_null(m_currentStatement, index).ThrowOnError();
+							ThrowOnError(NativeMethods.sqlite3_bind_null(m_currentStatement, index));
 						else if (value is int || (value is Enum && Enum.GetUnderlyingType(value.GetType()) == typeof(int)))
-							NativeMethods.sqlite3_bind_int(m_currentStatement, index, (int) value).ThrowOnError();
+							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, (int) value));
 						else if (value is bool)
-							NativeMethods.sqlite3_bind_int(m_currentStatement, index, ((bool) value) ? 1 : 0).ThrowOnError();
+							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, ((bool) value) ? 1 : 0));
 						else if (value is string)
 							BindText(index, (string) value);
 						else if (value is byte[])
 							BindBlob(index, (byte[]) value);
 						else if (value is long)
-							NativeMethods.sqlite3_bind_int64(m_currentStatement, index, (long) value).ThrowOnError();
+							ThrowOnError(NativeMethods.sqlite3_bind_int64(m_currentStatement, index, (long) value));
 						else if (value is float)
-							NativeMethods.sqlite3_bind_double(m_currentStatement, index, (float) value).ThrowOnError();
+							ThrowOnError(NativeMethods.sqlite3_bind_double(m_currentStatement, index, (float) value));
 						else if (value is double)
-							NativeMethods.sqlite3_bind_double(m_currentStatement, index, (double) value).ThrowOnError();
+							ThrowOnError(NativeMethods.sqlite3_bind_double(m_currentStatement, index, (double) value));
 						else if (value is DateTime)
 							BindText(index, ToString((DateTime) value));
 						else if (value is Guid)
 							BindBlob(index, ((Guid) value).ToByteArray());
 						else if (value is byte)
-							NativeMethods.sqlite3_bind_int(m_currentStatement, index, (byte) value).ThrowOnError();
+							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, (byte) value));
 						else if (value is short)
-							NativeMethods.sqlite3_bind_int(m_currentStatement, index, (short) value).ThrowOnError();
+							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, (short) value));
 						else
 							BindText(index, Convert.ToString(value, CultureInfo.InvariantCulture));
 					}
@@ -103,7 +103,7 @@ namespace System.Data.SQLite
 			finally
 			{
 				if (!success)
-					NativeMethods.sqlite3_reset(m_currentStatement).ThrowOnError();
+					ThrowOnError(NativeMethods.sqlite3_reset(m_currentStatement));
 			}
 
 			return s_trueTask;
@@ -173,7 +173,7 @@ namespace System.Data.SQLite
 						return s_canceledTask;
 
 					default:
-						throw new SQLiteException(errorCode);
+						throw new SQLiteException(errorCode, DatabaseHandle);
 					}
 				}
 			}
@@ -551,13 +551,19 @@ namespace System.Data.SQLite
 
 		private void BindBlob(int ordinal, byte[] blob)
 		{
-			NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, blob, blob.Length, s_sqliteTransient).ThrowOnError();
+			ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, blob, blob.Length, s_sqliteTransient));
 		}
 
 		private void BindText(int ordinal, string text)
 		{
 			byte[] bytes = SQLiteConnection.ToUtf8(text);
-			NativeMethods.sqlite3_bind_text(m_currentStatement, ordinal, bytes, bytes.Length, s_sqliteTransient).ThrowOnError();
+			ThrowOnError(NativeMethods.sqlite3_bind_text(m_currentStatement, ordinal, bytes, bytes.Length, s_sqliteTransient));
+		}
+
+		private void ThrowOnError(SQLiteErrorCode errorCode)
+		{
+			if (errorCode != SQLiteErrorCode.Ok)
+				throw new SQLiteException(errorCode, DatabaseHandle);
 		}
 
 		private static string ToString(DateTime dateTime)
