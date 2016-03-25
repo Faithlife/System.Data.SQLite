@@ -36,3 +36,17 @@ This library is generally compatible with the official System.Data.SQLite API, b
 * Not all SQL type aliases (`text`, `int`, `blob`, etc.) are supported.
 
 This wrapper is managed-only; you still need a copy of the native SQLite library. A recent copy is provided in the `lib` folder (for the unit tests).
+
+## Async
+
+This library implements all the `*Async` methods of `DbCommand`, etc. However, because SQLite itself performs
+synchronous I/O (and it would be extremely difficult to make it truly async), they don't actually have an async
+implementation, but will run synchronously. (Using `Task.Run` in the implementation is [a bad idea](http://blog.stephencleary.com/2013/11/taskrun-etiquette-examples-dont-use.html);
+see also [here](http://blogs.msdn.com/b/pfxteam/archive/2012/03/24/10287244.aspx) and [here](http://blog.stephencleary.com/2013/11/taskrun-etiquette-examples-using.html).) 
+If you need to perform database work off the UI thread, use `Task.Run` in the UI code to execute a series of
+SQLite calls on a background thread.
+
+The `*Async` methods *do* support cancellation, though. If you pass in a `CancellationToken`, the methods will
+still run synchronously, but you can interrupt them (even if they're in a long-running loop in SQLite's native code)
+by cancelling the cancellation token from another thread. (For example, you can cancel DB work that's happening
+on a threadpool thread when a user clicks a "Cancel" button in the UI.)
