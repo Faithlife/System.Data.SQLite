@@ -441,7 +441,7 @@ namespace System.Data.SQLite
 			case SQLiteColumnType.Text:
 				int stringLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
 				string stringValue = SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_text(m_currentStatement, ordinal), stringLength);
-				return dbType == DbType.DateTime ? (object) DateTime.ParseExact(stringValue, s_dateTimeFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None) :
+				return dbType == DbType.DateTime ? (object) DateTime.ParseExact(stringValue, s_dateTimeFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AdjustToUniversal) :
 					(object) stringValue;
 
 			default:
