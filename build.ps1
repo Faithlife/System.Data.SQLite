@@ -1,7 +1,7 @@
 properties {
   $configuration = "Release"
   $buildAllPlatforms = $false
-  $gitPath = "C:\Program Files (x86)\Git\bin\git.exe"
+  $gitPath = "C:\Program Files\Git\bin\git.exe"
   $outputDir = "build"
   $apiKey = $null
   $nugetPackageSource = $null
@@ -45,13 +45,14 @@ Task SourceIndex -depends Tests {
   }
 
   foreach ($project in $projects) {
-    Exec { tools\SourceIndex\github-sourceindexer.ps1 -symbolsFolder src\$project\bin\$configuration -userId Faithlife -repository System.Data.SQLite -branch $headSha -sourcesRoot ${pwd} -dbgToolsPath "C:\Program Files (x86)\Windows Kits\8.1\Debuggers\x86" -gitHubUrl "https://raw.github.com" -serverIsRaw -ignoreUnknown -verbose }
+    Exec { tools\SourceIndex\github-sourceindexer.ps1 -symbolsFolder src\$project\bin\$configuration -userId Faithlife -repository System.Data.SQLite -branch $headSha -sourcesRoot ${pwd} -gitHubUrl "https://raw.github.com" -serverIsRaw -ignoreUnknown -verbose }
   }
 }
 
 Task NuGetPack -depends SourceIndex {
   mkdir $outputDir -force
-  $script:version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("src\System.Data.SQLite-Net45\bin\$configuration\System.Data.SQLite.dll").FileVersion
+  $dll = (Resolve-Path "src\System.Data.SQLite-Net45\bin\$configuration\System.Data.SQLite.dll").ToString()
+  $script:version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($dll).FileVersion
   Exec { tools\NuGet\NuGet pack System.Data.SQLite.nuspec -Version $script:version -Prop Configuration=$configuration -Symbols -OutputDirectory $outputDir }
 }
 
