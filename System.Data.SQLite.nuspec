@@ -15,7 +15,6 @@
       <group targetFramework="net45"></group>
       <group targetFramework="MonoMac"></group>
       <group targetFramework="MonoAndroid"></group>
-      <group targetFramework="MonoTouch"></group>
       <group targetFramework="Xamarin.iOS"></group>
     </dependencies>
   </metadata>
@@ -24,7 +23,6 @@
     <file src="src\System.Data.SQLite-Net45\bin\$configuration$\System.Data.SQLite.*" target="lib\Net45\" />
     <file src="src\System.Data.SQLite-Mac\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoMac\" />
     <file src="src\System.Data.SQLite-MonoAndroid\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoAndroid\" exclude="**\*.mdb" />
-    <file src="src\System.Data.SQLite-MonoTouch\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoTouch\" exclude="**\*.mdb" />
     <file src="src\System.Data.SQLite-Xamarin.iOS\bin\$configuration$\System.Data.SQLite.*" target="lib\Xamarin.iOS\" exclude="**\*.mdb" />
   </files>
 </package>
