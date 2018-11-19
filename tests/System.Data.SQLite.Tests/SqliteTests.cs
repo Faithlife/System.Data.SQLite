@@ -255,7 +255,8 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
 			{
 				string loggedSql = null;
-				StatementCompletedEventHandler handler = (sender, args) => { loggedSql = args.Sql; };
+				TimeSpan? duration = null;
+				StatementCompletedEventHandler handler = (sender, args) => { loggedSql = args.Sql; duration = args.Time; };
 
 				conn.StatementCompleted += handler;
 				conn.Open();
@@ -263,18 +264,25 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 				string sql = @"create table Test (Id integer primary key, String text);";
 				conn.Execute(sql);
 				Assert.AreEqual(sql, loggedSql);
+				Assert.NotNull(duration);
+				Assert.True(duration.Value >= TimeSpan.Zero);
 
 				conn.StatementCompleted -= handler;
 				loggedSql = null;
+				duration = null;
 				sql = @"insert into Test(Id, String) values(1, 'one');";
 				conn.Execute(sql);
 				Assert.IsNull(loggedSql);
+				Assert.IsNull(duration);
 
 				conn.StatementCompleted += handler;
 				loggedSql = null;
+				duration = null;
 				sql = @"insert into Test(Id, String) values(2, 'two');";
 				conn.Execute(sql);
 				Assert.AreEqual(sql, loggedSql);
+				Assert.NotNull(duration);
+				Assert.True(duration.Value >= TimeSpan.Zero);
 
 				conn.Close();
 				conn.StatementCompleted -= handler;

@@ -113,9 +113,6 @@ namespace System.Data.SQLite
 		public unsafe static extern SQLiteErrorCode sqlite3_prepare_v2(SqliteDatabaseHandle db, byte* pSql, int nBytes, out SqliteStatementHandle stmt, out byte* pzTail);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
-		public static extern void sqlite3_profile(SqliteDatabaseHandle db, SqliteProfileCallback callback, IntPtr userData);
-
-		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern void sqlite3_progress_handler(SqliteDatabaseHandle db, int virtualMachineInstructions, SQLiteProgressCallback callback, IntPtr userData);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
@@ -125,7 +122,13 @@ namespace System.Data.SQLite
 		public static extern SQLiteErrorCode sqlite3_step(SqliteStatementHandle stmt);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern IntPtr sqlite3_sql(IntPtr pStmt);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern int sqlite3_total_changes(SqliteDatabaseHandle db);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public static extern int sqlite3_trace_v2(SqliteDatabaseHandle db, SQLiteTraceEvents eventsMask, SQLiteTraceV2Callback callback, IntPtr userData);
 
 		const string c_dllName = "sqlite3";
 		const CallingConvention c_callingConvention = CallingConvention.Cdecl;
@@ -135,7 +138,7 @@ namespace System.Data.SQLite
 	internal delegate void SQLiteLogCallback(IntPtr pUserData, int errorCode, IntPtr pMessage);
 
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-	internal delegate void SqliteProfileCallback(IntPtr pUserData, IntPtr pSql, ulong time);
+	internal delegate void SQLiteTraceV2Callback(SQLiteTraceEvents code, IntPtr userData, IntPtr p, IntPtr x);
 
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	internal delegate int SQLiteProgressCallback(IntPtr pUserData);
@@ -167,5 +170,14 @@ namespace System.Data.SQLite
 		SQLITE_CONFIG_SQLLOG = 21, // xSqllog, void*
 		SQLITE_CONFIG_MMAP_SIZE = 22, // sqlite3_int64, sqlite3_int64
 		SQLITE_CONFIG_WIN32_HEAPSIZE = 23 // int nByte
+	}
+
+	[Flags]
+	internal enum SQLiteTraceEvents
+	{
+		SQLITE_TRACE_STMT = 1,
+		SQLITE_TRACE_PROFILE = 2,
+		SQLITE_TRACE_ROW = 4,
+		SQLITE_TRACE_CLOSE = 8,
 	}
 }

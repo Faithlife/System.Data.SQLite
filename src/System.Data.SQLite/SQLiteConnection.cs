@@ -378,14 +378,14 @@ namespace System.Data.SQLite
 			return Encoding.UTF8.GetString(bytes, 0, length);
 		}
 
-		private void SetProfileCallback(SqliteProfileCallback callback)
+		private void SetProfileCallback(SQLiteTraceV2Callback callback)
 		{
 			if (callback != null && !m_handle.IsAllocated)
 				m_handle = GCHandle.Alloc(this);
 			else if (callback == null && m_handle.IsAllocated)
 				m_handle.Free();
 
-			NativeMethods.sqlite3_profile(m_db, callback, m_handle.IsAllocated ? GCHandle.ToIntPtr(m_handle) : IntPtr.Zero);
+			NativeMethods.sqlite3_trace_v2(m_db, SQLiteTraceEvents.SQLITE_TRACE_PROFILE, callback, m_handle.IsAllocated ? GCHandle.ToIntPtr(m_handle) : IntPtr.Zero);
 		}
 
 		private void SetState(ConnectionState newState)
@@ -399,17 +399,21 @@ namespace System.Data.SQLite
 		}
 
 #if MONOTOUCH
-		[MonoTouch.MonoPInvokeCallback(typeof(SqliteProfileCallback))]
+		[MonoTouch.MonoPInvokeCallback(typeof(SQLiteTraceV2Callback))]
 #elif XAMARIN_IOS
-		[ObjCRuntime.MonoPInvokeCallback(typeof(SqliteProfileCallback))]
+		[ObjCRuntime.MonoPInvokeCallback(typeof(SQLiteTraceV2Callback))]
 #endif
-		private static void ProfileCallback(IntPtr puserdata, IntPtr pSql, ulong nanoseconds)
+		private static void ProfileCallback(SQLiteTraceEvents eventCode, IntPtr userData, IntPtr pStmt, IntPtr pDuration)
 		{
-			var handle = GCHandle.FromIntPtr(puserdata);
+			var handle = GCHandle.FromIntPtr(userData);
 			var connection = (SQLiteConnection) handle.Target;
 			StatementCompletedEventHandler handler = connection.m_statementCompleted;
 			if (handler != null)
-				handler(connection, new StatementCompletedEventArgs(FromUtf8(pSql), TimeSpan.FromMilliseconds(nanoseconds / 1000000.0)));
+			{
+				var sql = FromUtf8(NativeMethods.sqlite3_sql(pStmt));
+				var nanoseconds = Marshal.ReadInt64(pDuration);
+				handler(connection, new StatementCompletedEventArgs(sql, TimeSpan.FromMilliseconds(nanoseconds / 1000000.0)));
+			}
 		}
 
 		private void VerifyNotDisposed()
@@ -422,7 +426,7 @@ namespace System.Data.SQLite
 
 		SqliteDatabaseHandle m_db;
 		readonly Stack<SQLiteTransaction> m_transactions;
-		static readonly SqliteProfileCallback s_profileCallback = ProfileCallback;
+		static readonly SQLiteTraceV2Callback s_profileCallback = ProfileCallback;
 		ConnectionState m_connectionState;
 		GCHandle m_handle;
 		bool m_isDisposed;
