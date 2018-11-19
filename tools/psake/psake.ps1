@@ -18,13 +18,10 @@ param(
     [Parameter(Position=5, Mandatory=0)]
     [System.Collections.Hashtable]$properties = @{},
     [Parameter(Position=6, Mandatory=0)]
-    [alias("init")]
-    [scriptblock]$initialization = {},
-    [Parameter(Position=7, Mandatory=0)]
     [switch]$nologo = $false,
-    [Parameter(Position=8, Mandatory=0)]
+    [Parameter(Position=7, Mandatory=0)]
     [switch]$help = $false,
-    [Parameter(Position=9, Mandatory=0)]
+    [Parameter(Position=8, Mandatory=0)]
     [string]$scriptPath = $(Split-Path -parent $MyInvocation.MyCommand.path)
 )
 
@@ -48,4 +45,6 @@ if (-not(test-path $buildFile)) {
     }
 } 
 
-invoke-psake $buildFile $taskList $framework $docs $parameters $properties $initialization $nologo
+invoke-psake $buildFile -initialization {
+    $env:path = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\;$env:path"
+} $taskList $framework $docs $parameters $properties $nologo
