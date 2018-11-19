@@ -22,3 +22,4 @@ StyleCop.Cache
 *.userprefs
 AppPackages/
 .DS_Store
+.vs/
