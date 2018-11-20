@@ -373,9 +373,16 @@ namespace System.Data.SQLite
 
 		internal static string FromUtf8(IntPtr ptr, int length)
 		{
+#if NET47
+			unsafe
+			{
+				return Encoding.UTF8.GetString((byte*) ptr.ToPointer(), length);
+			}
+#else
 			byte[] bytes = new byte[length];
 			Marshal.Copy(ptr, bytes, 0, length);
 			return Encoding.UTF8.GetString(bytes, 0, length);
+#endif
 		}
 
 		private void SetProfileCallback(SQLiteTraceV2Callback callback)
