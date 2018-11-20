@@ -52,7 +52,7 @@ Task SourceIndex -depends Tests {
 Task NuGetPack -depends SourceIndex {
   mkdir $outputDir -force
   $dll = (Resolve-Path "src\System.Data.SQLite-Net45\bin\$configuration\System.Data.SQLite.dll").ToString()
-  $script:version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($dll).FileVersion
+  $script:version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($dll).ProductVersion
   Exec { tools\NuGet\NuGet pack System.Data.SQLite.nuspec -Version $script:version -Prop Configuration=$configuration -Symbols -OutputDirectory $outputDir }
 }
 
