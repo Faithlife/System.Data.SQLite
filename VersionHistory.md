@@ -1,5 +1,9 @@
 # Version History
 
+## 2.13.1
+
+* Add `net47` target platform.
+
 ## 2.13.0
 
 * Rewrite `SQLiteConnection.StatementCompleted` to use `sqlite3_trace_v2` API internally: [#29](https://github.com/Faithlife/System.Data.SQLite/pull/29).
