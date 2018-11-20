@@ -13,6 +13,7 @@
         <dependency id="Faithlife.PortableContrib" version="1.0.0" />
       </group>
       <group targetFramework="net45"></group>
+      <group targetFramework="net47"></group>
       <group targetFramework="MonoMac"></group>
       <group targetFramework="MonoAndroid"></group>
       <group targetFramework="Xamarin.iOS"></group>
@@ -21,6 +22,7 @@
   <files>   
     <file src="src\System.Data.SQLite-Portable\bin\$configuration$\System.Data.SQLite.*" target="lib\portable-net45+netcore45+wpa81\" />
     <file src="src\System.Data.SQLite-Net45\bin\$configuration$\System.Data.SQLite.*" target="lib\Net45\" />
+    <file src="src\System.Data.SQLite-Net47\bin\$configuration$\System.Data.SQLite.*" target="lib\Net47\" />
     <file src="src\System.Data.SQLite-Mac\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoMac\" />
     <file src="src\System.Data.SQLite-MonoAndroid\bin\$configuration$\System.Data.SQLite.*" target="lib\MonoAndroid\" exclude="**\*.mdb" />
     <file src="src\System.Data.SQLite-Xamarin.iOS\bin\$configuration$\System.Data.SQLite.*" target="lib\Xamarin.iOS\" exclude="**\*.mdb" />
