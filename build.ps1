@@ -37,11 +37,11 @@ Task Tests -depends Build {
 Task SourceIndex -depends Tests {
   $headSha = & $gitPath rev-parse HEAD
   if ($buildAllPlatforms) {
-    $projects = @("System.Data.SQLite-Mac", "System.Data.SQLite-MonoAndroid", "System.Data.SQLite-Net45", "System.Data.SQLite-Portable", "System.Data.SQLite-Xamarin.iOS")
+    $projects = @("System.Data.SQLite-Mac", "System.Data.SQLite-MonoAndroid", "System.Data.SQLite-Net45", "System.Data.SQLite-Net47", "System.Data.SQLite-Portable", "System.Data.SQLite-Xamarin.iOS")
   }
   else
   {
-    $projects = @("System.Data.SQLite-Mac", "System.Data.SQLite-Net45", "System.Data.SQLite-Portable")
+    $projects = @("System.Data.SQLite-Mac", "System.Data.SQLite-Net45", "System.Data.SQLite-Net47", "System.Data.SQLite-Portable")
   }
 
   foreach ($project in $projects) {

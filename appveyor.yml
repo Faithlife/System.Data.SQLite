@@ -6,4 +6,5 @@ before_build: nuget restore
 test:
   assemblies:
     - tests\System.Data.SQLite.Tests-Net45\bin\$(configuration)\System.Data.SQLite.Tests.dll
+    - tests\System.Data.SQLite.Tests-Net47\bin\$(configuration)\System.Data.SQLite.Tests.dll
 
