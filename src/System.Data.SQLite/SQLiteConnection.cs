@@ -69,7 +69,7 @@ namespace System.Data.SQLite
 			if (string.IsNullOrEmpty(m_dataSource))
 				throw new InvalidOperationException("Connection String Data Source must be set.");
 
-			SQLiteOpenFlags openFlags = connectionStringBuilder.ReadOnly ? SQLiteOpenFlags.ReadOnly : SQLiteOpenFlags.ReadWrite;
+			SQLiteOpenFlags openFlags = (connectionStringBuilder.ReadOnly ? SQLiteOpenFlags.ReadOnly : SQLiteOpenFlags.ReadWrite) | SQLiteOpenFlags.Uri;
 			if (!connectionStringBuilder.FailIfMissing && !connectionStringBuilder.ReadOnly)
 				openFlags |= SQLiteOpenFlags.Create;
 
