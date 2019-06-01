@@ -1,10 +1,15 @@
-platform: Any CPU
-configuration: Release
- 
-before_build: nuget restore
-
-test:
-  assemblies:
-    - tests\System.Data.SQLite.Tests-Net45\bin\$(configuration)\System.Data.SQLite.Tests.dll
-    - tests\System.Data.SQLite.Tests-Net47\bin\$(configuration)\System.Data.SQLite.Tests.dll
-
+version: '{build}'
+image:
+- Visual Studio 2017
+- Ubuntu
+environment:
+  NUGET_API_KEY:
+    secure: Ev6JfzK7FYZzsR4ALWtJs95U98Pa9FxgMxECDA0LGNidWwULyKoQIKYQwMVZ1s0U
+  BUILD_BOT_PASSWORD:
+    secure: wJ9JVS5hSAp9ItYlHKxTPg==
+build_script:
+- cmd: .\build.cmd publish "--trigger=%APPVEYOR_REPO_TAG_NAME%" "--build-number=%APPVEYOR_BUILD_NUMBER%"
+- sh: ./build.sh package
+test: off
+artifacts:
+- path: 'release\*.nupkg'

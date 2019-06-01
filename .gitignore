@@ -1,25 +1,15 @@
 # ignore output folders
 bin/
-build/
 obj/
+release/
 
 # ignore user-specific options/cache files
-packages/
-_ReSharper.*
-Thumbs.db
-*.csproj.user
-*.DotSettings.user
-*.nupkg
-*.opensdf
-*.[Rr]e[Ss]harper.user
-*.sdf
-*.sln.cache
-*.suo
-*.vcxproj.user
-*.tmp
-*.pidb
-StyleCop.Cache
-*.userprefs
-AppPackages/
-.DS_Store
 .vs/
+Thumbs.db
+*.cache
+*.user
+*.userprefs
+*.ncrunchproject
+*.ncrunchsolution
+nCrunchTemp*
+_ReSharper*
