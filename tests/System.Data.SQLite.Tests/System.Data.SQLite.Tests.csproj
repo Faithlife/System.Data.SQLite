@@ -1,11 +1,46 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="MSBuild.Sdk.Extras/2.0.24">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <Platforms>win-x64;win-x86;osx-x64;everything</Platforms>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\lib\x64\sqlite3.dll" Link="sqlite3.dll">
+  <PropertyGroup Condition=" '$(Platform)' == 'win-x64' ">
+    <TargetFrameworks>netcoreapp2.0;net472</TargetFrameworks>
+    <RuntimeIdentifier>$(Platform)</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'win-x86' ">
+    <TargetFrameworks>net472</TargetFrameworks>
+    <RuntimeIdentifier>$(Platform)</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'osx-x64' ">
+    <TargetFrameworks>netcoreapp2.0;net472</TargetFrameworks>
+    <RuntimeIdentifier>$(Platform)</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'everything' ">
+    <TargetFrameworks>netcoreapp2.0;net472;xamarin.ios10;monoandroid81</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'everything' and '$(TargetFramework)' == 'net472' ">
+    <RuntimeIdentifiers>win-x64;win-x86;osx-x64</RuntimeIdentifiers>
+    <ExtrasBuildEachRuntimeIdentifier>true</ExtrasBuildEachRuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'everything' and '$(TargetFramework)' == 'netcoreapp2.0' ">
+    <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
+    <ExtrasBuildEachRuntimeIdentifier>true</ExtrasBuildEachRuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
+    <None Include="..\..\lib\win-x64\sqlite3.dll" Link="sqlite3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'win-x86' ">
+    <None Include="..\..\lib\win-x86\sqlite3.dll" Link="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -18,6 +53,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\System.Data.SQLite\System.Data.SQLite.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'xamarin.ios10' or '$(TargetFramework)' == 'monoandroid81' ">
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
 
 </Project>
