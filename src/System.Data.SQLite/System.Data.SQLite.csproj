@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <Platforms>everything;noxamarin</Platforms>
+    <PackageId>Faithlife.System.Data.SQLite</PackageId>
     <Description>An independent implementation of an ADO.NET provider for SQLite.</Description>
     <PackageTags>sqlite ado.net</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
