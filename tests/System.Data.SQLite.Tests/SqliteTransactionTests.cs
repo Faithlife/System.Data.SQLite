@@ -1,8 +1,8 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-#if NET45
+#if DAPPER
 using Dapper;
 #endif
 using NUnit.Framework;

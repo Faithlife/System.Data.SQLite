@@ -1,4 +1,4 @@
-﻿namespace System.Data.SQLite
+namespace System.Data.SQLite
 {
 	public static class SQLiteLog
 	{
@@ -35,7 +35,7 @@
 
 		static SQLiteLog()
 		{
-#if NET45
+#if false //NET45
 			string disableSqliteLogging = System.Configuration.ConfigurationManager.AppSettings["disableSqliteLogging"];
 			bool settingValue;
 			if (disableSqliteLogging != null && bool.TryParse(disableSqliteLogging, out settingValue) && settingValue)

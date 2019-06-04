@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Reflection;
 using NUnit.Framework;
@@ -7,7 +7,7 @@ namespace System.Data.SQLite.Tests
 {
 	internal static class TestUtility
 	{
-#if !NET45
+#if !DAPPER
 		public static int Execute(this IDbConnection connection, string commandText, object parameters = null, IDbTransaction transaction = null)
 		{
 			using (var command = connection.CreateCommand())

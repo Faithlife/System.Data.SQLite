@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace System.Data.SQLite.Tests
 {
@@ -41,13 +41,20 @@ namespace System.Data.SQLite.Tests
 
 		[TestCase("1000", 1000)]
 		[TestCase("4000", 4000)]
-		[TestCase("FALSE", 0, ExpectedException = typeof(FormatException))]
 		[TestCase(null, 0)]
 		[TestCase("", 0)]
 		public void CacheSize(string text, int expected)
 		{
 			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Cache Size=" + text };
 			Assert.AreEqual(expected, csb.CacheSize);
+		}
+
+		[TestCase("FALSE")]
+		public void CacheSizeThrows(string text)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Cache Size=" + text };
+			int unused;
+			Assert.Catch<FormatException>(() => unused = csb.CacheSize);
 		}
 
 		[TestCase("Data Source", "C:\\temp\\test.db")]
@@ -61,7 +68,6 @@ namespace System.Data.SQLite.Tests
 
 		[TestCase("30", 30)]
 		[TestCase("86400", 86400)]
-		[TestCase("FALSE", 0, ExpectedException = typeof(FormatException))]
 		[TestCase(null, 0)]
 		[TestCase("", 0)]
 		public void DefaultTimeout(string text, int expected)
@@ -70,24 +76,46 @@ namespace System.Data.SQLite.Tests
 			Assert.AreEqual(expected, csb.DefaultTimeout);
 		}
 
+		[TestCase("FALSE")]
+		public void DefaultTimeoutThrows(string text)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Default Timeout=" + text };
+			int unused;
+			Assert.Catch<FormatException>(() => unused = csb.DefaultTimeout);
+		}
+
 		[TestCase("True", true)]
 		[TestCase("true", true)]
 		[TestCase("FALSE", false)]
-		[TestCase("null", false, ExpectedException = typeof(FormatException))]
 		public void FailIfMissing(string text, bool expected)
 		{
 			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "FailIfMissing=" + text };
 			Assert.AreEqual(expected, csb.FailIfMissing);
 		}
 
+		[TestCase("null")]
+		public void FailIfMissingThrows(string text)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "FailIfMissing=" + text };
+			bool unused;
+			Assert.Catch<FormatException>(() => unused = csb.FailIfMissing);
+		}
+
 		[TestCase("True", true)]
 		[TestCase("true", true)]
 		[TestCase("FALSE", false)]
-		[TestCase("null", false, ExpectedException = typeof(FormatException))]
 		public void ForeignKeys(string text, bool expected)
 		{
 			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Foreign Keys=" + text };
 			Assert.AreEqual(expected, csb.ForeignKeys);
+		}
+
+		[TestCase("null")]
+		public void ForeignKeysThrows(string text)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Foreign Keys=" + text };
+			bool unused;
+			Assert.Catch<FormatException>(() => unused = csb.ForeignKeys);
 		}
 
 		[TestCase("truncate", SQLiteJournalModeEnum.Truncate)]
@@ -107,7 +135,6 @@ namespace System.Data.SQLite.Tests
 
 		[TestCase("1048576", 1048576)]
 		[TestCase("4294967296", 4294967296L)]
-		[TestCase("FALSE", 0, ExpectedException = typeof(FormatException))]
 		[TestCase(null, 0)]
 		[TestCase("", 0)]
 		public void MmapSize(string text, long expected)
@@ -116,9 +143,16 @@ namespace System.Data.SQLite.Tests
 			Assert.AreEqual(expected, csb.MmapSize);
 		}
 
+		[TestCase("FALSE")]
+		public void MmapSizeThrows(string text)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "_MmapSize=" + text };
+			long unused;
+			Assert.Catch<FormatException>(() => unused = csb.MmapSize);
+		}
+
 		[TestCase("1024", 1024)]
 		[TestCase("4096", 4096)]
-		[TestCase("FALSE", 0, ExpectedException = typeof(FormatException))]
 		[TestCase(null, 0)]
 		[TestCase("", 0)]
 		public void PageSize(string text, int expected)
@@ -127,14 +161,29 @@ namespace System.Data.SQLite.Tests
 			Assert.AreEqual(expected, csb.PageSize);
 		}
 
+		[TestCase("FALSE")]
+		public void PageSizeThrows(string text)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Page Size=" + text };
+			int unused;
+			Assert.Catch<FormatException>(() => unused = csb.PageSize);
+		}
+
 		[TestCase("True", true)]
 		[TestCase("true", true)]
 		[TestCase("FALSE", false)]
-		[TestCase("null", false, ExpectedException = typeof(FormatException))]
 		public void ReadOnly(string text, bool expected)
 		{
 			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Read Only=" + text };
 			Assert.AreEqual(expected, csb.ReadOnly);
+		}
+
+		[TestCase("null")]
+		public void ReadOnlyThrows(string text)
+		{
+			SQLiteConnectionStringBuilder csb = new SQLiteConnectionStringBuilder { ConnectionString = "Read Only=" + text };
+			bool unused;
+			Assert.Catch<FormatException>(() => unused = csb.ReadOnly);
 		}
 
 		[TestCase("off", SynchronizationModes.Off)]

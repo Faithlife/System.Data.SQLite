@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-#if NET45
+#if DAPPER
 using Dapper;
 #endif
 using NUnit.Framework;
@@ -197,7 +197,7 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 			}
 		}
 
-#if NET45
+#if DAPPER
 		[Test]
 		public void IndexedParameters()
 		{
@@ -327,7 +327,7 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 
 		[Test]
 #if MONOANDROID
-		[Ignore]
+		[Ignore("Fails on Android?")]
 #endif
 		public void SubscribeUnsubscribeLog()
 		{

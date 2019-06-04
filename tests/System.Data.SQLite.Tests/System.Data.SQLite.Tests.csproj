@@ -1,0 +1,67 @@
+<Project Sdk="MSBuild.Sdk.Extras/2.0.24">
+
+  <PropertyGroup>
+    <Platforms>everything;win-x64;win-x86;osx-x64</Platforms>
+    <DefineConstants>$(DefineConstants);NET45;NET47</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' != 'win-x64' and '$(Platform)' != 'win-x86' and '$(Platform)' != 'osx-x64' ">
+    <TargetFrameworks>netcoreapp2.0;net472;xamarin.ios10;monoandroid81</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'win-x64' ">
+    <TargetFrameworks>netcoreapp2.0;net472</TargetFrameworks>
+    <RuntimeIdentifier>$(Platform)</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'win-x86' ">
+    <TargetFrameworks>net472</TargetFrameworks>
+    <RuntimeIdentifier>$(Platform)</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'osx-x64' ">
+    <TargetFrameworks>netcoreapp2.0;net472</TargetFrameworks>
+    <RuntimeIdentifier>$(Platform)</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'everything' and '$(TargetFramework)' == 'net472' ">
+    <RuntimeIdentifiers>win-x64;win-x86;osx-x64</RuntimeIdentifiers>
+    <ExtrasBuildEachRuntimeIdentifier>true</ExtrasBuildEachRuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'everything' and '$(TargetFramework)' == 'netcoreapp2.0' ">
+    <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
+    <ExtrasBuildEachRuntimeIdentifier>true</ExtrasBuildEachRuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
+    <None Include="..\..\lib\win-x64\sqlite3.dll" Link="sqlite3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'win-x86' ">
+    <None Include="..\..\lib\win-x86\sqlite3.dll" Link="sqlite3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' != 'xamarin.ios10' and '$(TargetFramework)' != 'monoandroid81' ">
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\System.Data.SQLite\System.Data.SQLite.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'xamarin.ios10' or '$(TargetFramework)' == 'monoandroid81' ">
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+
+</Project>
