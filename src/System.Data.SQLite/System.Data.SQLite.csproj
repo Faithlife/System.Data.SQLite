@@ -1,18 +1,18 @@
 <Project Sdk="MSBuild.Sdk.Extras/2.0.24">
 
   <PropertyGroup>
-    <Platforms>AnyCPU;everything</Platforms>
+    <Platforms>everything;noxamarin</Platforms>
     <Description>An independent implementation of an ADO.NET provider for SQLite.</Description>
     <PackageTags>sqlite ado.net</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Platform)' != 'everything' ">
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  <PropertyGroup Condition=" '$(Platform)' != 'noxamarin' ">
+    <TargetFrameworks>netstandard2.0;net472;xamarin.ios10;monoandroid81</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Platform)' == 'everything' ">
-    <TargetFrameworks>netstandard2.0;xamarin.ios10;monoandroid81</TargetFrameworks>
+  <PropertyGroup Condition=" '$(Platform)' == 'noxamarin' ">
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'xamarin.ios10' or '$(TargetFramework)' == 'monoandroid81' ">

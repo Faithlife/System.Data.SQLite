@@ -1,7 +1,11 @@
 <Project Sdk="MSBuild.Sdk.Extras/2.0.24">
 
   <PropertyGroup>
-    <Platforms>win-x64;win-x86;osx-x64;everything</Platforms>
+    <Platforms>everything;win-x64;win-x86;osx-x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' != 'win-x64' and '$(Platform)' != 'win-x86' and '$(Platform)' != 'osx-x64' ">
+    <TargetFrameworks>netcoreapp2.0;net472;xamarin.ios10;monoandroid81</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'win-x64' ">
@@ -17,10 +21,6 @@
   <PropertyGroup Condition=" '$(Platform)' == 'osx-x64' ">
     <TargetFrameworks>netcoreapp2.0;net472</TargetFrameworks>
     <RuntimeIdentifier>$(Platform)</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Platform)' == 'everything' ">
-    <TargetFrameworks>netcoreapp2.0;net472;xamarin.ios10;monoandroid81</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'everything' and '$(TargetFramework)' == 'net472' ">
@@ -48,6 +48,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.0" />
     <PackageReference Include="NUnit" Version="3.12.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' != 'xamarin.ios10' and '$(TargetFramework)' != 'monoandroid81' ">
     <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
   </ItemGroup>
 
