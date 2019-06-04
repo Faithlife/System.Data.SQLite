@@ -5,6 +5,7 @@
     <Description>An independent implementation of an ADO.NET provider for SQLite.</Description>
     <PackageTags>sqlite ado.net</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);NET45;NET47</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' != 'noxamarin' ">
