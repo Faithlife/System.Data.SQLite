@@ -8,7 +8,7 @@ If you’re looking for the official ADO.NET wrapper for [SQLite](http://sqlite.
 
 ## Build Status
 
-[![Build status](https://img.shields.io/appveyor/ci/BradleyGrainger/system-data-sqlite.svg)](https://ci.appveyor.com/project/BradleyGrainger/system-data-sqlite) [![NuGet](https://img.shields.io/nuget/v/Faithlife.System.Data.SQLite.svg)](https://www.nuget.org/packages/Faithlife.System.Data.SQLite/)
+[![Build status](https://img.shields.io/appveyor/ci/Faithlife/system-data-sqlite.svg)](https://ci.appveyor.com/project/Faithlife/system-data-sqlite) [![NuGet](https://img.shields.io/nuget/v/Faithlife.System.Data.SQLite.svg)](https://www.nuget.org/packages/Faithlife.System.Data.SQLite/)
 
 ## Why?
 
