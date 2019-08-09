@@ -1,5 +1,10 @@
 # Version History
 
+## 3.0.0
+
+* Support [URI filenames](https://www.sqlite.org/uri.html).
+* Supported frameworks: `netstandard2.0`, `net472`, `xamarin.ios10`, `monoandroid81`
+
 ## 2.13.1
 
 * Add `net47` target platform.
