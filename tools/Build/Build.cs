@@ -28,6 +28,9 @@ internal static class Build
 
 			// dotnet test doesn't work on Mac, so we must specify the test assemblies directly (see below)
 			TestSettings = new DotNetTestSettings(),
+
+			// enable SourceLink
+			SourceLinkSettings = SourceLinkSettings.Default,
 		};
 
 		IReadOnlyList<string> findTestAssemblies()
