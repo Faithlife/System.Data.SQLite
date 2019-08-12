@@ -1,5 +1,9 @@
 # Version History
 
+## 3.1.0
+
+* Support `JournalSizeLimit` and `PersistWal` connection string options.
+
 ## 3.0.0
 
 * Support [URI filenames](https://www.sqlite.org/uri.html).

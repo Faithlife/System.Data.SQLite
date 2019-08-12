@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -127,6 +127,19 @@ namespace System.Data.SQLite
 
 				if (connectionStringBuilder.JournalMode != SQLiteJournalModeEnum.Default)
 					this.ExecuteNonQuery("pragma journal_mode={0}".FormatInvariant(connectionStringBuilder.JournalMode));
+
+				if (connectionStringBuilder.ContainsKey(SQLiteConnectionStringBuilder.JournalSizeLimitKey))
+					this.ExecuteNonQuery("pragma journal_size_limit={0}".FormatInvariant(connectionStringBuilder.JournalSizeLimit));
+
+				if (connectionStringBuilder.ContainsKey(SQLiteConnectionStringBuilder.PersistWalKey))
+				{
+					unsafe
+					{
+						const int sqliteFcntlPersistWal = 10;
+						int enablePersistentWalMode = connectionStringBuilder.PersistWal ? 1 : 0;
+						NativeMethods.sqlite3_file_control(m_db, "main", sqliteFcntlPersistWal, &enablePersistentWalMode);
+					}
+				}
 
 				if (connectionStringBuilder.ContainsKey(SQLiteConnectionStringBuilder.SynchronousKey))
 					this.ExecuteNonQuery("pragma synchronous={0}".FormatInvariant(connectionStringBuilder.SyncMode));

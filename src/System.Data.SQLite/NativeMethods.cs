@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace System.Data.SQLite
 {
@@ -96,6 +96,9 @@ namespace System.Data.SQLite
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern IntPtr sqlite3_errstr(SQLiteErrorCode rc);
+
+		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+		public unsafe static extern int sqlite3_file_control(SqliteDatabaseHandle db, [MarshalAs(UnmanagedType.LPStr)] string zDbName, int op, int * userData);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_finalize(IntPtr stmt);

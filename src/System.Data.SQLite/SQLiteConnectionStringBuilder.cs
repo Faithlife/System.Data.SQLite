@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using System.Globalization;
 
 namespace System.Data.SQLite
@@ -226,6 +226,41 @@ namespace System.Data.SQLite
 			}
 		}
 		internal const string TempStoreKey = "_TempStore";
+
+		/// <summary>
+		/// Gets/sets the maximum size of rollback-journal and/or WAL files left after transactions or checkpoints.
+		/// </summary>
+		public long JournalSizeLimit
+		{
+			get
+			{
+				object value;
+				TryGetValue(JournalSizeLimitKey, out value);
+				return Convert.ToInt64(value, CultureInfo.InvariantCulture);
+			}
+			set
+			{
+				this[JournalSizeLimitKey] = value;
+			}
+		}
+		internal const string JournalSizeLimitKey = "JournalSizeLimit";
+
+		/// <summary>
+		/// If set to true, the -shm and -wal files are not automatically deleted.
+		/// </summary>
+		public bool PersistWal
+		{
+			get
+			{
+				object value;
+				return TryGetValue(PersistWalKey, out value) && ValueIsTrue(value);
+			}
+			set
+			{
+				this[PersistWalKey] = value;
+			}
+		}
+		internal const string PersistWalKey = "PersistWal";
 
 		private static bool ValueIsTrue(object value)
 		{
