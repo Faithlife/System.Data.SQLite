@@ -1,9 +1,9 @@
 version: '{build}'
 image:
-- Visual Studio 2017
+- Visual Studio 2019
 environment:
   NUGET_API_KEY:
-    secure: Ev6JfzK7FYZzsR4ALWtJs95U98Pa9FxgMxECDA0LGNidWwULyKoQIKYQwMVZ1s0U
+    secure: /FLJCPNtLDyXDbw62wnY4tBc3kRJMPNbttutkzVhCdUDEmg9pjEBGZnBVpBTemKK
   BUILD_BOT_PASSWORD:
     secure: wJ9JVS5hSAp9ItYlHKxTPg==
 build_script:

@@ -1,10 +1,12 @@
-<Project Sdk="MSBuild.Sdk.Extras/2.0.24">
+<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
 
   <PropertyGroup>
     <Platforms>everything;noxamarin</Platforms>
     <PackageId>Faithlife.System.Data.SQLite</PackageId>
     <Description>An independent implementation of an ADO.NET provider for SQLite.</Description>
     <PackageTags>sqlite ado.net</PackageTags>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>$(DefineConstants);NET45;NET47</DefineConstants>
   </PropertyGroup>

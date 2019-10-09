@@ -18,7 +18,7 @@ internal static class Build
 			},
 
 			// 32-bit MSBuild is required for Xamarin builds
-			MSBuildSettings = new MSBuildSettings { Version = MSBuildVersion.VS2017, Platform = MSBuildPlatform.X32 },
+			MSBuildSettings = new MSBuildSettings { Version = MSBuildVersion.VS2019, Platform = MSBuildPlatform.X32 },
 
 			// default to everything
 			SolutionPlatform = "everything",
