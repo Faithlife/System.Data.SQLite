@@ -10,6 +10,6 @@ build_script:
 - cmd: .\build.cmd publish "--trigger=%APPVEYOR_REPO_TAG_NAME%" "--build-number=%APPVEYOR_BUILD_NUMBER%"
 test: off
 install:
-- cmd: 'echo y | "C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" --licenses'
-- cmd: 'echo y | "C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" --update'
-- cmd: 'echo y | "C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" "build-tools;27.0.3"'
+- cmd: '"C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" --licenses < yes.txt'
+- cmd: '"C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" --update < yes.txt'
+- cmd: '"C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" "build-tools;27.0.3" < yes.txt'
