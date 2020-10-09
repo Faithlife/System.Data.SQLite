@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,6 +11,8 @@ namespace System.Data.SQLite
 {
 	public sealed class SQLiteDataReader : DbDataReader
 	{
+		private static readonly Regex PatternChar = new Regex(@"^(VAR)?CHAR\(([0-9]+)\)$");
+
 		public override void Close()
 		{
 			// NOTE: DbDataReader.Dispose calls Close, so we can't put our logic in Dispose(bool) and call Dispose() from this method.
@@ -395,7 +398,14 @@ namespace System.Data.SQLite
 				if (declType != IntPtr.Zero)
 				{
 					string type = SQLiteConnection.FromUtf8(declType);
-					if (!s_sqlTypeToDbType.TryGetValue(type, out dbType))
+
+					// Fixed CHAR(n) or variable VARCHAR(n) type
+					Match match = PatternChar.Match(type);
+					if(match.Success)
+					{
+						dbType = DbType.String;
+					}
+					else if (!s_sqlTypeToDbType.TryGetValue(type, out dbType))
 						throw new NotSupportedException("The data type name '{0}' is not supported.".FormatInvariant(type));
 				}
 				else
@@ -517,7 +527,7 @@ namespace System.Data.SQLite
 			get { return ((SQLiteConnection) m_command.Connection).Handle; }
 		}
 
-		private static readonly Action<Object> s_interrupt = obj => NativeMethods.sqlite3_interrupt((SqliteDatabaseHandle) obj);
+		private static readonly Action<object> s_interrupt = obj => NativeMethods.sqlite3_interrupt((SqliteDatabaseHandle) obj);
 
 		private void Reset()
 		{
