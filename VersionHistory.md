@@ -1,5 +1,12 @@
 # Version History
 
+## 3.2.0
+
+* `SQLiteLog` only calls `sqlite3_config` to initialize logging when an event handler is attached to `SQLiteLog.Log`.
+  * It is no longer called automatically from the `SQLiteConnection` constructor. This fixes a `TypeInitializationException` and `AppDomainUnloadedException` in `SQLiteLog`.
+  * If you are using `SQLiteLog.Log`, you _must_ attach an event handler before calling any other methods of this library. This is a [limitation of SQLite](https://www.sqlite.org/c3ref/config.html).
+  * If other methods in this library are used before `SQLiteLog.Log`, the native event handler will fail to be installed properly, and no `Log` events will be raised. 
+
 ## 3.1.0
 
 * Support `JournalSizeLimit` and `PersistWal` connection string options.
