@@ -13,7 +13,7 @@ This project is inactive. We recommend using one of the following supported alte
 
 This is an independent implementation of the core of ADO.NET: `IDbConnection`, `IDbCommand`, `IDbDataReader`, `IDbTransaction` (plus a few helpers) — enough types to let you create and query SQLite databases from managed code, including support for libraries such as [Dapper](https://dapperlib.github.io/Dapper/).
 
-It supports the following platforms: .NET 4.5 (Any CPU), Xamarin.iOS, PCL, MonoTouch, MonoAndroid.
+It supports the following platforms: .NET Framework 4.7.2., .NET Standard 2.0, Xamarin.iOS, MonoAndroid.
 
 ## Build Status
 
