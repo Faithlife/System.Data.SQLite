@@ -13,7 +13,6 @@ namespace System.Data.SQLite
 	{
 		public SQLiteConnection()
 		{
-			SQLiteLog.Initialize();
 			m_transactions = new Stack<SQLiteTransaction>();
 		}
 

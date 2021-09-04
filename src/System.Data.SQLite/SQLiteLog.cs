@@ -11,49 +11,34 @@ namespace System.Data.SQLite
 		{
 			add
 			{
-				if (s_loggingDisabled)
-					throw new InvalidOperationException("SQLite logging is disabled.");
-
 				lock (s_lock)
+				{
+					InitializeWithLock();
 					Handlers += value;
+				}
 			}
 			remove
 			{
-				if (s_loggingDisabled)
-					throw new InvalidOperationException("SQLite logging is disabled.");
-
 				lock (s_lock)
 					Handlers -= value;
 			}
 		}
 
-		internal static void Initialize()
+		private static void InitializeWithLock()
 		{
-			// reference a static field to force the static constructor to run
-			GC.KeepAlive(s_lock);
-		}
-
-		static SQLiteLog()
-		{
-#if false //NET45
-			string disableSqliteLogging = System.Configuration.ConfigurationManager.AppSettings["disableSqliteLogging"];
-			bool settingValue;
-			if (disableSqliteLogging != null && bool.TryParse(disableSqliteLogging, out settingValue) && settingValue)
+			if (s_callback == null)
 			{
-				s_loggingDisabled = true;
-				return;
-			}
-#endif
-
+				s_callback = LogCallback;
 #if XAMARIN_IOS
-			// Workaround Mono limitation with AMD64 varargs methods - See https://bugzilla.xamarin.com/show_bug.cgi?id=30144
-			if (IntPtr.Size == 8 && ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.DEVICE)
-				NativeMethods.sqlite3_config_log_arm64(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, s_callback, IntPtr.Zero);
-			else
-				NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
+				// Workaround Mono limitation with AMD64 varargs methods - See https://bugzilla.xamarin.com/show_bug.cgi?id=30144
+				if (IntPtr.Size == 8 && ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.DEVICE)
+					NativeMethods.sqlite3_config_log_arm64(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, s_callback, IntPtr.Zero);
+				else
+					NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
 #else
-			NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
+				NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
 #endif
+			}
 		}
 
 #if MONOTOUCH
@@ -71,8 +56,7 @@ namespace System.Data.SQLite
 		}
 
 		static readonly object s_lock = new object();
-		static readonly SQLiteLogCallback s_callback = LogCallback;
-		static readonly bool s_loggingDisabled = false;
+		static SQLiteLogCallback s_callback;
 		static event SQLiteLogEventHandler Handlers;
 	}
 
