@@ -1,10 +1,10 @@
 # A lightweight cross-platform replacement for System.Data.SQLite
 
-This is an independent implementation of the core of ADO.NET: `IDbConnection`, `IDbCommand`, `IDbDataReader`, `IDbTransaction` (plus a few helpers) — enough types to let you create and query SQLite databases from managed code, including support for libraries such as [Dapper](https://code.google.com/p/dapper-dot-net/).
+This is an independent implementation of the core of ADO.NET: `IDbConnection`, `IDbCommand`, `IDbDataReader`, `IDbTransaction` (plus a few helpers) — enough types to let you create and query SQLite databases from managed code, including support for libraries such as [Dapper](https://dapperlib.github.io/Dapper/).
 
 It supports the following platforms: .NET 4.5 (Any CPU), Xamarin.iOS, PCL, MonoTouch, MonoAndroid.
 
-If you’re looking for the official ADO.NET wrapper for [SQLite](http://sqlite.org/), it can be found at [http://system.data.sqlite.org/](http://system.data.sqlite.org/).
+If you’re looking for the official ADO.NET wrapper for [SQLite](https://sqlite.org/), it can be found at [https://system.data.sqlite.org/](https://system.data.sqlite.org/).
 
 ## Build Status
 
@@ -26,7 +26,7 @@ If you’re looking for the official ADO.NET wrapper for [SQLite](http://sqlite.
 ## Enhancements
 
 * `DbDataReader.ReadAsync(CancellationToken)` is overridden to support cancellation from another thread (via [`sqlite3_interrupt`](https://www.sqlite.org/c3ref/interrupt.html)).
-* Added [`SQLiteConnection.StatementCompleted`](https://github.com/Faithlife/System.Data.SQLite/search?q=StatementCompleted) to return the results of [`sqlite3_profile`](http://www.sqlite.org/c3ref/profile.html).
+* Added [`SQLiteConnection.StatementCompleted`](https://github.com/Faithlife/System.Data.SQLite/search?q=StatementCompleted) to return the results of [`sqlite3_profile`](https://www.sqlite.org/c3ref/profile.html).
 
 ## Compatibility
 
@@ -41,8 +41,8 @@ This wrapper is managed-only; you still need a copy of the native SQLite library
 
 This library implements all the `*Async` methods of `DbCommand`, etc. However, because SQLite itself performs
 synchronous I/O (and it would be extremely difficult to make it truly async), they don't actually have an async
-implementation, but will run synchronously. (Using `Task.Run` in the implementation is [a bad idea](http://blog.stephencleary.com/2013/11/taskrun-etiquette-examples-dont-use.html);
-see also [here](http://blogs.msdn.com/b/pfxteam/archive/2012/03/24/10287244.aspx) and [here](http://blog.stephencleary.com/2013/11/taskrun-etiquette-examples-using.html).) 
+implementation, but will run synchronously. (Using `Task.Run` in the implementation is [a bad idea](https://blog.stephencleary.com/2013/11/taskrun-etiquette-examples-dont-use.html);
+see also [here](https://devblogs.microsoft.com/pfxteam/should-i-expose-asynchronous-wrappers-for-synchronous-methods/) and [here](https://blog.stephencleary.com/2013/11/taskrun-etiquette-examples-using.html).)
 If you need to perform database work off the UI thread, use `Task.Run` in the UI code to execute a series of
 SQLite calls on a background thread.
 
