@@ -1,10 +1,19 @@
+# Inactive Project
+
+[![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive) 
+
+This project is inactive. We recommend using one of the following supported alternatives:
+
+* System.Data.SQLite - [Home Page](https://system.data.sqlite.org/), [NuGet](https://www.nuget.org/packages/System.Data.SQLite.Core).
+* Microsoft.Data.Sqlite - [Home Page](https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/), [NuGet](https://www.nuget.org/packages/Microsoft.Data.Sqlite).
+
+(Note to Faithlife developers: This package should continue to be used in Faithlife applications; the above notice is for external developers who find this project.)
+
 # A lightweight cross-platform replacement for System.Data.SQLite
 
 This is an independent implementation of the core of ADO.NET: `IDbConnection`, `IDbCommand`, `IDbDataReader`, `IDbTransaction` (plus a few helpers) — enough types to let you create and query SQLite databases from managed code, including support for libraries such as [Dapper](https://dapperlib.github.io/Dapper/).
 
 It supports the following platforms: .NET 4.5 (Any CPU), Xamarin.iOS, PCL, MonoTouch, MonoAndroid.
-
-If you’re looking for the official ADO.NET wrapper for [SQLite](https://sqlite.org/), it can be found at [https://system.data.sqlite.org/](https://system.data.sqlite.org/).
 
 ## Build Status
 
@@ -14,7 +23,7 @@ If you’re looking for the official ADO.NET wrapper for [SQLite](https://sqlite
 
 1. Lightweight
  * Only the core of ADO.NET is implemented, not EF or Designer types.
- * The official System.Data.SQLite is 276KB; this library is under 50KB.
+ * The official System.Data.SQLite is over 300KB; this library is under 50KB.
 2. High performance
  * This library assumes that the caller will use `IDisposable` properly, so it avoids adding finalizers to clean up incorrect usage.
  * No static constructors (e.g., `SQLiteFunction`) that reflect over all loaded assemblies.
