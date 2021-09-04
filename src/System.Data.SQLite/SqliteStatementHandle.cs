@@ -1,4 +1,4 @@
-﻿#if !PORTABLE
+#if !PORTABLE
 using Microsoft.Win32.SafeHandles;
 #else
 using System.Runtime.InteropServices;
@@ -23,18 +23,9 @@ namespace System.Data.SQLite
 		}
 
 #if PORTABLE
-		public override bool IsInvalid
-		{
-			get
-			{
-				return handle == new IntPtr(-1) || handle == (IntPtr) 0;
-			}
-		}
+		public override bool IsInvalid => handle == new IntPtr(-1) || handle == (IntPtr) 0;
 #endif
 
-		protected override bool ReleaseHandle()
-		{
-			return NativeMethods.sqlite3_finalize(handle) == SQLiteErrorCode.Ok;
-		}
+		protected override bool ReleaseHandle() => NativeMethods.sqlite3_finalize(handle) == SQLiteErrorCode.Ok;
 	}
 }

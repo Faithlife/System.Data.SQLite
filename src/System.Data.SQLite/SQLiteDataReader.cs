@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
@@ -26,16 +26,10 @@ namespace System.Data.SQLite
 			m_command = null;
 		}
 
-		public override bool NextResult()
-		{
-			return NextResultAsyncCore(CancellationToken.None).Result;
-		}
+		public override bool NextResult() => NextResultAsyncCore(CancellationToken.None).Result;
 
 #if !PORTABLE
-		public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
-		{
-			return NextResultAsyncCore(cancellationToken);
-		}
+		public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => NextResultAsyncCore(cancellationToken);
 #endif
 
 		private Task<bool> NextResultAsyncCore(CancellationToken cancellationToken)
@@ -45,18 +39,18 @@ namespace System.Data.SQLite
 			Reset();
 			m_currentStatementIndex++;
 			m_currentStatement = m_statementPreparer.Get(m_currentStatementIndex, cancellationToken);
-			if (m_currentStatement == null)
+			if (m_currentStatement is null)
 				return s_falseTask;
 
-			bool success = false;
+			var success = false;
 			try
 			{
 				for (int i = 0; i < m_command.Parameters.Count; i++)
 				{
-					SQLiteParameter parameter = m_command.Parameters[i];
-					string parameterName = parameter.ParameterName;
+					var parameter = m_command.Parameters[i];
+					var parameterName = parameter.ParameterName;
 					int index;
-					if (parameterName != null)
+					if (parameterName is not null)
 					{
 						if (parameterName[0] != '@')
 							parameterName = "@" + parameterName;
@@ -69,30 +63,30 @@ namespace System.Data.SQLite
 					if (index > 0)
 					{
 						object value = parameter.Value;
-						if (value == null || value.Equals(DBNull.Value))
+						if (value is null || value.Equals(DBNull.Value))
 							ThrowOnError(NativeMethods.sqlite3_bind_null(m_currentStatement, index));
 						else if (value is int || (value is Enum && Enum.GetUnderlyingType(value.GetType()) == typeof(int)))
 							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, (int) value));
-						else if (value is bool)
-							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, ((bool) value) ? 1 : 0));
-						else if (value is string)
-							BindText(index, (string) value);
-						else if (value is byte[])
-							BindBlob(index, (byte[]) value);
-						else if (value is long)
-							ThrowOnError(NativeMethods.sqlite3_bind_int64(m_currentStatement, index, (long) value));
-						else if (value is float)
-							ThrowOnError(NativeMethods.sqlite3_bind_double(m_currentStatement, index, (float) value));
-						else if (value is double)
-							ThrowOnError(NativeMethods.sqlite3_bind_double(m_currentStatement, index, (double) value));
-						else if (value is DateTime)
-							BindText(index, ToString((DateTime) value));
-						else if (value is Guid)
-							BindBlob(index, ((Guid) value).ToByteArray());
-						else if (value is byte)
-							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, (byte) value));
-						else if (value is short)
-							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, (short) value));
+						else if (value is bool boolValue)
+							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, boolValue ? 1 : 0));
+						else if (value is string stringValue)
+							BindText(index, stringValue);
+						else if (value is byte[] byteArrayValue)
+							BindBlob(index, byteArrayValue);
+						else if (value is long longValue)
+							ThrowOnError(NativeMethods.sqlite3_bind_int64(m_currentStatement, index, longValue));
+						else if (value is float floatValue)
+							ThrowOnError(NativeMethods.sqlite3_bind_double(m_currentStatement, index, floatValue));
+						else if (value is double doubleValue)
+							ThrowOnError(NativeMethods.sqlite3_bind_double(m_currentStatement, index, doubleValue));
+						else if (value is DateTime dateTimeValue)
+							BindText(index, ToString(dateTimeValue));
+						else if (value is Guid guidValue)
+							BindBlob(index, guidValue.ToByteArray());
+						else if (value is byte byteValue)
+							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, byteValue));
+						else if (value is short shortValue)
+							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, shortValue));
 						else
 							BindText(index, Convert.ToString(value, CultureInfo.InvariantCulture));
 					}
@@ -147,7 +141,7 @@ namespace System.Data.SQLite
 			{
 				while (!cancellationToken.IsCancellationRequested)
 				{
-					SQLiteErrorCode errorCode = NativeMethods.sqlite3_step(m_currentStatement);
+					var errorCode = NativeMethods.sqlite3_step(m_currentStatement);
 
 					switch (errorCode)
 					{
@@ -157,7 +151,7 @@ namespace System.Data.SQLite
 
 					case SQLiteErrorCode.Row:
 						m_hasRead = true;
-						if (m_columnType == null)
+						if (m_columnType is null)
 							m_columnType = new DbType?[NativeMethods.sqlite3_column_count(m_currentStatement)];
 						return s_trueTask;
 
@@ -181,25 +175,13 @@ namespace System.Data.SQLite
 			return cancellationToken.IsCancellationRequested ? s_canceledTask : s_trueTask;
 		}
 
-		public override bool IsClosed
-		{
-			get { return m_command == null; }
-		}
+		public override bool IsClosed => m_command is null;
 
-		public override int RecordsAffected
-		{
-			get { return NativeMethods.sqlite3_total_changes(DatabaseHandle) - m_startingChanges; }
-		}
+		public override int RecordsAffected => NativeMethods.sqlite3_total_changes(DatabaseHandle) - m_startingChanges;
 
-		public override bool GetBoolean(int ordinal)
-		{
-			return (bool) GetValue(ordinal);
-		}
+		public override bool GetBoolean(int ordinal) => (bool) GetValue(ordinal);
 
-		public override byte GetByte(int ordinal)
-		{
-			return (byte) GetValue(ordinal);
-		}
+		public override byte GetByte(int ordinal) => (byte) GetValue(ordinal);
 
 		public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
 		{
@@ -210,7 +192,7 @@ namespace System.Data.SQLite
 				throw new InvalidCastException("Cannot convert '{0}' to bytes.".FormatInvariant(sqliteType));
 
 			int availableLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
-			if (buffer == null)
+			if (buffer is null)
 			{
 				// this isn't required by the DbDataReader.GetBytes API documentation, but is what System.Data.SQLite does
 				// (as does SqlDataReader: http://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqldatareader.getbytes.aspx)
@@ -226,73 +208,53 @@ namespace System.Data.SQLite
 			return lengthToCopy;
 		}
 
-		public override char GetChar(int ordinal)
-		{
-			return (char) GetValue(ordinal);
-		}
+		public override char GetChar(int ordinal) => (char) GetValue(ordinal);
 
-		public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-		{
-			throw new NotImplementedException();
-		}
+		public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) => throw new NotImplementedException();
 
-		public override Guid GetGuid(int ordinal)
-		{
-			return (Guid) GetValue(ordinal);
-		}
+		public override Guid GetGuid(int ordinal) => (Guid) GetValue(ordinal);
 
-		public override short GetInt16(int ordinal)
-		{
-			return (short) GetValue(ordinal);
-		}
+		public override short GetInt16(int ordinal) => (short) GetValue(ordinal);
 
 		public override int GetInt32(int ordinal)
 		{
-			object value = GetValue(ordinal);
-			if (value is short)
-				return (short) value;
-			else if (value is long)
-				return checked((int) (long) value);
-			return (int) value;
+			var value = GetValue(ordinal);
+			return value switch
+			{
+				short shortValue => shortValue,
+				long longValue => checked((int) longValue),
+				_ => (int) value,
+			};
 		}
 
 		public override long GetInt64(int ordinal)
 		{
-			object value = GetValue(ordinal);
-			if (value is short)
-				return (short) value;
-			if (value is int)
-				return (int) value;
-			return (long) value;
+			var value = GetValue(ordinal);
+			return value switch
+			{
+				short shortValue => shortValue,
+				int intValue => intValue,
+				_ => (long) value
+			};
 		}
 
-		public override DateTime GetDateTime(int ordinal)
-		{
-			return (DateTime) GetValue(ordinal);
-		}
+		public override DateTime GetDateTime(int ordinal) => (DateTime) GetValue(ordinal);
 
-		public override string GetString(int ordinal)
-		{
-			return (string) GetValue(ordinal);
-		}
+		public override string GetString(int ordinal) => (string) GetValue(ordinal);
 
-		public override decimal GetDecimal(int ordinal)
-		{
-			throw new NotImplementedException();
-		}
+		public override decimal GetDecimal(int ordinal) => throw new NotImplementedException();
 
 		public override double GetDouble(int ordinal)
 		{
-			object value = GetValue(ordinal);
-			if (value is float)
-				return (float) value;
-			return (double) value;
+			var value = GetValue(ordinal);
+			return value switch
+			{
+				float floatValue => floatValue,
+				_ => (double) value
+			};
 		}
 
-		public override float GetFloat(int ordinal)
-		{
-			return (float) GetValue(ordinal);
-		}
+		public override float GetFloat(int ordinal) => (float) GetValue(ordinal);
 
 		public override string GetName(int ordinal)
 		{
@@ -327,15 +289,9 @@ namespace System.Data.SQLite
 			}
 		}
 
-		public override object this[int ordinal]
-		{
-			get { return GetValue(ordinal); }
-		}
+		public override object this[int ordinal] => GetValue(ordinal);
 
-		public override object this[string name]
-		{
-			get { return GetValue(GetOrdinal(name)); }
-		}
+		public override object this[string name] => GetValue(GetOrdinal(name));
 
 		public override bool HasRows
 		{
@@ -350,7 +306,7 @@ namespace System.Data.SQLite
 		{
 			VerifyHasResult();
 
-			if (m_columnNames == null)
+			if (m_columnNames is null)
 			{
 				var columnNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 				for (int i = 0; i < FieldCount; i++)
@@ -367,15 +323,9 @@ namespace System.Data.SQLite
 			return ordinal;
 		}
 
-		public override string GetDataTypeName(int ordinal)
-		{
-			throw new NotSupportedException();
-		}
+		public override string GetDataTypeName(int ordinal) => throw new NotSupportedException();
 
-		public override Type GetFieldType(int ordinal)
-		{
-			throw new NotSupportedException();
-		}
+		public override Type GetFieldType(int ordinal) => throw new NotSupportedException();
 
 		public override object GetValue(int ordinal)
 		{
@@ -415,21 +365,21 @@ namespace System.Data.SQLite
 				return DBNull.Value;
 
 			case SQLiteColumnType.Blob:
-				int byteCount = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
-				byte[] bytes = new byte[byteCount];
+				var byteCount = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
+				var bytes = new byte[byteCount];
 				if (byteCount > 0)
 				{
-					IntPtr bytePointer = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
+					var bytePointer = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
 					Marshal.Copy(bytePointer, bytes, 0, byteCount);
 				}
 				return dbType == DbType.Guid && byteCount == 16 ? (object) new Guid(bytes) : (object) bytes;
 
 			case SQLiteColumnType.Double:
-				double doubleValue = NativeMethods.sqlite3_column_double(m_currentStatement, ordinal);
-				return dbType == DbType.Single ? (object) (float) doubleValue : (object) doubleValue;
+				var doubleValue = NativeMethods.sqlite3_column_double(m_currentStatement, ordinal);
+				return dbType == DbType.Single ? (object) (float) doubleValue : doubleValue;
 
 			case SQLiteColumnType.Integer:
-				long integerValue = NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal);
+				var integerValue = NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal);
 				return dbType == DbType.Int32 ? (object) (int) integerValue :
 					dbType == DbType.Boolean ? (object) (integerValue != 0) :
 					dbType == DbType.Int16 ? (object) (short) integerValue :
@@ -440,7 +390,7 @@ namespace System.Data.SQLite
 
 			case SQLiteColumnType.Text:
 				int stringLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
-				string stringValue = SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_text(m_currentStatement, ordinal), stringLength);
+				var stringValue = SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_text(m_currentStatement, ordinal), stringLength);
 				return dbType == DbType.DateTime ? (object) DateTime.ParseExact(stringValue, s_dateTimeFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AdjustToUniversal) :
 					(object) stringValue;
 
@@ -450,54 +400,27 @@ namespace System.Data.SQLite
 		}
 
 #if !PORTABLE
-		public override IEnumerator GetEnumerator()
-		{
-			throw new NotSupportedException();
-		}
+		public override IEnumerator GetEnumerator() => throw new NotSupportedException();
 
-		public override DataTable GetSchemaTable()
-		{
-			throw new NotSupportedException();
-		}
+		public override DataTable GetSchemaTable() => throw new NotSupportedException();
 #endif
 
-		public override int Depth
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public override int Depth => throw new NotSupportedException();
 
 #if !PORTABLE
-		protected override DbDataReader GetDbDataReader(int ordinal)
-		{
-			throw new NotSupportedException();
-		}
+		protected override DbDataReader GetDbDataReader(int ordinal) => throw new NotSupportedException();
 #endif
 
-		public override Type GetProviderSpecificFieldType(int ordinal)
-		{
-			throw new NotSupportedException();
-		}
+		public override Type GetProviderSpecificFieldType(int ordinal) => throw new NotSupportedException();
 
-		public override object GetProviderSpecificValue(int ordinal)
-		{
-			throw new NotSupportedException();
-		}
+		public override object GetProviderSpecificValue(int ordinal) => throw new NotSupportedException();
 
-		public override int GetProviderSpecificValues(object[] values)
-		{
-			throw new NotSupportedException();
-		}
+		public override int GetProviderSpecificValues(object[] values) => throw new NotSupportedException();
 
 #if !PORTABLE
-		public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken)
-		{
-			throw new NotSupportedException();
-		}
+		public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) => throw new NotSupportedException();
 
-		public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken)
-		{
-			throw new NotSupportedException();
-		}
+		public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) => throw new NotSupportedException();
 
 		public override Task<bool> ReadAsync(CancellationToken cancellationToken)
 		{
@@ -507,21 +430,15 @@ namespace System.Data.SQLite
 		}
 #endif
 
-		public override int VisibleFieldCount
-		{
-			get { return FieldCount; }
-		}
+		public override int VisibleFieldCount => FieldCount;
 
-		private SqliteDatabaseHandle DatabaseHandle
-		{
-			get { return ((SQLiteConnection) m_command.Connection).Handle; }
-		}
+		private SqliteDatabaseHandle DatabaseHandle => ((SQLiteConnection) m_command.Connection).Handle;
 
-		private static readonly Action<Object> s_interrupt = obj => NativeMethods.sqlite3_interrupt((SqliteDatabaseHandle) obj);
+		private static readonly Action<object> s_interrupt = obj => NativeMethods.sqlite3_interrupt((SqliteDatabaseHandle) obj);
 
 		private void Reset()
 		{
-			if (m_currentStatement != null)
+			if (m_currentStatement is not null)
 				NativeMethods.sqlite3_reset(m_currentStatement);
 			m_currentStatement = null;
 			m_columnNames = null;
@@ -532,7 +449,7 @@ namespace System.Data.SQLite
 		private void VerifyHasResult()
 		{
 			VerifyNotDisposed();
-			if (m_currentStatement == null)
+			if (m_currentStatement is null)
 				throw new InvalidOperationException("There is no current result set.");
 		}
 
@@ -545,18 +462,15 @@ namespace System.Data.SQLite
 
 		private void VerifyNotDisposed()
 		{
-			if (m_command == null)
+			if (m_command is null)
 				throw new ObjectDisposedException(GetType().Name);
 		}
 
-		private void BindBlob(int ordinal, byte[] blob)
-		{
-			ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, blob, blob.Length, s_sqliteTransient));
-		}
+		private void BindBlob(int ordinal, byte[] blob) => ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, blob, blob.Length, s_sqliteTransient));
 
 		private void BindText(int ordinal, string text)
 		{
-			byte[] bytes = SQLiteConnection.ToUtf8(text);
+			var bytes = SQLiteConnection.ToUtf8(text);
 			ThrowOnError(NativeMethods.sqlite3_bind_text(m_currentStatement, ordinal, bytes, bytes.Length, s_sqliteTransient));
 		}
 
@@ -569,7 +483,7 @@ namespace System.Data.SQLite
 		private static string ToString(DateTime dateTime)
 		{
 			// these are the System.Data.SQLite default format strings (from SQLiteConvert.cs)
-			string formatString = dateTime.Kind == DateTimeKind.Utc ? "yyyy-MM-dd HH:mm:ss.FFFFFFFK" : "yyyy-MM-dd HH:mm:ss.FFFFFFF";
+			var formatString = dateTime.Kind == DateTimeKind.Utc ? "yyyy-MM-dd HH:mm:ss.FFFFFFFK" : "yyyy-MM-dd HH:mm:ss.FFFFFFF";
 			return dateTime.ToString(formatString, CultureInfo.InvariantCulture);
 		}
 

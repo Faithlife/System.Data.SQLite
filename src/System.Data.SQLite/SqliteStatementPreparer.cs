@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace System.Data.SQLite
@@ -15,7 +15,7 @@ namespace System.Data.SQLite
 
 		public SqliteStatementHandle Get(int index, CancellationToken cancellationToken)
 		{
-			if (m_statements == null)
+			if (m_statements is null)
 				throw new ObjectDisposedException(GetType().Name);
 			if (index < 0 || index > m_statements.Count)
 				throw new ArgumentOutOfRangeException("index");

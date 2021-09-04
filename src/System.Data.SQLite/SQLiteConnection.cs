@@ -11,10 +11,7 @@ namespace System.Data.SQLite
 {
 	public sealed class SQLiteConnection : DbConnection
 	{
-		public SQLiteConnection()
-		{
-			m_transactions = new Stack<SQLiteTransaction>();
-		}
+		public SQLiteConnection() => m_transactions = new Stack<SQLiteTransaction>();
 
 		public SQLiteConnection(string connectionString)
 			: this()
@@ -29,10 +26,7 @@ namespace System.Data.SQLite
 			SetState(ConnectionState.Open);
 		}
 
-		public new SQLiteTransaction BeginTransaction()
-		{
-			return (SQLiteTransaction) base.BeginTransaction();
-		}
+		public new SQLiteTransaction BeginTransaction() => (SQLiteTransaction) base.BeginTransaction();
 
 		protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
 		{
@@ -47,15 +41,9 @@ namespace System.Data.SQLite
 			return CurrentTransaction;
 		}
 
-		public override void Close()
-		{
-			Dispose();
-		}
+		public override void Close() => Dispose();
 
-		public override void ChangeDatabase(string databaseName)
-		{
-			throw new NotSupportedException();
-		}
+		public override void ChangeDatabase(string databaseName) => throw new NotSupportedException();
 
 		public override void Open()
 		{
@@ -68,18 +56,18 @@ namespace System.Data.SQLite
 			if (string.IsNullOrEmpty(m_dataSource))
 				throw new InvalidOperationException("Connection String Data Source must be set.");
 
-			SQLiteOpenFlags openFlags = (connectionStringBuilder.ReadOnly ? SQLiteOpenFlags.ReadOnly : SQLiteOpenFlags.ReadWrite) | SQLiteOpenFlags.Uri;
+			var openFlags = (connectionStringBuilder.ReadOnly ? SQLiteOpenFlags.ReadOnly : SQLiteOpenFlags.ReadWrite) | SQLiteOpenFlags.Uri;
 			if (!connectionStringBuilder.FailIfMissing && !connectionStringBuilder.ReadOnly)
 				openFlags |= SQLiteOpenFlags.Create;
 
 			SetState(ConnectionState.Connecting);
 
-			Match m = s_vfsRegex.Match(m_dataSource);
+			var m = s_vfsRegex.Match(m_dataSource);
 			string fileName = m.Groups["fileName"].Value;
 			string vfsName = m.Groups["vfsName"].Value;
 			var errorCode = NativeMethods.sqlite3_open_v2(ToNullTerminatedUtf8(fileName), out m_db, openFlags, string.IsNullOrEmpty(vfsName) ? null : ToNullTerminatedUtf8(vfsName));
 
-			bool success = false;
+			var success = false;
 			try
 			{
 				if (errorCode != SQLiteErrorCode.Ok)
@@ -96,7 +84,7 @@ namespace System.Data.SQLite
 						throw new SQLiteException(errorCode, m_db);
 				}
 
-				bool allowOpenReadOnly = true;
+				var allowOpenReadOnly = true;
 #if MONOANDROID
 				// opening read-only throws "EntryPointNotFoundException: sqlite3_db_readonly" on Android API 15 and below (JellyBean is API 16)
 				allowOpenReadOnly = Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.JellyBean;
@@ -146,7 +134,7 @@ namespace System.Data.SQLite
 				if (connectionStringBuilder.TempStore != SQLiteTemporaryStore.Default)
 					this.ExecuteNonQuery("pragma temp_store={0}".FormatInvariant(connectionStringBuilder.TempStore));
 
-				if (m_statementCompleted != null)
+				if (m_statementCompleted is not null)
 					SetProfileCallback(s_profileCallback);
 
 				SetState(ConnectionState.Open);
@@ -161,57 +149,27 @@ namespace System.Data.SQLite
 
 		public override string ConnectionString { get; set; }
 
-		public override string Database
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public override string Database => throw new NotSupportedException();
 
-		public override ConnectionState State
-		{
-			get { return m_connectionState; }
-		}
+		public override ConnectionState State => m_connectionState;
 
-		public override string DataSource
-		{
-			get { return m_dataSource; }
-		}
+		public override string DataSource => m_dataSource;
 
-		public override string ServerVersion
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public override string ServerVersion => throw new NotSupportedException();
 
-		protected override DbCommand CreateDbCommand()
-		{
-			return new SQLiteCommand(this);
-		}
+		protected override DbCommand CreateDbCommand() => new SQLiteCommand(this);
 
 #if !PORTABLE
-		public override DataTable GetSchema()
-		{
-			throw new NotSupportedException();
-		}
+		public override DataTable GetSchema() => throw new NotSupportedException();
 
-		public override DataTable GetSchema(string collectionName)
-		{
-			throw new NotSupportedException();
-		}
+		public override DataTable GetSchema(string collectionName) => throw new NotSupportedException();
 
-		public override DataTable GetSchema(string collectionName, string[] restrictionValues)
-		{
-			throw new NotSupportedException();
-		}
+		public override DataTable GetSchema(string collectionName, string[] restrictionValues) => throw new NotSupportedException();
 
-		public override Task OpenAsync(CancellationToken cancellationToken)
-		{
-			throw new NotSupportedException();
-		}
+		public override Task OpenAsync(CancellationToken cancellationToken) => throw new NotSupportedException();
 #endif
 
-		public override int ConnectionTimeout
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public override int ConnectionTimeout => throw new NotSupportedException();
 
 		/// <summary>Backs up the database, using the specified database connection as the destination.</summary>
 		/// <param name="destination">The destination database connection.</param>
@@ -227,43 +185,41 @@ namespace System.Data.SQLite
 			VerifyNotDisposed();
 			if (m_connectionState != ConnectionState.Open)
 				throw new InvalidOperationException("Source database is not open.");
-			if (destination == null)
+			if (destination is null)
 				throw new ArgumentNullException("destination");
 			if (destination.m_connectionState != ConnectionState.Open)
 				throw new ArgumentException("Destination database is not open.", "destination");
-			if (destinationName == null)
+			if (destinationName is null)
 				throw new ArgumentNullException("destinationName");
-			if (sourceName == null)
+			if (sourceName is null)
 				throw new ArgumentNullException("sourceName");
 			if (pages == 0)
 				throw new ArgumentException("pages must not be 0.", "pages");
 
-			using (SqliteBackupHandle backup = NativeMethods.sqlite3_backup_init(destination.m_db, ToNullTerminatedUtf8(destinationName), m_db, ToNullTerminatedUtf8(sourceName)))
+			using var backup = NativeMethods.sqlite3_backup_init(destination.m_db, ToNullTerminatedUtf8(destinationName), m_db, ToNullTerminatedUtf8(sourceName));
+			if (backup is null)
+				throw new SQLiteException(NativeMethods.sqlite3_errcode(m_db), m_db);
+
+			while (true)
 			{
-				if (backup == null)
-					throw new SQLiteException(NativeMethods.sqlite3_errcode(m_db), m_db);
+				var error = NativeMethods.sqlite3_backup_step(backup, pages);
 
-				while (true)
+				if (error == SQLiteErrorCode.Done)
 				{
-					SQLiteErrorCode error = NativeMethods.sqlite3_backup_step(backup, pages);
-
-					if (error == SQLiteErrorCode.Done)
-					{
+					break;
+				}
+				else if (error == SQLiteErrorCode.Ok || error == SQLiteErrorCode.Busy || error == SQLiteErrorCode.Locked)
+				{
+					var retry = error != SQLiteErrorCode.Ok;
+					if (callback is not null && !callback(this, sourceName, destination, destinationName, pages, NativeMethods.sqlite3_backup_remaining(backup), NativeMethods.sqlite3_backup_pagecount(backup), retry))
 						break;
-					}
-					else if (error == SQLiteErrorCode.Ok || error == SQLiteErrorCode.Busy || error == SQLiteErrorCode.Locked)
-					{
-						bool retry = error != SQLiteErrorCode.Ok;
-						if (callback != null && !callback(this, sourceName, destination, destinationName, pages, NativeMethods.sqlite3_backup_remaining(backup), NativeMethods.sqlite3_backup_pagecount(backup), retry))
-							break;
 
-						if (retry && retryMilliseconds > 0)
-							Thread.Sleep(retryMilliseconds);
-					}
-					else
-					{
-						throw new SQLiteException(error, m_db);
-					}
+					if (retry && retryMilliseconds > 0)
+						Thread.Sleep(retryMilliseconds);
+				}
+				else
+				{
+					throw new SQLiteException(error, m_db);
 				}
 			}
 		}
@@ -272,29 +228,20 @@ namespace System.Data.SQLite
 		{
 			add
 			{
-				if (value == null)
-					throw new ArgumentNullException("value");
-
-				if (m_statementCompleted == null && m_db != null)
+				if (m_statementCompleted is null && m_db is not null)
 					SetProfileCallback(s_profileCallback);
 
-				m_statementCompleted += value;
+				m_statementCompleted += value ?? throw new ArgumentNullException("value");
 			}
 			remove
 			{
-				if (value == null)
-					throw new ArgumentNullException("value");
-
-				m_statementCompleted -= value;
-				if (m_statementCompleted == null && m_db != null)
+				m_statementCompleted -= value ?? throw new ArgumentNullException("value");
+				if (m_statementCompleted is null && m_db is not null)
 					SetProfileCallback(null);
 			}
 		}
 
-		protected override DbProviderFactory DbProviderFactory
-		{
-			get { throw new NotSupportedException(); }
-		}
+		protected override DbProviderFactory DbProviderFactory => throw new NotSupportedException();
 
 		protected override void Dispose(bool disposing)
 		{
@@ -302,11 +249,11 @@ namespace System.Data.SQLite
 			{
 				if (disposing)
 				{
-					if (m_db != null)
+					if (m_db is not null)
 					{
 						while (m_transactions.Count > 0)
 							m_transactions.Pop().Dispose();
-						if (m_statementCompleted != null)
+						if (m_statementCompleted is not null)
 							SetProfileCallback(null);
 						Utility.Dispose(ref m_db);
 						SetState(ConnectionState.Closed);
@@ -321,31 +268,16 @@ namespace System.Data.SQLite
 		}
 
 #if !PORTABLE
-		protected override object GetService(Type service)
-		{
-			throw new NotSupportedException();
-		}
+		protected override object GetService(Type service) => throw new NotSupportedException();
 
-		protected override bool CanRaiseEvents
-		{
-			get { return false; }
-		}
+		protected override bool CanRaiseEvents => false;
 #endif
 
-		internal SQLiteTransaction CurrentTransaction
-		{
-			get { return m_transactions.FirstOrDefault(); }
-		}
+		internal SQLiteTransaction CurrentTransaction => m_transactions.FirstOrDefault();
 
-		internal bool IsOnlyTransaction(SQLiteTransaction transaction)
-		{
-			return m_transactions.Count == 1 && m_transactions.Peek() == transaction;
-		}
+		internal bool IsOnlyTransaction(SQLiteTransaction transaction) => m_transactions.Count == 1 && m_transactions.Peek() == transaction;
 
-		internal void PopTransaction()
-		{
-			m_transactions.Pop();
-		}
+		internal void PopTransaction() => m_transactions.Pop();
 
 		internal SqliteDatabaseHandle Handle
 		{
@@ -356,10 +288,7 @@ namespace System.Data.SQLite
 			}
 		}
 
-		internal static byte[] ToUtf8(string value)
-		{
-			return Encoding.UTF8.GetBytes(value);
-		}
+		internal static byte[] ToUtf8(string value) => Encoding.UTF8.GetBytes(value);
 
 		internal static byte[] ToNullTerminatedUtf8(string value)
 		{
@@ -399,9 +328,9 @@ namespace System.Data.SQLite
 
 		private void SetProfileCallback(SQLiteTraceV2Callback callback)
 		{
-			if (callback != null && !m_handle.IsAllocated)
+			if (callback is not null && !m_handle.IsAllocated)
 				m_handle = GCHandle.Alloc(this);
-			else if (callback == null && m_handle.IsAllocated)
+			else if (callback is null && m_handle.IsAllocated)
 				m_handle.Free();
 
 			NativeMethods.sqlite3_trace_v2(m_db, SQLiteTraceEvents.SQLITE_TRACE_PROFILE, callback, m_handle.IsAllocated ? GCHandle.ToIntPtr(m_handle) : IntPtr.Zero);
@@ -427,7 +356,7 @@ namespace System.Data.SQLite
 			var handle = GCHandle.FromIntPtr(userData);
 			var connection = (SQLiteConnection) handle.Target;
 			StatementCompletedEventHandler handler = connection.m_statementCompleted;
-			if (handler != null)
+			if (handler is not null)
 			{
 				var sql = FromUtf8(NativeMethods.sqlite3_sql(pStmt));
 				var nanoseconds = Marshal.ReadInt64(pDuration);
