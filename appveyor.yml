@@ -13,3 +13,5 @@ install:
 - cmd: '"C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" --licenses < tools\yes.txt > nul'
 - cmd: '"C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" --update'
 - cmd: '"C:\Program Files (x86)\Android\android-sdk\tools\bin\sdkmanager.bat" "build-tools;27.0.3" "platforms;android-27"'
+artifacts:
+- path: release\*.nupkg
