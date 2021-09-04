@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <Platforms>everything;win-x64;win-x86;osx-x64</Platforms>
-    <DefineConstants>$(DefineConstants);NET45;NET47</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' != 'win-x64' and '$(Platform)' != 'win-x86' and '$(Platform)' != 'osx-x64' ">
