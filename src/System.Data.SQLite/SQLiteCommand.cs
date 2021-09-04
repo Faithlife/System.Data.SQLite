@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,8 +37,7 @@ namespace System.Data.SQLite
 
 		public override void Prepare()
 		{
-			if (m_statementPreparer == null)
-				m_statementPreparer = new SqliteStatementPreparer(DatabaseHandle, CommandText.Trim());
+			m_statementPreparer ??= new SqliteStatementPreparer(DatabaseHandle, CommandText.Trim());
 		}
 
 		public override string CommandText { get; set; }
@@ -47,10 +46,7 @@ namespace System.Data.SQLite
 
 		public override CommandType CommandType
 		{
-			get
-			{
-				return CommandType.Text;
-			}
+			get => CommandType.Text;
 			set
 			{
 				if (value != CommandType.Text)
@@ -60,8 +56,8 @@ namespace System.Data.SQLite
 
 		public override UpdateRowSource UpdatedRowSource
 		{
-			get { throw new NotSupportedException(); }
-			set { throw new NotSupportedException(); }
+			get => throw new NotSupportedException();
+			set => throw new NotSupportedException();
 		}
 
 		protected override DbConnection DbConnection { get; set; }
@@ -75,21 +71,13 @@ namespace System.Data.SQLite
 			}
 		}
 
-		protected override DbParameterCollection DbParameterCollection
-		{
-			get { return Parameters; }
-		}
+		protected override DbParameterCollection DbParameterCollection => Parameters;
 
 		protected override DbTransaction DbTransaction { get; set; }
 
-#if !PORTABLE
 		public override bool DesignTimeVisible { get; set; }
-#endif
 
-		public override void Cancel()
-		{
-			throw new NotImplementedException();
-		}
+		public override void Cancel() => throw new NotImplementedException();
 
 		protected override DbParameter CreateDbParameter()
 		{
@@ -104,51 +92,41 @@ namespace System.Data.SQLite
 			return SQLiteDataReader.Create(this, behavior);
 		}
 
-		public new SQLiteDataReader ExecuteReader()
-		{
-			return (SQLiteDataReader) base.ExecuteReader();
-		}
+		public new SQLiteDataReader ExecuteReader() => (SQLiteDataReader) base.ExecuteReader();
 
 		public override int ExecuteNonQuery()
 		{
-			using (var reader = ExecuteReader())
+			using var reader = ExecuteReader();
+			do
 			{
-				do
+				while (reader.Read())
 				{
-					while (reader.Read())
-					{
-					}
-				} while (reader.NextResult());
-				return reader.RecordsAffected;
-			}
+				}
+			} while (reader.NextResult());
+			return reader.RecordsAffected;
 		}
 
 		public override object ExecuteScalar()
 		{
-			using (var reader = ExecuteReader(CommandBehavior.SingleResult | CommandBehavior.SingleRow))
+			using var reader = ExecuteReader(CommandBehavior.SingleResult | CommandBehavior.SingleRow);
+			do
 			{
-				do
-				{
-					if (reader.Read())
-						return reader.GetValue(0);
-				} while (reader.NextResult());
-			}
+				if (reader.Read())
+					return reader.GetValue(0);
+			} while (reader.NextResult());
 			return null;
 		}
 
-#if !PORTABLE
 		public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
 		{
-			using (var reader = await ExecuteReaderAsync(cancellationToken).ConfigureAwait(false))
+			using var reader = await ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+			do
 			{
-				do
+				while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
 				{
-					while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-					{
-					}
-				} while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
-				return reader.RecordsAffected;
-			}
+				}
+			} while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+			return reader.RecordsAffected;
 		}
 
 		protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
@@ -160,17 +138,14 @@ namespace System.Data.SQLite
 
 		public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
 		{
-			using (var reader = await ExecuteReaderAsync(CommandBehavior.SingleResult | CommandBehavior.SingleRow, cancellationToken).ConfigureAwait(false))
+			using var reader = await ExecuteReaderAsync(CommandBehavior.SingleResult | CommandBehavior.SingleRow, cancellationToken).ConfigureAwait(false);
+			do
 			{
-				do
-				{
-					if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-						return reader.GetValue(0);
-				} while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
-			}
+				if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+					return reader.GetValue(0);
+			} while (await reader.NextResultAsync(cancellationToken).ConfigureAwait(false));
 			return null;
 		}
-#endif
 
 		protected override void Dispose(bool disposing)
 		{
@@ -185,17 +160,9 @@ namespace System.Data.SQLite
 			}
 		}
 
-#if !PORTABLE
-		protected override object GetService(Type service)
-		{
-			throw new NotSupportedException();
-		}
+		protected override object GetService(Type service) => throw new NotSupportedException();
 
-		protected override bool CanRaiseEvents
-		{
-			get { return false; }
-		}
-#endif
+		protected override bool CanRaiseEvents => false;
 
 		internal SqliteStatementPreparer GetStatementPreparer()
 		{
@@ -203,21 +170,18 @@ namespace System.Data.SQLite
 			return m_statementPreparer;
 		}
 
-		private SqliteDatabaseHandle DatabaseHandle
-		{
-			get { return ((SQLiteConnection) Connection).Handle; }
-		}
+		private SqliteDatabaseHandle DatabaseHandle => ((SQLiteConnection) Connection).Handle;
 
 		private void VerifyNotDisposed()
 		{
-			if (m_parameterCollection == null)
+			if (m_parameterCollection is null)
 				throw new ObjectDisposedException(GetType().Name);
 		}
 
 		private void VerifyValid()
 		{
 			VerifyNotDisposed();
-			if (DbConnection == null)
+			if (DbConnection is null)
 				throw new InvalidOperationException("Connection property must be non-null.");
 			if (DbConnection.State != ConnectionState.Open && DbConnection.State != ConnectionState.Connecting)
 				throw new InvalidOperationException("Connection must be Open; current state is {0}.".FormatInvariant(DbConnection.State));

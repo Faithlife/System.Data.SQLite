@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 
 namespace System.Data.SQLite
 {
@@ -23,11 +23,11 @@ namespace System.Data.SQLite
 				m_connection.PopTransaction();
 				m_isFinished = true;
 			}
-			else if (m_connection.CurrentTransaction != null)
+			else if (m_connection.CurrentTransaction is not null)
 			{
 				throw new InvalidOperationException("This is not the active transaction.");
 			}
-			else if (m_connection.CurrentTransaction == null)
+			else if (m_connection.CurrentTransaction is null)
 			{
 				throw new InvalidOperationException("There is no active transaction.");
 			}
@@ -52,11 +52,11 @@ namespace System.Data.SQLite
 					throw new InvalidOperationException("Can't roll back nested transaction.");
 				}
 			}
-			else if (m_connection.CurrentTransaction != null)
+			else if (m_connection.CurrentTransaction is not null)
 			{
 				throw new InvalidOperationException("This is not the active transaction.");
 			}
-			else if (m_connection.CurrentTransaction == null)
+			else if (m_connection.CurrentTransaction is null)
 			{
 				throw new InvalidOperationException("There is no active transaction.");
 			}
@@ -86,7 +86,7 @@ namespace System.Data.SQLite
 			{
 				if (disposing)
 				{
-					if (!m_isFinished && m_connection != null && m_connection.CurrentTransaction == this && m_connection.IsOnlyTransaction(this))
+					if (!m_isFinished && m_connection is not null && m_connection.CurrentTransaction == this && m_connection.IsOnlyTransaction(this))
 					{
 						m_connection.ExecuteNonQuery(this, "ROLLBACK");
 						m_connection.PopTransaction();
@@ -102,7 +102,7 @@ namespace System.Data.SQLite
 
 		private void VerifyNotDisposed()
 		{
-			if (m_connection == null)
+			if (m_connection is null)
 				throw new ObjectDisposedException(GetType().Name);
 		}
 

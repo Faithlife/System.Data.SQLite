@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 
@@ -6,14 +6,11 @@ namespace System.Data.SQLite
 {
 	public sealed class SQLiteParameterCollection : DbParameterCollection
 	{
-		internal SQLiteParameterCollection()
-		{
-			m_parameters = new List<SQLiteParameter>();
-		}
+		internal SQLiteParameterCollection() => m_parameters = new List<SQLiteParameter>();
 
 		public SQLiteParameter Add(string parameterName, DbType dbType)
 		{
-			SQLiteParameter parameter = new SQLiteParameter
+			var parameter = new SQLiteParameter
 			{
 				ParameterName = parameterName,
 				DbType = dbType,
@@ -34,110 +31,50 @@ namespace System.Data.SQLite
 				Add(obj);
 		}
 
-		public override bool Contains(object value)
-		{
-			return m_parameters.Contains((SQLiteParameter) value);
-		}
+		public override bool Contains(object value) => m_parameters.Contains((SQLiteParameter) value);
 
-		public override bool Contains(string value)
-		{
-			return IndexOf(value) != -1;
-		}
+		public override bool Contains(string value) => IndexOf(value) != -1;
 
-		public override void CopyTo(Array array, int index)
-		{
-			throw new NotSupportedException();
-		}
+		public override void CopyTo(Array array, int index) => throw new NotSupportedException();
 
-		public override void Clear()
-		{
-			m_parameters.Clear();
-		}
+		public override void Clear() => m_parameters.Clear();
 
-		public override IEnumerator GetEnumerator()
-		{
-			return m_parameters.GetEnumerator();
-		}
+		public override IEnumerator GetEnumerator() => m_parameters.GetEnumerator();
 
-		protected override DbParameter GetParameter(int index)
-		{
-			return m_parameters[index];
-		}
+		protected override DbParameter GetParameter(int index) => m_parameters[index];
 
-		protected override DbParameter GetParameter(string parameterName)
-		{
-			return m_parameters[IndexOf(parameterName)];
-		}
+		protected override DbParameter GetParameter(string parameterName) => m_parameters[IndexOf(parameterName)];
 
-		public override int IndexOf(object value)
-		{
-			return m_parameters.IndexOf((SQLiteParameter) value);
-		}
+		public override int IndexOf(object value) => m_parameters.IndexOf((SQLiteParameter) value);
 
-		public override int IndexOf(string parameterName)
-		{
-			return m_parameters.FindIndex(x => x.ParameterName == parameterName);
-		}
+		public override int IndexOf(string parameterName) => m_parameters.FindIndex(x => x.ParameterName == parameterName);
 
-		public override void Insert(int index, object value)
-		{
-			m_parameters.Insert(index, (SQLiteParameter) value);
-		}
+		public override void Insert(int index, object value) => m_parameters.Insert(index, (SQLiteParameter) value);
 
-		public override void Remove(object value)
-		{
-			m_parameters.Remove((SQLiteParameter) value);
-		}
+		public override void Remove(object value) => m_parameters.Remove((SQLiteParameter) value);
 
-		public override void RemoveAt(int index)
-		{
-			m_parameters.RemoveAt(index);
-		}
+		public override void RemoveAt(int index) => m_parameters.RemoveAt(index);
 
-		public override void RemoveAt(string parameterName)
-		{
-			RemoveAt(IndexOf(parameterName));
-		}
+		public override void RemoveAt(string parameterName) => RemoveAt(IndexOf(parameterName));
 
-		protected override void SetParameter(int index, DbParameter value)
-		{
-			m_parameters[index] = (SQLiteParameter) value;
-		}
+		protected override void SetParameter(int index, DbParameter value) => m_parameters[index] = (SQLiteParameter) value;
 
-		protected override void SetParameter(string parameterName, DbParameter value)
-		{
-			SetParameter(IndexOf(parameterName), value);
-		}
+		protected override void SetParameter(string parameterName, DbParameter value) => SetParameter(IndexOf(parameterName), value);
 
-		public override int Count
-		{
-			get { return m_parameters.Count; }
-		}
+		public override int Count => m_parameters.Count;
 
-		public override bool IsFixedSize
-		{
-			get { return false; }
-		}
+		public override bool IsFixedSize => false;
 
-		public override bool IsReadOnly
-		{
-			get { return false; }
-		}
+		public override bool IsReadOnly => false;
 
-		public override bool IsSynchronized
-		{
-			get { return false; }
-		}
+		public override bool IsSynchronized => false;
 
-		public override object SyncRoot
-		{
-			get { throw new NotSupportedException(); }
-		}
+		public override object SyncRoot => throw new NotSupportedException();
 
 		public new SQLiteParameter this[int index]
 		{
-			get { return m_parameters[index]; }
-			set { m_parameters[index] = value; }
+			get => m_parameters[index];
+			set => m_parameters[index] = value;
 		}
 
 		readonly List<SQLiteParameter> m_parameters;

@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 
 namespace System.Data.SQLite
 {
@@ -16,27 +16,24 @@ namespace System.Data.SQLite
 
 		public override string SourceColumn
 		{
-			get { throw new NotSupportedException(); }
-			set { throw new NotSupportedException(); }
+			get => throw new NotSupportedException();
+			set => throw new NotSupportedException();
 		}
 
 		public override bool SourceColumnNullMapping
 		{
-			get { throw new NotSupportedException(); }
-			set { throw new NotSupportedException(); }
+			get => throw new NotSupportedException();
+			set => throw new NotSupportedException();
 		}
 
 		public override DataRowVersion SourceVersion
 		{
-			get { throw new NotSupportedException(); }
-			set { throw new NotSupportedException(); }
+			get => throw new NotSupportedException();
+			set => throw new NotSupportedException();
 		}
 
 		public override object Value { get; set; }
 
-		public override void ResetDbType()
-		{
-			DbType = default(DbType);
-		}
+		public override void ResetDbType() => DbType = default(DbType);
 	}
 }

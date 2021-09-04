@@ -1,5 +1,3 @@
-﻿using System;
-
 namespace System.Data.SQLite
 {
 	/// <summary>
@@ -10,27 +8,18 @@ namespace System.Data.SQLite
 		/// <summary>
 		/// The SQL of the statement that was executed.
 		/// </summary>
-		public string Sql
-		{
-			get { return m_sql; }
-		}
+		public string Sql { get; }
 
 		/// <summary>
 		/// The time it took to execute the statement.
 		/// </summary>
-		public TimeSpan Time
-		{
-			get { return m_time; }
-		}
+		public TimeSpan Time { get; }
 
 		internal StatementCompletedEventArgs(string sql, TimeSpan time)
 		{
-			m_sql = sql;
-			m_time = time;
+			Sql = sql;
+			Time = time;
 		}
-
-		readonly string m_sql;
-		readonly TimeSpan m_time;
 	}
 
 	/// <summary>

@@ -26,7 +26,7 @@ namespace System.Data.SQLite
 
 		private static void InitializeWithLock()
 		{
-			if (s_callback == null)
+			if (s_callback is null)
 			{
 				s_callback = LogCallback;
 #if XAMARIN_IOS
@@ -49,13 +49,10 @@ namespace System.Data.SQLite
 		static void LogCallback(IntPtr pUserData, int errorCode, IntPtr pMessage)
 		{
 			lock (s_lock)
-			{
-				if (Handlers != null)
-					Handlers.Invoke(null, new LogEventArgs(pUserData, errorCode, SQLiteConnection.FromUtf8(pMessage), null));
-			}
+				Handlers?.Invoke(null, new LogEventArgs(pUserData, errorCode, SQLiteConnection.FromUtf8(pMessage), null));
 		}
 
-		static readonly object s_lock = new object();
+		static readonly object s_lock = new();
 		static SQLiteLogCallback s_callback;
 		static event SQLiteLogEventHandler Handlers;
 	}
