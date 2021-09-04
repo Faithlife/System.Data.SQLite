@@ -159,7 +159,6 @@ namespace System.Data.SQLite
 
 		protected override DbCommand CreateDbCommand() => new SQLiteCommand(this);
 
-#if !PORTABLE
 		public override DataTable GetSchema() => throw new NotSupportedException();
 
 		public override DataTable GetSchema(string collectionName) => throw new NotSupportedException();
@@ -167,7 +166,6 @@ namespace System.Data.SQLite
 		public override DataTable GetSchema(string collectionName, string[] restrictionValues) => throw new NotSupportedException();
 
 		public override Task OpenAsync(CancellationToken cancellationToken) => throw new NotSupportedException();
-#endif
 
 		public override int ConnectionTimeout => throw new NotSupportedException();
 
@@ -267,11 +265,9 @@ namespace System.Data.SQLite
 			}
 		}
 
-#if !PORTABLE
 		protected override object GetService(Type service) => throw new NotSupportedException();
 
 		protected override bool CanRaiseEvents => false;
-#endif
 
 		internal SQLiteTransaction CurrentTransaction => m_transactions.FirstOrDefault();
 

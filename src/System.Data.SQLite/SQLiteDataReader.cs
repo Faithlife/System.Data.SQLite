@@ -28,9 +28,7 @@ namespace System.Data.SQLite
 
 		public override bool NextResult() => NextResultAsyncCore(CancellationToken.None).Result;
 
-#if !PORTABLE
 		public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => NextResultAsyncCore(cancellationToken);
-#endif
 
 		private Task<bool> NextResultAsyncCore(CancellationToken cancellationToken)
 		{
@@ -116,14 +114,12 @@ namespace System.Data.SQLite
 			return dataReader;
 		}
 
-#if !PORTABLE
 		internal static async Task<DbDataReader> CreateAsync(SQLiteCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
 		{
 			DbDataReader dataReader = new SQLiteDataReader(command, behavior);
 			await dataReader.NextResultAsync(cancellationToken);
 			return dataReader;
 		}
-#endif
 
 		private SQLiteDataReader(SQLiteCommand command, CommandBehavior behavior)
 		{
@@ -399,17 +395,13 @@ namespace System.Data.SQLite
 			}
 		}
 
-#if !PORTABLE
 		public override IEnumerator GetEnumerator() => throw new NotSupportedException();
 
 		public override DataTable GetSchemaTable() => throw new NotSupportedException();
-#endif
 
 		public override int Depth => throw new NotSupportedException();
 
-#if !PORTABLE
 		protected override DbDataReader GetDbDataReader(int ordinal) => throw new NotSupportedException();
-#endif
 
 		public override Type GetProviderSpecificFieldType(int ordinal) => throw new NotSupportedException();
 
@@ -417,7 +409,6 @@ namespace System.Data.SQLite
 
 		public override int GetProviderSpecificValues(object[] values) => throw new NotSupportedException();
 
-#if !PORTABLE
 		public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) => throw new NotSupportedException();
 
 		public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) => throw new NotSupportedException();
@@ -428,7 +419,6 @@ namespace System.Data.SQLite
 
 			return ReadAsyncCore(cancellationToken);
 		}
-#endif
 
 		public override int VisibleFieldCount => FieldCount;
 
