@@ -1,4 +1,4 @@
-<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.38">
 
   <PropertyGroup>
     <Platforms>everything;noxamarin</Platforms>
@@ -12,11 +12,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' != 'noxamarin' ">
-    <TargetFrameworks>netstandard2.0;net472;xamarin.ios10;monoandroid81</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net472;net5.0;xamarin.ios10;monoandroid81</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'noxamarin' ">
-    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net472;net5.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'xamarin.ios10' or '$(TargetFramework)' == 'monoandroid81' ">

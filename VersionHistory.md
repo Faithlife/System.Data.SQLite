@@ -1,5 +1,9 @@
 # Version History
 
+## 3.2.1
+
+* Add `net5.0` target platform.
+
 ## 3.2.0
 
 * `SQLiteLog` only calls `sqlite3_config` to initialize logging when an event handler is attached to `SQLiteLog.Log`.
