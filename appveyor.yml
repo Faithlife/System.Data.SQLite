@@ -3,7 +3,7 @@ image:
 - Visual Studio 2019
 environment:
   NUGET_API_KEY:
-    secure: /FLJCPNtLDyXDbw62wnY4tBc3kRJMPNbttutkzVhCdUDEmg9pjEBGZnBVpBTemKK
+    secure: qG9Vskx9xsjJZq55dQJL5u8NY4NtUfKui2CqKlmmRSluU7jQlB8YwUncQQYfVVxz
   BUILD_BOT_PASSWORD:
     secure: wJ9JVS5hSAp9ItYlHKxTPg==
 build_script:
