@@ -4,6 +4,8 @@ namespace System.Data.SQLite
 {
 	internal static class NativeMethods
 	{
+		public const string c_dllName = "sqlite3";
+
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SqliteBackupHandle sqlite3_backup_init(SqliteDatabaseHandle pDest, byte[] zDestName, SqliteDatabaseHandle pSource, byte[] zSourceName);
 
@@ -127,41 +129,6 @@ namespace System.Data.SQLite
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern int sqlite3_trace_v2(SqliteDatabaseHandle db, SQLiteTraceEvents eventsMask, SQLiteTraceV2Callback callback, IntPtr userData);
 
-#if NET5_0
-		static NativeMethods()
-		{
-			var assembly = typeof(NativeMethods).Assembly;
-			var configFile = assembly.Location + ".config";
-			if (Environment.OSVersion.Platform == PlatformID.Unix && System.IO.File.Exists(configFile))
-			{
-				var dllMapConfig = System.Xml.Linq.XDocument.Load(configFile);
-				foreach (var element in dllMapConfig.Root.Elements("dllmap"))
-				{
-					if (element.Attribute("dll")?.Value == c_dllName)
-					{
-						s_mappedDllName = element.Attribute("target")?.Value;
-						if (s_mappedDllName is not null)
-							break;
-					}
-				}
-
-				if (!string.IsNullOrEmpty(s_mappedDllName))
-					NativeLibrary.SetDllImportResolver(assembly, DllImportResolver);
-			}
-		}
-
-		private static IntPtr DllImportResolver(string libraryName, System.Reflection.Assembly assembly, DllImportSearchPath? searchPath)
-		{
-			if (libraryName == c_dllName && !string.IsNullOrEmpty(s_mappedDllName))
-				return NativeLibrary.Load(s_mappedDllName);
-
-			return IntPtr.Zero;
-		}
-
-		private static readonly string s_mappedDllName;
-#endif
-
-		const string c_dllName = "sqlite3";
 		const CallingConvention c_callingConvention = CallingConvention.Cdecl;
 	}
 
