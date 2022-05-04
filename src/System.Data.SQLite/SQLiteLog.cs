@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace System.Data.SQLite
 {
 	public static class SQLiteLog
@@ -36,7 +38,11 @@ namespace System.Data.SQLite
 				else
 					NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
 #else
-				NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
+				// Workaround limitation with AMD64 varargs methods. This is an issue with both the Mono and MS runtime.
+				if (Environment.OSVersion.Platform == PlatformID.Unix && RuntimeInformation.OSArchitecture == Architecture.Arm64)
+					NativeMethods.sqlite3_config_log_arm64(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, s_callback, IntPtr.Zero);
+				else
+					NativeMethods.sqlite3_config_log(SQLiteConfigOpsEnum.SQLITE_CONFIG_LOG, s_callback, IntPtr.Zero);
 #endif
 			}
 		}

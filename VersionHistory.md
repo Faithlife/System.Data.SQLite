@@ -1,5 +1,14 @@
 # Version History
 
+## 3.2.3
+
+* Workaround limitation with AMD64 varargs methods on Unix (macOS) when initializing logging in `SQLiteLog`.
+
+## 3.2.2
+
+* Move DllImportResolver code to `ModuleInitializer` to workaround differences in Mono runtime.
+  * Mono does not run the static constructor before evaluating the `DllImport` library if the first use of the class is to a P/Invoke method.
+
 ## 3.2.1
 
 * Add `net5.0` target platform.
