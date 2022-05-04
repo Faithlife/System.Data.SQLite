@@ -335,7 +335,7 @@ namespace System.Data.SQLite
 #elif XAMARIN_IOS
 		[ObjCRuntime.MonoPInvokeCallback(typeof(SQLiteTraceV2Callback))]
 #endif
-		private static unsafe void ProfileCallback(SQLiteTraceEvents eventCode, IntPtr userData, IntPtr pStmt, IntPtr pDuration)
+		private static void ProfileCallback(SQLiteTraceEvents eventCode, IntPtr userData, IntPtr pStmt, IntPtr pDuration)
 		{
 			var handle = GCHandle.FromIntPtr(userData);
 			var connection = (SQLiteConnection) handle.Target;
