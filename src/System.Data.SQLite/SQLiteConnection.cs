@@ -342,7 +342,12 @@ namespace System.Data.SQLite
 			StatementCompletedEventHandler handler = connection.m_statementCompleted;
 			if (handler is not null)
 			{
-				var sql = FromUtf8(NativeMethods.sqlite3_sql(pStmt));
+				var sqlPtr = NativeMethods.sqlite3_sql(pStmt);
+#if NET5_0
+				var sql = sqlPtr;
+#else
+				var sql = FromUtf8(sqlPtr);
+#endif
 				var nanoseconds = Marshal.ReadInt64(pDuration);
 				handler(connection, new StatementCompletedEventArgs(sql, TimeSpan.FromMilliseconds(nanoseconds / 1000000.0)));
 			}
