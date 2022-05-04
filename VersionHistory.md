@@ -3,6 +3,12 @@
 ## 3.2.3
 
 * Workaround limitation with AMD64 varargs methods on Unix (macOS) when initializing logging in `SQLiteLog`.
+* Performance optimizatons:
+  * Make `StatementCompletedEventArgs.Sql` lazy.
+  * Remove use of `Regex` for parsing `DataSource`. 
+* Performance optimizations for .NET 5.0:
+  * Use `stackalloc` for temporary allocations.
+  * Use `ArrayPool<byte>` for longer-lived allocations.
 
 ## 3.2.2
 
