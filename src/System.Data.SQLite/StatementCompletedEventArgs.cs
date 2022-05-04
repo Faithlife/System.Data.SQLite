@@ -5,12 +5,16 @@ namespace System.Data.SQLite
 	/// </summary>
 	public sealed class StatementCompletedEventArgs : EventArgs
 	{
+#if NET5_0
 		/// <summary>
 		/// The SQL of the statement that was executed.
 		/// </summary>
-#if NET5_0
+		/// <remarks>This property is only valid to read during the event handler callback. (Once read, the string can be cached.)</remarks>
 		public string Sql => m_sql ??= SQLiteConnection.FromUtf8(m_sqlPointer);
 #else
+		/// <summary>
+		/// The SQL of the statement that was executed.
+		/// </summary>
 		public string Sql { get; }
 #endif
 
