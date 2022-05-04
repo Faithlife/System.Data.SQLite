@@ -8,18 +8,35 @@ namespace System.Data.SQLite
 		/// <summary>
 		/// The SQL of the statement that was executed.
 		/// </summary>
+#if NET5_0
+		public string Sql => m_sql ??= SQLiteConnection.FromUtf8(m_sqlPointer);
+#else
 		public string Sql { get; }
+#endif
 
 		/// <summary>
 		/// The time it took to execute the statement.
 		/// </summary>
 		public TimeSpan Time { get; }
 
+#if NET5_0
+		internal StatementCompletedEventArgs(IntPtr sql, TimeSpan time)
+#else
 		internal StatementCompletedEventArgs(string sql, TimeSpan time)
+#endif
 		{
+#if NET5_0
+			m_sqlPointer = sql;
+#else
 			Sql = sql;
+#endif
 			Time = time;
 		}
+
+#if NET5_0
+		private readonly IntPtr m_sqlPointer;
+		private string m_sql;
+#endif
 	}
 
 	/// <summary>

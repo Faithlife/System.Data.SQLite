@@ -335,14 +335,19 @@ namespace System.Data.SQLite
 #elif XAMARIN_IOS
 		[ObjCRuntime.MonoPInvokeCallback(typeof(SQLiteTraceV2Callback))]
 #endif
-		private static void ProfileCallback(SQLiteTraceEvents eventCode, IntPtr userData, IntPtr pStmt, IntPtr pDuration)
+		private static unsafe void ProfileCallback(SQLiteTraceEvents eventCode, IntPtr userData, IntPtr pStmt, IntPtr pDuration)
 		{
 			var handle = GCHandle.FromIntPtr(userData);
 			var connection = (SQLiteConnection) handle.Target;
 			StatementCompletedEventHandler handler = connection.m_statementCompleted;
 			if (handler is not null)
 			{
-				var sql = FromUtf8(NativeMethods.sqlite3_sql(pStmt));
+				var sqlPtr = NativeMethods.sqlite3_sql(pStmt);
+#if NET5_0
+				var sql = sqlPtr;
+#else
+				var sql = FromUtf8(sqlPtr);
+#endif
 				var nanoseconds = Marshal.ReadInt64(pDuration);
 				handler(connection, new StatementCompletedEventArgs(sql, TimeSpan.FromMilliseconds(nanoseconds / 1000000.0)));
 			}
