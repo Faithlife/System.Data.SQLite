@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' != 'win-x64' and '$(Platform)' != 'win-x86' and '$(Platform)' != 'osx-x64' ">
-    <TargetFrameworks>netcoreapp3.1;net472;xamarin.ios10;monoandroid81</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472;net5.0;xamarin.ios10;monoandroid81</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'win-x64' ">
-    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472;net5.0</TargetFrameworks>
     <RuntimeIdentifier>$(Platform)</RuntimeIdentifier>
   </PropertyGroup>
 
@@ -29,6 +29,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'everything' and '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
+    <ExtrasBuildEachRuntimeIdentifier>true</ExtrasBuildEachRuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'everything' and '$(TargetFramework)' == 'net5.0' ">
     <RuntimeIdentifiers>win-x64;osx-x64</RuntimeIdentifiers>
     <ExtrasBuildEachRuntimeIdentifier>true</ExtrasBuildEachRuntimeIdentifier>
   </PropertyGroup>

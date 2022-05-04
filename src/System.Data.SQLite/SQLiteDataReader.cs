@@ -1,8 +1,12 @@
+#if NET5_0
+using System.Buffers;
+#endif
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -50,9 +54,43 @@ namespace System.Data.SQLite
 					int index;
 					if (parameterName is not null)
 					{
+#if NET5_0
+						static unsafe int GetParameterIndex(SqliteStatementHandle currentStatement, string parameterName)
+						{
+							var utf8Length = Encoding.UTF8.GetByteCount(parameterName) + 2;
+
+							const int c_stackAllocationThreshold = 1024;
+							byte[] pooled = null;
+							Span<byte> span = utf8Length <= c_stackAllocationThreshold ?
+								stackalloc byte[utf8Length] :
+								(pooled = ArrayPool<byte>.Shared.Rent(utf8Length));
+
+							var parameterNameBytes = span;
+							if (parameterName[0] != '@')
+							{
+								parameterNameBytes[0] = (byte) '@';
+								parameterNameBytes = parameterNameBytes.Slice(1);
+							}
+							var byteCount = Encoding.UTF8.GetBytes(parameterName.AsSpan(), parameterNameBytes);
+							parameterNameBytes[byteCount] = 0;
+
+							int index;
+							fixed (byte* spanBytes = span)
+							{
+								index = NativeMethods.sqlite3_bind_parameter_index(currentStatement, spanBytes);
+							}
+
+							if (pooled is not null)
+								ArrayPool<byte>.Shared.Return(pooled);
+
+							return index;
+						}
+						index = GetParameterIndex(m_currentStatement, parameterName);
+#else
 						if (parameterName[0] != '@')
 							parameterName = "@" + parameterName;
 						index = NativeMethods.sqlite3_bind_parameter_index(m_currentStatement, SQLiteConnection.ToNullTerminatedUtf8(parameterName));
+#endif
 					}
 					else
 					{
@@ -458,10 +496,30 @@ namespace System.Data.SQLite
 
 		private void BindBlob(int ordinal, byte[] blob) => ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, blob, blob.Length, s_sqliteTransient));
 
-		private void BindText(int ordinal, string text)
+		private unsafe void BindText(int ordinal, string text)
 		{
+#if NET5_0
+			var utf8Length = Encoding.UTF8.GetByteCount(text);
+
+			const int c_stackAllocationThreshold = 1024;
+			byte[] pooled = null;
+			Span<byte> span = utf8Length <= c_stackAllocationThreshold ?
+				stackalloc byte[utf8Length] :
+				(pooled = ArrayPool<byte>.Shared.Rent(utf8Length));
+
+			var byteCount = Encoding.UTF8.GetBytes(text.AsSpan(), span);
+
+			fixed (byte* spanBytes = span)
+			{
+				ThrowOnError(NativeMethods.sqlite3_bind_text(m_currentStatement, ordinal, spanBytes, byteCount, s_sqliteTransient));
+			}
+
+			if (pooled is not null)
+				ArrayPool<byte>.Shared.Return(pooled);
+#else
 			var bytes = SQLiteConnection.ToUtf8(text);
 			ThrowOnError(NativeMethods.sqlite3_bind_text(m_currentStatement, ordinal, bytes, bytes.Length, s_sqliteTransient));
+#endif
 		}
 
 		private void ThrowOnError(SQLiteErrorCode errorCode)

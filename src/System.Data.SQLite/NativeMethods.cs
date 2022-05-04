@@ -37,10 +37,18 @@ namespace System.Data.SQLite
 		public static extern SQLiteErrorCode sqlite3_bind_null(SqliteStatementHandle stmt, int ordinal);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+#if NET5_0
+		public static extern unsafe int sqlite3_bind_parameter_index(SqliteStatementHandle stmt, byte* zName);
+#else
 		public static extern int sqlite3_bind_parameter_index(SqliteStatementHandle stmt, byte[] zName);
+#endif
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
+#if NET5_0
+		public static extern unsafe SQLiteErrorCode sqlite3_bind_text(SqliteStatementHandle stmt, int ordinal, byte* value, int count, IntPtr free);
+#else
 		public static extern SQLiteErrorCode sqlite3_bind_text(SqliteStatementHandle stmt, int ordinal, byte[] value, int count, IntPtr free);
+#endif
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_busy_timeout(SqliteDatabaseHandle db, int ms);
