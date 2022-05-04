@@ -499,7 +499,8 @@ namespace System.Data.SQLite
 		private unsafe void BindText(int ordinal, string text)
 		{
 #if NET5_0
-			var utf8Length = Encoding.UTF8.GetByteCount(text);
+			// add one for a NULL terminator so that an empty string is converted to a non-empty array, so that a NULL pointer isn't passed to native code
+			var utf8Length = Encoding.UTF8.GetByteCount(text) + 1;
 
 			const int c_stackAllocationThreshold = 1024;
 			byte[] pooled = null;

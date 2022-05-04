@@ -483,6 +483,28 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 			}
 		}
 
+		[Test]
+		public void InsertEmptyString()
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute(@"create table Jobs
+(
+	Name text not null primary key,
+	Properties text not null
+);");
+
+				string insertJob = @"insert into Jobs(Name, Properties) values (@Name, @Properties);";
+
+				conn.Execute(insertJob, new
+				{
+					Name = "test",
+					Properties = "",
+				});
+			}
+		}
+
 		private IEnumerable<KeyValuePair<string, object>> GetTypesAndValues(object[] typesAndValues)
 		{
 			for (int i = 0; i < typesAndValues.Length; i += 2)
