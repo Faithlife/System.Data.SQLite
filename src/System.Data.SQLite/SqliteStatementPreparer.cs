@@ -1,4 +1,8 @@
+#if NET5_0
+using System.Buffers;
+#endif
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 
 namespace System.Data.SQLite
@@ -8,7 +12,14 @@ namespace System.Data.SQLite
 		public SqliteStatementPreparer(SqliteDatabaseHandle database, string commandText)
 		{
 			m_database = database;
+#if NET5_0
+			m_commandTextBytesLength = Encoding.UTF8.GetByteCount(commandText);
+			m_commandTextBytes = ArrayPool<byte>.Shared.Rent(m_commandTextBytesLength);
+			Encoding.UTF8.GetBytes(commandText.AsSpan(), m_commandTextBytes.AsSpan());
+#else
 			m_commandTextBytes = SQLiteConnection.ToUtf8(commandText);
+			m_commandTextBytesLength = m_commandTextBytes.Length;
+#endif
 			m_statements = new List<SqliteStatementHandle>();
 			m_refCount = 1;
 		}
@@ -21,7 +32,7 @@ namespace System.Data.SQLite
 				throw new ArgumentOutOfRangeException("index");
 			if (index < m_statements.Count)
 				return m_statements[index];
-			if (m_bytesUsed == m_commandTextBytes.Length)
+			if (m_bytesUsed == m_commandTextBytesLength)
 				return null;
 
 			SQLiteErrorCode errorCode;
@@ -33,7 +44,7 @@ namespace System.Data.SQLite
 					{
 						byte* remainingSqlBytes;
 						SqliteStatementHandle statement;
-						errorCode = NativeMethods.sqlite3_prepare_v2(m_database, sqlBytes, m_commandTextBytes.Length - m_bytesUsed, out statement, out remainingSqlBytes);
+						errorCode = NativeMethods.sqlite3_prepare_v2(m_database, sqlBytes, m_commandTextBytesLength - m_bytesUsed, out statement, out remainingSqlBytes);
 						switch (errorCode)
 						{
 						case SQLiteErrorCode.Ok:
@@ -74,6 +85,9 @@ namespace System.Data.SQLite
 				foreach (var statement in m_statements)
 					statement.Dispose();
 				m_statements = null;
+#if NET5_0
+				ArrayPool<byte>.Shared.Return(m_commandTextBytes);
+#endif
 			}
 			else if (m_refCount < 0)
 			{
@@ -83,6 +97,7 @@ namespace System.Data.SQLite
 
 		readonly SqliteDatabaseHandle m_database;
 		readonly byte[] m_commandTextBytes;
+		readonly int m_commandTextBytesLength;
 		List<SqliteStatementHandle> m_statements;
 		int m_bytesUsed;
 		int m_refCount;
