@@ -62,9 +62,17 @@ namespace System.Data.SQLite
 
 			SetState(ConnectionState.Connecting);
 
-			var m = s_vfsRegex.Match(m_dataSource);
-			string fileName = m.Groups["fileName"].Value;
-			string vfsName = m.Groups["vfsName"].Value;
+			string vfsName = null;
+			string fileName = m_dataSource;
+			if (m_dataSource.Length >= 3 && m_dataSource[0] == '*')
+			{
+				var asteriskIndex = m_dataSource.IndexOf('*', 1);
+				if (asteriskIndex >= 0 && asteriskIndex <= 17)
+				{
+					vfsName = m_dataSource.Substring(1, asteriskIndex - 1);
+					fileName = m_dataSource.Substring(asteriskIndex + 1);
+				}
+			}
 			var errorCode = NativeMethods.sqlite3_open_v2(ToNullTerminatedUtf8(fileName), out m_db, openFlags, string.IsNullOrEmpty(vfsName) ? null : ToNullTerminatedUtf8(vfsName));
 
 			var success = false;
@@ -353,8 +361,6 @@ namespace System.Data.SQLite
 			if (m_isDisposed)
 				throw new ObjectDisposedException(GetType().Name);
 		}
-
-		static readonly Regex s_vfsRegex = new Regex(@"^(?:\*(?'vfsName'.{0,16})\*)?(?'fileName'.*)$", RegexOptions.CultureInvariant);
 
 		SqliteDatabaseHandle m_db;
 		readonly Stack<SQLiteTransaction> m_transactions;
