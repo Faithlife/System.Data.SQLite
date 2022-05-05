@@ -18,7 +18,7 @@ internal static class Build
 			},
 
 			// 32-bit MSBuild is required for Xamarin builds
-			MSBuildSettings = new MSBuildSettings { Version = MSBuildVersion.VS2019, Platform = MSBuildPlatform.X32 },
+			MSBuildSettings = new MSBuildSettings { Version = MSBuildVersion.VS2022, Platform = MSBuildPlatform.X32 },
 
 			// default to everything
 			SolutionPlatform = "everything",
@@ -30,7 +30,7 @@ internal static class Build
 			TestSettings = new DotNetTestSettings(),
 		};
 
-		IReadOnlyList<string> findTestAssemblies()
+		static IReadOnlyList<string> FindTestAssemblies(DotNetBuildSettings dotNetBuildSettings)
 		{
 			var buildOptions = dotNetBuildSettings.BuildOptions;
 			var configuration = buildOptions.ConfigurationOption.Value;
@@ -43,7 +43,7 @@ internal static class Build
 			return testAssemblies;
 		}
 
-		dotNetBuildSettings.TestSettings.FindTestAssemblies = findTestAssemblies;
+		dotNetBuildSettings.TestSettings.FindAssemblies = FindTestAssemblies;
 
 		build.AddDotNetTargets(dotNetBuildSettings);
 	});
