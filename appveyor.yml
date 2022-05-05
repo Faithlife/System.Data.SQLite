@@ -1,6 +1,6 @@
 version: '{build}'
 image:
-- Visual Studio 2019
+- Visual Studio 2022
 environment:
   NUGET_API_KEY:
     secure: qG9Vskx9xsjJZq55dQJL5u8NY4NtUfKui2CqKlmmRSluU7jQlB8YwUncQQYfVVxz
