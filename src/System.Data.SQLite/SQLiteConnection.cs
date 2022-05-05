@@ -277,7 +277,11 @@ namespace System.Data.SQLite
 
 		protected override bool CanRaiseEvents => false;
 
-		internal SQLiteTransaction CurrentTransaction => m_transactions.FirstOrDefault();
+#if NET5_0
+		internal SQLiteTransaction CurrentTransaction => m_transactions.TryPeek(out var transaction) ? transaction : null;
+#else
+		internal SQLiteTransaction CurrentTransaction => m_transactions.Count == 0 ? null : m_transactions.Peek();
+#endif
 
 		internal bool IsOnlyTransaction(SQLiteTransaction transaction) => m_transactions.Count == 1 && m_transactions.Peek() == transaction;
 
