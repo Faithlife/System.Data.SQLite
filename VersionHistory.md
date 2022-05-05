@@ -1,5 +1,9 @@
 # Version History
 
+## 3.2.5
+
+* Eliminate allocations in common code paths.
+
 ## 3.2.4
 
 * Fix bug introduced in 3.2.3 that failed to bind a parameter value set to the empty string (`""`).
