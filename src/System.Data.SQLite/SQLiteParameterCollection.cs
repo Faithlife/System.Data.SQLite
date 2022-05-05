@@ -47,7 +47,15 @@ namespace System.Data.SQLite
 
 		public override int IndexOf(object value) => m_parameters.IndexOf((SQLiteParameter) value);
 
-		public override int IndexOf(string parameterName) => m_parameters.FindIndex(x => x.ParameterName == parameterName);
+		public override int IndexOf(string parameterName)
+		{
+			for (var index = 0; index < m_parameters.Count; index++)
+			{
+				if (m_parameters[index].ParameterName == parameterName)
+					return index;
+			}
+			return -1;
+		}
 
 		public override void Insert(int index, object value) => m_parameters.Insert(index, (SQLiteParameter) value);
 
