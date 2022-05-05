@@ -307,6 +307,20 @@ namespace System.Data.SQLite
 			return bytes;
 		}
 
+#if NET5_0
+		internal static ReadOnlySpan<byte> GetUtf8Span(IntPtr ptr)
+		{
+			int length = 0;
+			unsafe
+			{
+				byte* p = (byte*) ptr.ToPointer();
+				while (*p++ != 0)
+					length++;
+				return new ReadOnlySpan<byte>(ptr.ToPointer(), length);
+			}
+		}
+#endif
+
 		internal static string FromUtf8(IntPtr ptr)
 		{
 			int length = 0;

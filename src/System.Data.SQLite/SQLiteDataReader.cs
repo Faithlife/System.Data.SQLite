@@ -378,9 +378,16 @@ namespace System.Data.SQLite
 				IntPtr declType = NativeMethods.sqlite3_column_decltype(m_currentStatement, ordinal);
 				if (declType != IntPtr.Zero)
 				{
+#if NET5_0
+					if (GetDbType(declType) is DbType dbTypeValue)
+						dbType = dbTypeValue;
+					else
+						throw new NotSupportedException("The data type name '{0}' is not supported.".FormatInvariant(SQLiteConnection.FromUtf8(declType)));
+#else
 					string type = SQLiteConnection.FromUtf8(declType);
 					if (!s_sqlTypeToDbType.TryGetValue(type, out dbType))
 						throw new NotSupportedException("The data type name '{0}' is not supported.".FormatInvariant(type));
+#endif
 				}
 				else
 				{
@@ -459,6 +466,8 @@ namespace System.Data.SQLite
 		}
 
 		public override int VisibleFieldCount => FieldCount;
+
+		internal DbType? GetDbType(int ordinal) => m_columnType[ordinal];
 
 		private SqliteDatabaseHandle DatabaseHandle => ((SQLiteConnection) m_command.Connection).Handle;
 
@@ -543,6 +552,113 @@ namespace System.Data.SQLite
 			return source.Task;
 		}
 
+#if NET5_0
+		// Must be kept in sync with s_sqlTypeToDbType.
+		private static DbType? GetDbType(IntPtr declType)
+		{
+			var typeBytes = SQLiteConnection.GetUtf8Span(declType);
+			if (typeBytes.Length >= 2)
+			{
+				switch (typeBytes[0])
+				{
+				case 0x42 or 0x62: // B
+					switch (typeBytes[1])
+					{
+					case 0x49 or 0x69: // I
+						if (typeBytes.Length == 3 && typeBytes[2] is 0x54 or 0x74) // BIT
+							return DbType.Boolean;
+						else if (typeBytes.Length == 6 && typeBytes[2] is 0x47 or 0x67 && typeBytes[3] is 0x49 or 0x69 && typeBytes[4] is 0x4E or 0x6E && typeBytes[5] is 0x54 or 0x74) // BIGINT
+							return DbType.Int64;
+						break;
+
+					case 0x4F or 0x6F: // O
+						if (typeBytes.Length == 4 && typeBytes[2] is 0x4F or 0x6F && typeBytes[3] is 0x4C or 0x6C) // BOOL
+							return DbType.Boolean;
+						if (typeBytes.Length == 7 && typeBytes[2] is 0x4F or 0x6F && typeBytes[3] is 0x4C or 0x6C && typeBytes[4] is 0x45 or 0x65 && typeBytes[5] is 0x41 or 0x61 && typeBytes[6] is 0x4E or 0x6E) // BOOLEAN
+							return DbType.Boolean;
+						break;
+
+					case 0x4C or 0x6C: // L
+						if (typeBytes.Length == 4 && typeBytes[2] is 0x4F or 0x6F && typeBytes[3] is 0x42 or 0x62) // BLOB
+							return DbType.Binary;
+						break;
+					}
+					break;
+
+				case 0x44 or 0x64: // D
+					switch (typeBytes[1])
+					{
+					case 0x41 or 0x61: // A
+						if (typeBytes.Length == 8 && typeBytes[2] is 0x54 or 0x74 && typeBytes[3] is 0x45 or 0x65 && typeBytes[4] is 0x54 or 0x74 && typeBytes[5] is 0x49 or 0x69 && typeBytes[6] is 0x4D or 0x6D && typeBytes[7] is 0x45 or 0x65) // DATETIME
+							return DbType.DateTime;
+						break;
+
+					case 0x4F or 0x6F: // O
+						if (typeBytes.Length == 6 && typeBytes[2] is 0x55 or 0x75 && typeBytes[3] is 0x42 or 0x62 && typeBytes[4] is 0x4C or 0x6C && typeBytes[5] is 0x45 or 0x65) // DOUBLE
+							return DbType.Double;
+						break;
+					}
+					break;
+
+				case 0x46 or 0x66: // F
+					if (typeBytes.Length == 5 && typeBytes[1] is 0x4C or 0x6C && typeBytes[2] is 0x4F or 0x6F && typeBytes[3] is 0x41 or 0x61 && typeBytes[4] is 0x54 or 0x74) // FLOAT
+						return DbType.Double;
+					break;
+
+				case 0x47 or 0x67: // G
+					if (typeBytes.Length == 4 && typeBytes[1] is 0x55 or 0x75 && typeBytes[2] is 0x49 or 0x69 && typeBytes[3] is 0x44 or 0x64) // GUID
+						return DbType.Guid;
+					break;
+
+				case 0x49 or 0x69: // I
+					switch (typeBytes[1])
+					{
+					case 0x4E or 0x6E: // N
+						if (typeBytes.Length == 3 && typeBytes[2] is 0x54 or 0x74) // INT
+							return DbType.Int32;
+						if (typeBytes.Length == 7 && typeBytes[2] is 0x54 or 0x74 && typeBytes[3] is 0x45 or 0x65 && typeBytes[4] is 0x47 or 0x67 && typeBytes[5] is 0x45 or 0x65 && typeBytes[6] is 0x52 or 0x72) // INTEGER
+							return DbType.Int64;
+						break;
+					}
+					break;
+
+				case 0x4C or 0x6C: // L
+					if (typeBytes.Length == 4 && typeBytes[1] is 0x4F or 0x6F && typeBytes[2] is 0x4E or 0x6E && typeBytes[3] is 0x47 or 0x67) // LONG
+						return DbType.Int64;
+					break;
+
+				case 0x52 or 0x72: // R
+					if (typeBytes.Length == 4 && typeBytes[1] is 0x45 or 0x65 && typeBytes[2] is 0x41 or 0x61 && typeBytes[3] is 0x4C or 0x6C) // REAL
+						return DbType.Double;
+					break;
+
+				case 0x53 or 0x73: // S
+					switch (typeBytes[1])
+					{
+					case 0x49 or 0x69: // I
+						if (typeBytes.Length == 6 && typeBytes[2] is 0x4E or 0x6E && typeBytes[3] is 0x47 or 0x67 && typeBytes[4] is 0x4C or 0x6C && typeBytes[5] is 0x45 or 0x65) // SINGLE
+							return DbType.Single;
+						break;
+
+					case 0x54 or 0x74: // T
+						if (typeBytes.Length == 6 && typeBytes[2] is 0x52 or 0x72 && typeBytes[3] is 0x49 or 0x69 && typeBytes[4] is 0x4E or 0x6E && typeBytes[5] is 0x47 or 0x67) // STRING
+							return DbType.String;
+						break;
+					}
+					break;
+
+				case 0x54 or 0x74: // T
+					if (typeBytes.Length == 4 && typeBytes[1] is 0x45 or 0x65 && typeBytes[2] is 0x58 or 0x78 && typeBytes[3] is 0x54 or 0x74) // TEXT
+						return DbType.String;
+					break;
+				}
+			}
+			
+			return default;
+		}
+#endif
+
+		// Must be kept in sync with GetDbType.
 		static readonly Dictionary<string, DbType> s_sqlTypeToDbType = new Dictionary<string, DbType>(StringComparer.OrdinalIgnoreCase)
 		{
 			{ "bigint", DbType.Int64 },

@@ -484,6 +484,57 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 		}
 
 		[Test]
+		[TestCase("bigint", DbType.Int64)]
+		[TestCase("BIGINT", DbType.Int64)]
+		[TestCase("bit", DbType.Boolean)]
+		[TestCase("BIT", DbType.Boolean)]
+		[TestCase("blob", DbType.Binary)]
+		[TestCase("BLOB", DbType.Binary)]
+		[TestCase("bool", DbType.Boolean)]
+		[TestCase("BOOL", DbType.Boolean)]
+		[TestCase("boolean", DbType.Boolean)]
+		[TestCase("BOOLEAN", DbType.Boolean)]
+		[TestCase("datetime", DbType.DateTime)]
+		[TestCase("DATETIME", DbType.DateTime)]
+		[TestCase("double", DbType.Double)]
+		[TestCase("DOUBLE", DbType.Double)]
+		[TestCase("float", DbType.Double)]
+		[TestCase("FLOAT", DbType.Double)]
+		[TestCase("guid", DbType.Guid)]
+		[TestCase("GUID", DbType.Guid)]
+		[TestCase("int", DbType.Int32)]
+		[TestCase("INT", DbType.Int32)]
+		[TestCase("integer", DbType.Int64)]
+		[TestCase("INTEGER", DbType.Int64)]
+		[TestCase("long", DbType.Int64)]
+		[TestCase("LONG", DbType.Int64)]
+		[TestCase("real", DbType.Double)]
+		[TestCase("REAL", DbType.Double)]
+		[TestCase("single", DbType.Single)]
+		[TestCase("SINGLE", DbType.Single)]
+		[TestCase("string", DbType.String)]
+		[TestCase("STRING", DbType.String)]
+		[TestCase("text", DbType.String)]
+		[TestCase("TEXT", DbType.String)]
+		public void GetDbType(string columnType, DbType expected)
+		{
+			using (var conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute(@"create table Test (Id integer primary key autoincrement, Value {0});".FormatInvariant(columnType));
+				conn.Execute(@"insert into Test (Value) values(null);");
+
+				// test that GetValue returns the right value
+				using (var reader = (SQLiteDataReader) conn.ExecuteReader(@"select Value from Test"))
+				{
+					Assert.IsTrue(reader.Read());
+					Assert.AreEqual(DBNull.Value, reader.GetValue(0));
+					Assert.AreEqual(expected, reader.GetDbType(0));
+				}
+			}
+		}
+
+		[Test]
 		public void InsertEmptyString()
 		{
 			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
