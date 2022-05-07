@@ -30,11 +30,11 @@ namespace System.Data.SQLite
 			m_command = null;
 		}
 
-		public override bool NextResult() => NextResultAsyncCore(CancellationToken.None).Result;
+		public override bool NextResult() => NextResultAsyncCore(CancellationToken.None);
 
-		public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => NextResultAsyncCore(cancellationToken);
+		public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => NextResultAsyncCore(cancellationToken) ? s_trueTask : s_falseTask;
 
-		private Task<bool> NextResultAsyncCore(CancellationToken cancellationToken)
+		private bool NextResultAsyncCore(CancellationToken cancellationToken)
 		{
 			VerifyNotDisposed();
 
@@ -42,7 +42,7 @@ namespace System.Data.SQLite
 			m_currentStatementIndex++;
 			m_currentStatement = m_statementPreparer.Get(m_currentStatementIndex, cancellationToken);
 			if (m_currentStatement is null)
-				return s_falseTask;
+				return false;
 
 			var success = false;
 			try
@@ -136,13 +136,13 @@ namespace System.Data.SQLite
 					ThrowOnError(NativeMethods.sqlite3_reset(m_currentStatement));
 			}
 
-			return s_trueTask;
+			return true;
 		}
 
 		public override bool Read()
 		{
 			VerifyNotDisposed();
-			return ReadAsyncCore(CancellationToken.None).Result;
+			return ReadAsyncCore(CancellationToken.None);
 		}
 
 		internal static DbDataReader Create(SQLiteCommand command, CommandBehavior behavior)
@@ -169,7 +169,7 @@ namespace System.Data.SQLite
 			m_currentStatementIndex = -1;
 		}
 
-		private Task<bool> ReadAsyncCore(CancellationToken cancellationToken)
+		private bool ReadAsyncCore(CancellationToken cancellationToken)
 		{
 			using (cancellationToken.Register(s_interrupt, DatabaseHandle, useSynchronizationContext: false))
 			{
@@ -181,24 +181,25 @@ namespace System.Data.SQLite
 					{
 					case SQLiteErrorCode.Done:
 						Reset();
-						return s_falseTask;
+						return false;
 
 					case SQLiteErrorCode.Row:
 						m_hasRead = true;
 						if (m_columnType is null)
 							m_columnType = new DbType?[NativeMethods.sqlite3_column_count(m_currentStatement)];
-						return s_trueTask;
+						return true;
 
 					case SQLiteErrorCode.Busy:
 					case SQLiteErrorCode.Locked:
 					case SQLiteErrorCode.CantOpen:
-						if (cancellationToken.IsCancellationRequested)
-							return s_canceledTask;
+						cancellationToken.ThrowIfCancellationRequested();
 						Thread.Sleep(20);
 						break;
 
 					case SQLiteErrorCode.Interrupt:
-						return s_canceledTask;
+						// should always throw because s_interrupt will have been invoked already
+						cancellationToken.ThrowIfCancellationRequested();
+						return false;
 
 					default:
 						throw new SQLiteException(errorCode, DatabaseHandle);
@@ -206,7 +207,8 @@ namespace System.Data.SQLite
 				}
 			}
 
-			return cancellationToken.IsCancellationRequested ? s_canceledTask : s_trueTask;
+			cancellationToken.ThrowIfCancellationRequested();
+			return true;
 		}
 
 		public override bool IsClosed => m_command is null;
@@ -461,8 +463,14 @@ namespace System.Data.SQLite
 		public override Task<bool> ReadAsync(CancellationToken cancellationToken)
 		{
 			VerifyNotDisposed();
-
-			return ReadAsyncCore(cancellationToken);
+			try
+			{
+				return ReadAsyncCore(cancellationToken) ? s_trueTask : s_falseTask;
+			}
+			catch (OperationCanceledException ex) when (ex.CancellationToken == cancellationToken)
+			{
+				return Task.FromCanceled<bool>(cancellationToken);
+			}
 		}
 
 		public override int VisibleFieldCount => FieldCount;
@@ -543,13 +551,6 @@ namespace System.Data.SQLite
 			// these are the System.Data.SQLite default format strings (from SQLiteConvert.cs)
 			var formatString = dateTime.Kind == DateTimeKind.Utc ? "yyyy-MM-dd HH:mm:ss.FFFFFFFK" : "yyyy-MM-dd HH:mm:ss.FFFFFFF";
 			return dateTime.ToString(formatString, CultureInfo.InvariantCulture);
-		}
-
-		private static Task<bool> CreateCanceledTask()
-		{
-			var source = new TaskCompletionSource<bool>();
-			source.SetCanceled();
-			return source.Task;
 		}
 
 #if NET5_0
@@ -724,7 +725,6 @@ namespace System.Data.SQLite
 		};
 
 		static readonly IntPtr s_sqliteTransient = new IntPtr(-1);
-		static readonly Task<bool> s_canceledTask = CreateCanceledTask();
 		static readonly Task<bool> s_falseTask = Task.FromResult(false);
 		static readonly Task<bool> s_trueTask = Task.FromResult(true);
 
