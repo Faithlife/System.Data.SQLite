@@ -241,7 +241,7 @@ namespace System.Data.SQLite
 			return checked((byte) NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal));
 		}
 
-		public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+		public override unsafe long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
@@ -251,20 +251,23 @@ namespace System.Data.SQLite
 			else if (sqliteType != SQLiteColumnType.Blob)
 				throw new InvalidCastException("Cannot convert {0} to bytes.".FormatInvariant(sqliteType));
 
-			int availableLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
+			IntPtr ptr = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
+			int columnLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
 			if (buffer is null)
 			{
 				// this isn't required by the DbDataReader.GetBytes API documentation, but is what System.Data.SQLite does
 				// (as does SqlDataReader: http://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqldatareader.getbytes.aspx)
-				return availableLength;
+				return columnLength;
 			}
-
 			if (bufferOffset + length > buffer.Length)
 				throw new ArgumentException("bufferOffset + length cannot exceed buffer.Length", "length");
 
-			IntPtr ptr = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
-			int lengthToCopy = Math.Min(availableLength - (int) dataOffset, length);
+			int lengthToCopy = Math.Min(columnLength - (int) dataOffset, length);
+#if NET5_0
+			new ReadOnlySpan<byte>(ptr.ToPointer(), columnLength).CopyTo(buffer.AsSpan(bufferOffset, lengthToCopy));
+#else
 			Marshal.Copy(new IntPtr(ptr.ToInt64() + dataOffset), buffer, bufferOffset, lengthToCopy);
+#endif
 			return lengthToCopy;
 		}
 
@@ -445,12 +448,12 @@ namespace System.Data.SQLite
 		public unsafe ReadOnlySpan<byte> GetReadOnlySpan(int ordinal)
 		{
 			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
-			if (sqliteType != SQLiteColumnType.Blob)
+			if (sqliteType != SQLiteColumnType.Blob && sqliteType != SQLiteColumnType.Text)
 				throw new InvalidCastException("Cannot convert {0} to bytes.".FormatInvariant(sqliteType));
 
-			var availableLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
 			var ptr = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
-			return new ReadOnlySpan<byte>(ptr.ToPointer(), availableLength);
+			var length = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
+			return new ReadOnlySpan<byte>(ptr.ToPointer(), length);
 		}
 #endif
 
@@ -471,13 +474,11 @@ namespace System.Data.SQLite
 				return DBNull.Value;
 
 			case SQLiteColumnType.Blob:
+				var bytePointer = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
 				var byteCount = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
 				var bytes = new byte[byteCount];
 				if (byteCount > 0)
-				{
-					var bytePointer = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
 					Marshal.Copy(bytePointer, bytes, 0, byteCount);
-				}
 				return dbType == DbType.Guid && byteCount == 16 ? (object) new Guid(bytes) : (object) bytes;
 
 			case SQLiteColumnType.Double:
@@ -495,8 +496,9 @@ namespace System.Data.SQLite
 					(object) integerValue;
 
 			case SQLiteColumnType.Text:
-				int stringLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
-				var stringValue = SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_text(m_currentStatement, ordinal), stringLength);
+				var stringPointer = NativeMethods.sqlite3_column_text(m_currentStatement, ordinal);
+				var stringLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
+				var stringValue = SQLiteConnection.FromUtf8(stringPointer, stringLength);
 				return dbType == DbType.DateTime ? (object) DateTime.ParseExact(stringValue, s_dateTimeFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AdjustToUniversal) :
 					(object) stringValue;
 

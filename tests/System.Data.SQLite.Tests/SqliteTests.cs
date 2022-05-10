@@ -1,8 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 #if DAPPER
@@ -619,6 +620,21 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 			Assert.True(reader.Read());
 			var span = reader.GetReadOnlySpan(0);
 			Assert.AreEqual(value, span.ToArray());
+		}
+
+		[Test]
+		public void GetReadOnlySpanForText()
+		{
+			using var conn = new SQLiteConnection(m_csb.ConnectionString);
+			conn.Open();
+			conn.Execute(@"create table texts(id integer not null primary key, value text not null);");
+			var value = "Aáαἁ";
+			conn.Execute(@"insert into texts(id, value) values(1, @value);", new { value });
+			using var command = new SQLiteCommand("select value from texts where id = 1", conn);
+			using var reader = command.ExecuteReader();
+			Assert.True(reader.Read());
+			var span = reader.GetReadOnlySpan(0);
+			Assert.AreEqual(Encoding.UTF8.GetBytes(value), span.ToArray());
 		}
 #endif
 
