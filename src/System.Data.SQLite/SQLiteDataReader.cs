@@ -363,6 +363,25 @@ namespace System.Data.SQLite
 
 		public override Type GetFieldType(int ordinal) => throw new NotSupportedException();
 
+#if NET5_0
+		/// <summary>
+		/// Returns a <see cref="ReadOnlySpan{T}"/> for the BLOB data in the specified column.
+		/// </summary>
+		/// <param name="ordinal">The column to read.</param>
+		/// <returns>A <see cref="ReadOnlySpan{T}"/> wrapping native memory for the column data. This value is only valid
+		/// until the next row is read.</returns>
+		public unsafe ReadOnlySpan<byte> GetReadOnlySpan(int ordinal)
+		{
+			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			if (sqliteType != SQLiteColumnType.Blob)
+				throw new InvalidCastException("Cannot convert '{0}' to bytes.".FormatInvariant(sqliteType));
+
+			var availableLength = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
+			var ptr = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
+			return new ReadOnlySpan<byte>(ptr.ToPointer(), availableLength);
+		}
+#endif
+
 		public override object GetValue(int ordinal)
 		{
 			VerifyRead();

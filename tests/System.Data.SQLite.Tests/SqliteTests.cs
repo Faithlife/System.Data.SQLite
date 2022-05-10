@@ -588,6 +588,23 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 			}
 		}
 
+#if NET6_0
+		[Test]
+		public void GetReadOnlySpan()
+		{
+			using var conn = new SQLiteConnection(m_csb.ConnectionString);
+			conn.Open();
+			conn.Execute(@"create table blobs(id integer not null primary key, value blob not null);");
+			var value = new byte[] { 1, 2, 3, 4, 5, 6, 0 };
+			conn.Execute(@"insert into blobs(id, value) values(1, @value);", new { value });
+			using var command = new SQLiteCommand("select value from blobs where id = 1", conn);
+			using var reader = command.ExecuteReader();
+			Assert.True(reader.Read());
+			var span = reader.GetReadOnlySpan(0);
+			Assert.AreEqual(value, span.ToArray());
+		}
+#endif
+
 		private IEnumerable<KeyValuePair<string, object>> GetTypesAndValues(object[] typesAndValues)
 		{
 			for (int i = 0; i < typesAndValues.Length; i += 2)
