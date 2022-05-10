@@ -501,15 +501,11 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 					{
 						Assert.IsTrue(reader.Read());
 						var methodInfo = reader.GetType().GetMethod("Get" + type);
-						try
-						{
-							methodInfo.Invoke(reader, new object[] { 0 });
-							Assert.Fail("No exception thrown for {0}".FormatInvariant(type));
-						}
-						catch (TargetInvocationException ex)
-						{
-							Assert.IsTrue(new[] { typeof(InvalidCastException), typeof(FormatException), typeof(OverflowException) }.Contains(ex.InnerException.GetType()));
-						}
+						var exception = Assert.Throws<TargetInvocationException>(() => methodInfo.Invoke(reader, new object[] { 0 }), "No exception thrown for {0}", type);
+						if (columnType == "integer" && value is not null && type == "Int32")
+							Assert.IsInstanceOf<OverflowException>(exception.InnerException);
+						else
+							Assert.IsInstanceOf<InvalidCastException>(exception.InnerException);
 					}
 				}
 			}
