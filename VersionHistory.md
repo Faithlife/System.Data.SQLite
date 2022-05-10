@@ -1,5 +1,12 @@
 # Version History
 
+## 3.3.0
+
+* Add `SQLiteDataReader.GetReadOnlySpan` (`net5.0` only) to return direct access to SQLite's memory for `BLOB` and `TEXT` columns.
+* Implement`SQLiteDataReader.GetFieldValue<T>`.
+* Implement `GetInt32`, `GetInt64`, `GetGuid`, `GetDouble`, etc., without boxing a temporary value.
+* Implemented synchronous `Read` and `NextResult` methods slightly more efficiently.
+
 ## 3.2.5
 
 * Eliminate allocations in common code paths.

@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <VersionPrefix>3.2.5</VersionPrefix>
+    <VersionPrefix>3.3.0</VersionPrefix>
     <LangVersion>9.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);1591;1998</NoWarn>
@@ -12,8 +12,8 @@
     <PackageProjectUrl>https://github.com/Faithlife/$(RepositoryName)</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/Faithlife/$(RepositoryName)/blob/master/VersionHistory.md</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/Faithlife/$(RepositoryName).git</RepositoryUrl>
-    <Authors>Faithlife Corporation</Authors>
-    <Copyright>Copyright Faithlife Corporation</Copyright>
+    <Authors>Faithlife, LLC</Authors>
+    <Copyright>Copyright Faithlife, LLC</Copyright>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild Condition=" '$(CI)' == 'True' ">true</ContinuousIntegrationBuild>
