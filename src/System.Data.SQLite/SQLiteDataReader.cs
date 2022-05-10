@@ -218,7 +218,7 @@ namespace System.Data.SQLite
 		public override bool GetBoolean(int ordinal)
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
-				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to bool.".FormatInvariant(sqliteType));
@@ -231,7 +231,7 @@ namespace System.Data.SQLite
 		public override byte GetByte(int ordinal)
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
-				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to byte.".FormatInvariant(sqliteType));
@@ -244,7 +244,7 @@ namespace System.Data.SQLite
 		public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
-				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			if (sqliteType == SQLiteColumnType.Null)
 				return 0;
@@ -277,7 +277,7 @@ namespace System.Data.SQLite
 		public override short GetInt16(int ordinal)
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
-				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to short.".FormatInvariant(sqliteType));
@@ -290,7 +290,7 @@ namespace System.Data.SQLite
 		public override int GetInt32(int ordinal)
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
-				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to int.".FormatInvariant(sqliteType));
@@ -303,7 +303,7 @@ namespace System.Data.SQLite
 		public override long GetInt64(int ordinal)
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
-				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to long.".FormatInvariant(sqliteType));
@@ -321,21 +321,35 @@ namespace System.Data.SQLite
 
 		public override double GetDouble(int ordinal)
 		{
-			var value = GetValue(ordinal);
-			return value switch
-			{
-				float floatValue => floatValue,
-				_ => (double) value
-			};
+			if (ordinal < 0 || ordinal > FieldCount)
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			if (sqliteType is not (SQLiteColumnType.Double or SQLiteColumnType.Integer))
+				throw new InvalidCastException("Cannot convert {0} to double.".FormatInvariant(sqliteType));
+			var dbType = GetDbType(ordinal);
+			if (dbType is not (DbType.Double or DbType.Single))
+				throw new InvalidCastException("Cannot convert {0} to double.".FormatInvariant(dbType));
+			return NativeMethods.sqlite3_column_double(m_currentStatement, ordinal);
 		}
 
-		public override float GetFloat(int ordinal) => (float) GetValue(ordinal);
+		public override float GetFloat(int ordinal)
+		{
+			if (ordinal < 0 || ordinal > FieldCount)
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			if (sqliteType is not (SQLiteColumnType.Double or SQLiteColumnType.Integer))
+				throw new InvalidCastException("Cannot convert {0} to single.".FormatInvariant(sqliteType));
+			var dbType = GetDbType(ordinal);
+			if (dbType is not DbType.Single)
+				throw new InvalidCastException("Cannot convert {0} to single.".FormatInvariant(dbType));
+			return checked((float) NativeMethods.sqlite3_column_double(m_currentStatement, ordinal));
+		}
 
 		public override string GetName(int ordinal)
 		{
 			VerifyHasResult();
 			if (ordinal < 0 || ordinal > FieldCount)
-				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 
 			return SQLiteConnection.FromUtf8(NativeMethods.sqlite3_column_name(m_currentStatement, ordinal)); 
 		}
@@ -425,7 +439,7 @@ namespace System.Data.SQLite
 		{
 			VerifyRead();
 			if (ordinal < 0 || ordinal > FieldCount)
-				throw new ArgumentOutOfRangeException("ordinal", "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 
 			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
 			var dbType = GetDbType(ordinal);
