@@ -582,6 +582,29 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 			}
 		}
 
+		[Test]
+		public void GetGuid()
+		{
+			using var conn = new SQLiteConnection(m_csb.ConnectionString);
+			conn.Open();
+			conn.Execute(@"create table guids(id integer not null primary key, value guid not null);");
+			var guid1 = new Guid("11223344-5566-7788-99aa-bbccddeeff00");
+			conn.Execute(@"insert into guids(id, value) values(1, @guid);", new { guid = guid1 });
+			var guid2 = new Guid("10111213-1415-1617-1819-1a1b1c1d1e1f");
+			conn.Execute(@"insert into guids(id, value) values(2, @guid);", new { guid = guid2 });
+			var guid3 = new Guid("488e4cd4-3a0f-4687-b63f-3569b9ff16a4");
+			conn.Execute(@"insert into guids(id, value) values(3, @guid);", new { guid = guid3 });
+			using var command = new SQLiteCommand("select value from guids order by id", conn);
+			using var reader = command.ExecuteReader();
+			Assert.True(reader.Read());
+			Assert.AreEqual(guid1, reader.GetValue(0));
+			Assert.True(reader.Read());
+			Assert.AreEqual(guid2, reader.GetGuid(0));
+			Assert.True(reader.Read());
+			Assert.AreEqual(guid3, reader.GetFieldValue<Guid>(0));
+			Assert.False(reader.Read());
+		}
+
 #if NET6_0
 		[Test]
 		public void GetReadOnlySpan()
