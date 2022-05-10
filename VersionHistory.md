@@ -1,5 +1,9 @@
 # Version History
 
+## 3.3.1
+
+* Support `ArraySegment<byte>`, `Memory<byte>` and `ReadOnlyMemory<byte>` as parameter values.
+
 ## 3.3.0
 
 * Add `SQLiteDataReader.GetReadOnlySpan` (`net5.0` only) to return direct access to SQLite's memory for `BLOB` and `TEXT` columns.
