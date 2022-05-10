@@ -272,7 +272,26 @@ namespace System.Data.SQLite
 
 		public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) => throw new NotImplementedException();
 
-		public override Guid GetGuid(int ordinal) => (Guid) GetValue(ordinal);
+		public override unsafe Guid GetGuid(int ordinal)
+		{
+#if NET5_0
+			if (ordinal < 0 || ordinal > FieldCount)
+				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
+			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			if (sqliteType != SQLiteColumnType.Blob)
+				throw new InvalidCastException("Cannot convert {0} to Guid.".FormatInvariant(sqliteType));
+			var dbType = GetDbType(ordinal);
+			if (dbType is not DbType.Guid)
+				throw new InvalidCastException("Cannot convert {0} to Guid.".FormatInvariant(dbType));
+			var ptr = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
+			var length = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
+			if (length != 16)
+				throw new InvalidCastException("Cannot convert BLOB with length {0} to Guid.".FormatInvariant(length));
+			return new Guid(new ReadOnlySpan<byte>(ptr.ToPointer(), length));
+#else
+			return (Guid) GetValue(ordinal);
+#endif
+		}
 
 		public override short GetInt16(int ordinal)
 		{
