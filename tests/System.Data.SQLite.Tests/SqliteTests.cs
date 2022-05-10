@@ -606,6 +606,37 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 			Assert.False(reader.Read());
 		}
 
+		[Test]
+		public void WriteBlobs()
+		{
+			using var conn = new SQLiteConnection(m_csb.ConnectionString);
+			conn.Open();
+			conn.Execute(@"create table blobs(id integer not null primary key, value blob not null);");
+			var blob1 = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+			conn.Execute(@"insert into blobs(id, value) values(1, @blob);", new { blob = blob1 });
+			var blob2 = new ArraySegment<byte>(blob1, 2, 5);
+			conn.Execute(@"insert into blobs(id, value) values(2, @blob);", new { blob = blob2 });
+#if NET6_0
+			var blob3 = blob1.AsMemory(3, 6);
+			conn.Execute(@"insert into blobs(id, value) values(3, @blob);", new { blob = blob3 });
+			var blob4 = new ReadOnlyMemory<byte>(blob1, 1, 8);
+			conn.Execute(@"insert into blobs(id, value) values(4, @blob);", new { blob = blob4 });
+#endif
+			using var command = new SQLiteCommand("select value from blobs order by id", conn);
+			using var reader = command.ExecuteReader();
+			Assert.True(reader.Read());
+			Assert.AreEqual(blob1, reader.GetValue(0));
+			Assert.True(reader.Read());
+			Assert.AreEqual(blob2.ToArray(), reader.GetValue(0));
+#if NET6_0
+			Assert.True(reader.Read());
+			Assert.AreEqual(blob3.ToArray(), reader.GetValue(0));
+			Assert.True(reader.Read());
+			Assert.AreEqual(blob4.ToArray(), reader.GetValue(0));
+#endif
+			Assert.False(reader.Read());
+		}
+
 #if NET6_0
 		[Test]
 		public void GetReadOnlySpan()

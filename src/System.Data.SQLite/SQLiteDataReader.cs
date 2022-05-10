@@ -107,8 +107,25 @@ namespace System.Data.SQLite
 							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, boolValue ? 1 : 0));
 						else if (value is string stringValue)
 							BindText(index, stringValue);
+#if NET5_0
+						else if (value is Memory<byte> memory)
+							BindBlob(index, memory.Span);
+						else if (value is ReadOnlyMemory<byte> readOnlyMemory)
+							BindBlob(index, readOnlyMemory.Span);
 						else if (value is byte[] byteArrayValue)
-							BindBlob(index, byteArrayValue);
+							BindBlob(index, byteArrayValue.AsSpan());
+						else if (value is ArraySegment<byte> arraySegment)
+							BindBlob(index, arraySegment.AsSpan());
+						else if (value is Guid guidValue)
+							BindBlob(index, guidValue.ToByteArray().AsSpan());
+#else
+						else if (value is byte[] byteArrayValue)
+							BindBlob(index, byteArrayValue, 0, byteArrayValue.Length);
+						else if (value is ArraySegment<byte> arraySegment)
+							BindBlob(index, arraySegment.Array, arraySegment.Offset, arraySegment.Count);
+						else if (value is Guid guidValue)
+							BindBlob(index, guidValue.ToByteArray(), 0, 16);
+#endif
 						else if (value is long longValue)
 							ThrowOnError(NativeMethods.sqlite3_bind_int64(m_currentStatement, index, longValue));
 						else if (value is float floatValue)
@@ -117,8 +134,6 @@ namespace System.Data.SQLite
 							ThrowOnError(NativeMethods.sqlite3_bind_double(m_currentStatement, index, doubleValue));
 						else if (value is DateTime dateTimeValue)
 							BindText(index, ToString(dateTimeValue));
-						else if (value is Guid guidValue)
-							BindBlob(index, guidValue.ToByteArray());
 						else if (value is byte byteValue)
 							ThrowOnError(NativeMethods.sqlite3_bind_int(m_currentStatement, index, byteValue));
 						else if (value is short shortValue)
@@ -633,7 +648,19 @@ namespace System.Data.SQLite
 				throw new ObjectDisposedException(GetType().Name);
 		}
 
-		private void BindBlob(int ordinal, byte[] blob) => ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, blob, blob.Length, s_sqliteTransient));
+#if NET5_0
+		private unsafe void BindBlob(int ordinal, ReadOnlySpan<byte> blob)
+		{
+			fixed (byte* p = blob)
+				ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, p, blob.Length, s_sqliteTransient));
+		}
+#else
+		private unsafe void BindBlob(int ordinal, byte[] blob, int offset, int length)
+		{
+			fixed (byte* p = &blob[offset])
+				ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, p, length, s_sqliteTransient));
+		}
+#endif
 
 		private unsafe void BindText(int ordinal, string text)
 		{

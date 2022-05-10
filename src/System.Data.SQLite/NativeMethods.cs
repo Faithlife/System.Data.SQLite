@@ -22,7 +22,7 @@ namespace System.Data.SQLite
 		public static extern int sqlite3_backup_pagecount(SqliteBackupHandle p);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
-		public static extern SQLiteErrorCode sqlite3_bind_blob(SqliteStatementHandle stmt, int ordinal, byte[] value, int count, IntPtr free);
+		public static extern unsafe SQLiteErrorCode sqlite3_bind_blob(SqliteStatementHandle stmt, int ordinal, byte* value, int count, IntPtr free);
 
 		[DllImport(c_dllName, CallingConvention = c_callingConvention)]
 		public static extern SQLiteErrorCode sqlite3_bind_double(SqliteStatementHandle stmt, int ordinal, double value);
