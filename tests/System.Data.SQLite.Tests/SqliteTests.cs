@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -668,6 +668,19 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 			Assert.AreEqual(Encoding.UTF8.GetBytes(value), span.ToArray());
 		}
 #endif
+
+		[Test]
+		public void CastInteger()
+		{
+			using var conn = new SQLiteConnection(m_csb.ConnectionString);
+			conn.Open();
+			conn.Execute(@"	create table Info (Version int not null, Description text);");
+			conn.Execute(@"insert into Info(Version, Description) values(1, 'a test');");
+			using var command = new SQLiteCommand("select cast(Version as integer) from Info limit 1;", conn);
+			using var reader = command.ExecuteReader();
+			Assert.True(reader.Read());
+			Assert.AreEqual(1L, reader.GetInt64(0));
+		}
 
 		private IEnumerable<KeyValuePair<string, object>> GetTypesAndValues(object[] typesAndValues)
 		{

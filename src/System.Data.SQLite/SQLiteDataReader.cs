@@ -238,7 +238,7 @@ namespace System.Data.SQLite
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to bool.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
-			if (dbType is not DbType.Boolean)
+			if (dbType is not (DbType.Boolean or DbType.Object))
 				throw new InvalidCastException("Cannot convert {0} to bool.".FormatInvariant(dbType));
 			return NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal) != 0;
 		}
@@ -251,7 +251,7 @@ namespace System.Data.SQLite
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to byte.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
-			if (dbType is not DbType.Byte)
+			if (dbType is not (DbType.Byte or DbType.Object))
 				throw new InvalidCastException("Cannot convert {0} to byte.".FormatInvariant(dbType));
 			return checked((byte) NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal));
 		}
@@ -299,7 +299,7 @@ namespace System.Data.SQLite
 			if (sqliteType != SQLiteColumnType.Blob)
 				throw new InvalidCastException("Cannot convert {0} to Guid.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
-			if (dbType is not DbType.Guid)
+			if (dbType is not (DbType.Guid or DbType.Object))
 				throw new InvalidCastException("Cannot convert {0} to Guid.".FormatInvariant(dbType));
 			var ptr = NativeMethods.sqlite3_column_blob(m_currentStatement, ordinal);
 			var length = NativeMethods.sqlite3_column_bytes(m_currentStatement, ordinal);
@@ -319,7 +319,7 @@ namespace System.Data.SQLite
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to short.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
-			if (dbType is not DbType.Int16)
+			if (dbType is not (DbType.Int16 or DbType.Object))
 				throw new InvalidCastException("Cannot convert {0} to short.".FormatInvariant(dbType));
 			return checked((short) NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal));
 		}
@@ -332,7 +332,7 @@ namespace System.Data.SQLite
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to int.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
-			if (dbType is not (DbType.Int32 or DbType.Int64 or DbType.Int16))
+			if (dbType is not (DbType.Int32 or DbType.Int64 or DbType.Int16 or DbType.Object))
 				throw new InvalidCastException("Cannot convert {0} to int.".FormatInvariant(dbType));
 			return checked((int) NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal));
 		}
@@ -345,7 +345,7 @@ namespace System.Data.SQLite
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to long.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
-			if (dbType is not (DbType.Int64 or DbType.Int32 or DbType.Int16))
+			if (dbType is not (DbType.Int64 or DbType.Int32 or DbType.Int16 or DbType.Object))
 				throw new InvalidCastException("Cannot convert {0} to long.".FormatInvariant(dbType));
 			return NativeMethods.sqlite3_column_int64(m_currentStatement, ordinal);
 		}
@@ -364,7 +364,7 @@ namespace System.Data.SQLite
 			if (sqliteType is not (SQLiteColumnType.Double or SQLiteColumnType.Integer))
 				throw new InvalidCastException("Cannot convert {0} to double.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
-			if (dbType is not (DbType.Double or DbType.Single))
+			if (dbType is not (DbType.Double or DbType.Single or DbType.Object))
 				throw new InvalidCastException("Cannot convert {0} to double.".FormatInvariant(dbType));
 			return NativeMethods.sqlite3_column_double(m_currentStatement, ordinal);
 		}
@@ -377,7 +377,7 @@ namespace System.Data.SQLite
 			if (sqliteType is not (SQLiteColumnType.Double or SQLiteColumnType.Integer))
 				throw new InvalidCastException("Cannot convert {0} to single.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
-			if (dbType is not DbType.Single)
+			if (dbType is not (DbType.Single or DbType.Object))
 				throw new InvalidCastException("Cannot convert {0} to single.".FormatInvariant(dbType));
 			return checked((float) NativeMethods.sqlite3_column_double(m_currentStatement, ordinal));
 		}
