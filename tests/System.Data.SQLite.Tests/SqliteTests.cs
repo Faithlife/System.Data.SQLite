@@ -552,11 +552,9 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 				conn.Execute(@"create table Test (Id integer primary key autoincrement, Value {0});".FormatInvariant(columnType));
 				conn.Execute(@"insert into Test (Value) values(null);");
 
-				// test that GetValue returns the right value
 				using (var reader = (SQLiteDataReader) conn.ExecuteReader(@"select Value from Test"))
 				{
 					Assert.IsTrue(reader.Read());
-					Assert.AreEqual(DBNull.Value, reader.GetValue(0));
 					Assert.AreEqual(expected, reader.GetDbType(0));
 				}
 			}
