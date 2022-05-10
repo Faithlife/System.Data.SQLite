@@ -1,5 +1,10 @@
 # Version History
 
+## 3.3.2
+
+* Fix `InvalidCastException` reading the results of an expression or subquery.
+  * This regression was introduced in 3.3.0.
+
 ## 3.3.1
 
 * Support `ArraySegment<byte>`, `Memory<byte>` and `ReadOnlyMemory<byte>` as parameter values.
