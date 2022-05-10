@@ -442,6 +442,36 @@ namespace System.Data.SQLite
 			}
 		}
 
+		public override T GetFieldValue<T>(int ordinal)
+		{
+			if (typeof(T) == typeof(bool))
+				return (T) (object) GetBoolean(ordinal);
+			if (typeof(T) == typeof(byte))
+				return (T) (object) GetByte(ordinal);
+			if (typeof(T) == typeof(short))
+				return (T) (object) GetInt16(ordinal);
+			if (typeof(T) == typeof(int))
+				return (T) (object) GetInt32(ordinal);
+			if (typeof(T) == typeof(long))
+				return (T) (object) GetInt64(ordinal);
+			if (typeof(T) == typeof(char))
+				return (T) (object) GetChar(ordinal);
+			if (typeof(T) == typeof(decimal))
+				return (T) (object) GetDecimal(ordinal);
+			if (typeof(T) == typeof(double))
+				return (T) (object) GetDouble(ordinal);
+			if (typeof(T) == typeof(float))
+				return (T) (object) GetFloat(ordinal);
+			if (typeof(T) == typeof(string))
+				return (T) (object) GetString(ordinal);
+			if (typeof(T) == typeof(DateTime))
+				return (T) (object) GetDateTime(ordinal);
+			if (typeof(T) == typeof(Guid))
+				return (T) (object) GetGuid(ordinal);
+
+			return base.GetFieldValue<T>(ordinal);
+		}
+
 		public override IEnumerator GetEnumerator() => throw new NotSupportedException();
 
 		public override DataTable GetSchemaTable() => throw new NotSupportedException();

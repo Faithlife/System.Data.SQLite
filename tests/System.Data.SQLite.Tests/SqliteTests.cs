@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -444,7 +445,7 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 				// test that each specified GetX method returns the right value
 				foreach (var typeAndValue in GetTypesAndValues(typesAndValues))
 				{
-					using (var reader = conn.ExecuteReader(@"select Value from Test"))
+					using (var reader = (DbDataReader) conn.ExecuteReader(@"select Value from Test"))
 					{
 						Assert.IsTrue(reader.Read());
 						var methodInfo = reader.GetType().GetMethod("Get" + typeAndValue.Key);
@@ -458,6 +459,37 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 						{
 							Assert.AreEqual(expected, actual);
 							Assert.AreEqual(expected.GetType(), actual.GetType());
+
+							switch (typeAndValue.Key)
+							{
+							case "Boolean":
+								Assert.AreEqual((bool) expected, reader.GetFieldValue<bool>(0));
+								break;
+
+							case "Float":
+								Assert.AreEqual((float) expected, reader.GetFieldValue<float>(0));
+								break;
+
+							case "Double":
+								Assert.AreEqual((double) expected, reader.GetFieldValue<double>(0));
+								break;
+
+							case "Int32":
+								Assert.AreEqual((int) expected, reader.GetFieldValue<int>(0));
+								break;
+
+							case "Int64":
+								Assert.AreEqual((long) expected, reader.GetFieldValue<long>(0));
+								break;
+
+							case "String":
+								Assert.AreEqual((string) expected, reader.GetFieldValue<string>(0));
+								break;
+
+							default:
+								Assert.Fail("Unhandled type: {0}", typeAndValue.Key);
+								break;
+							}
 						}
 					}
 				}
