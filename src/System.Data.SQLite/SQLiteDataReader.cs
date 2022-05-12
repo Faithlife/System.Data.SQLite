@@ -651,14 +651,30 @@ namespace System.Data.SQLite
 #if NET5_0
 		private unsafe void BindBlob(int ordinal, ReadOnlySpan<byte> blob)
 		{
-			fixed (byte* p = blob)
-				ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, p, blob.Length, s_sqliteTransient));
+			if (blob.Length == 0)
+			{
+				byte temp;
+				ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, &temp, 0, s_sqliteTransient));
+			}
+			else
+			{
+				fixed (byte* p = blob)
+					ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, p, blob.Length, s_sqliteTransient));
+			}
 		}
 #else
 		private unsafe void BindBlob(int ordinal, byte[] blob, int offset, int length)
 		{
-			fixed (byte* p = &blob[offset])
-				ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, p, length, s_sqliteTransient));
+			if (length == 0)
+			{
+				byte temp;
+				ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, &temp, 0, s_sqliteTransient));
+			}
+			else
+			{
+				fixed (byte* p = &blob[offset])
+					ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, p, length, s_sqliteTransient));
+			}
 		}
 #endif
 

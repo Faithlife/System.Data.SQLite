@@ -584,6 +584,28 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 		}
 
 		[Test]
+		public void InsertEmptyBlob()
+		{
+			using (SQLiteConnection conn = new SQLiteConnection(m_csb.ConnectionString))
+			{
+				conn.Open();
+				conn.Execute(@"create table Jobs
+(
+	Name text not null primary key,
+	Properties blob not null
+);");
+
+				string insertJob = @"insert into Jobs(Name, Properties) values (@Name, @Properties);";
+
+				conn.Execute(insertJob, new
+				{
+					Name = "test",
+					Properties = new byte[0],
+				});
+			}
+		}
+
+		[Test]
 		public void GetGuid()
 		{
 			using var conn = new SQLiteConnection(m_csb.ConnectionString);
