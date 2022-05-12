@@ -1,5 +1,10 @@
 # Version History
 
+## 3.3.3
+
+* Fix failure to bind an empty `byte[]` as a SQLiteParameter value.
+  * This regression was introduced in 3.3.1.
+
 ## 3.3.2
 
 * Fix `InvalidCastException` reading the results of an expression or subquery.
