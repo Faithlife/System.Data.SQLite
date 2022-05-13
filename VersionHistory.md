@@ -1,5 +1,9 @@
 # Version History
 
+## 3.3.4
+
+* Improve efficiency of calling `IsDBNull` then `GetValue` (for the same field).
+
 ## 3.3.3
 
 * Fix failure to bind an empty `byte[]` as a SQLiteParameter value.
