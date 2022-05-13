@@ -405,6 +405,8 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 		// these test cases illustrate the type conversions allowed by this wrapper; the extra conversions permitted by the official System.Data.SQLite wrapper are given in the comments following each test case
 		[TestCase("bool", false, "Boolean", false)] // System.Data.SQLite: "Byte", (byte) 0, "Double", 0.0, "Float", 0.0f, "Int16", (short) 0, "Int32", 0, "Int64", 0L
 		[TestCase("bool", true, "Boolean", true)] // System.Data.SQLite: "Byte", (byte) 1, "Double", 1.0, "Float", 1.0f, "Int16", (short) 1, "Int32", 1, "Int64", 1L
+		[TestCase("blob", null)]
+		[TestCase("blob", new byte[] { 0x61, 0x62 }, "Bytes", new byte[] { 0x61, 0x62 })]
 		[TestCase("double", 1.0, "Double", 1.0)] // System.Data.SQLite: "Float", 1.0f
 		[TestCase("double", 1.5, "Double", 1.5)] // System.Data.SQLite: "Float", 1.0f
 		[TestCase("double", 4E+38, "Double", 4E+38)] // System.Data.SQLite: "Float", float.PositiveInfinity
@@ -449,8 +451,19 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 					using (var reader = (DbDataReader) conn.ExecuteReader(@"select Value from Test"))
 					{
 						Assert.IsTrue(reader.Read());
-						var methodInfo = reader.GetType().GetMethod("Get" + typeAndValue.Key);
-						object actual = methodInfo.Invoke(reader, new object[] { 0 });
+						object actual;
+						if (typeAndValue.Key == "Bytes")
+						{
+							var length = reader.GetBytes(0, 0, null, 0, 0);
+							var bytes = new byte[length];
+							reader.GetBytes(0, 0, bytes, 0, bytes.Length);
+							actual = bytes;
+						}
+						else
+						{
+							var methodInfo = reader.GetType().GetMethod("Get" + typeAndValue.Key);
+							actual = methodInfo.Invoke(reader, new object[] { 0 });
+						}
 						object expected = typeAndValue.Value ?? DBNull.Value;
 						if (expected == DBNull.Value)
 						{
@@ -465,6 +478,10 @@ values(1, 'two', 3, 4, 5, 6, 7.8910, 11.121314, 1, 0);");
 							{
 							case "Boolean":
 								Assert.AreEqual((bool) expected, reader.GetFieldValue<bool>(0));
+								break;
+
+							case "Bytes":
+								Assert.AreEqual((byte[]) expected, reader.GetFieldValue<byte[]>(0));
 								break;
 
 							case "Float":
