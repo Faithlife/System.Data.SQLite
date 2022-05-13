@@ -560,8 +560,7 @@ namespace System.Data.SQLite
 				return (T) (object) GetDateTime(ordinal);
 			if (typeof(T) == typeof(Guid))
 				return (T) (object) GetGuid(ordinal);
-
-			return base.GetFieldValue<T>(ordinal);
+			return (T) GetValue(ordinal);
 		}
 
 		public override IEnumerator GetEnumerator() => throw new NotSupportedException();
