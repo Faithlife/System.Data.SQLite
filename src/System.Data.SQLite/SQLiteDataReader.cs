@@ -201,7 +201,19 @@ namespace System.Data.SQLite
 					case SQLiteErrorCode.Row:
 						m_hasRead = true;
 						if (m_columnType is null)
-							m_columnType = new DbType?[NativeMethods.sqlite3_column_count(m_currentStatement)];
+						{
+							var columnCount = NativeMethods.sqlite3_column_count(m_currentStatement);
+							m_columnType = new DbType?[columnCount];
+							m_sqliteColumnType = new SQLiteColumnType[columnCount];
+						}
+						else
+						{
+#if NET5_0
+							m_sqliteColumnType.AsSpan().Clear();
+#else
+							Array.Clear(m_sqliteColumnType, 0, m_sqliteColumnType.Length);
+#endif
+						}
 						return true;
 
 					case SQLiteErrorCode.Busy:
@@ -234,7 +246,7 @@ namespace System.Data.SQLite
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to bool.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
@@ -247,7 +259,7 @@ namespace System.Data.SQLite
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to byte.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
@@ -260,7 +272,7 @@ namespace System.Data.SQLite
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType == SQLiteColumnType.Null)
 				return 0;
 			else if (sqliteType != SQLiteColumnType.Blob)
@@ -295,7 +307,7 @@ namespace System.Data.SQLite
 #if NET5_0
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType != SQLiteColumnType.Blob)
 				throw new InvalidCastException("Cannot convert {0} to Guid.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
@@ -315,7 +327,7 @@ namespace System.Data.SQLite
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to short.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
@@ -328,7 +340,7 @@ namespace System.Data.SQLite
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to int.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
@@ -341,7 +353,7 @@ namespace System.Data.SQLite
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType != SQLiteColumnType.Integer)
 				throw new InvalidCastException("Cannot convert {0} to long.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
@@ -360,7 +372,7 @@ namespace System.Data.SQLite
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType is not (SQLiteColumnType.Double or SQLiteColumnType.Integer))
 				throw new InvalidCastException("Cannot convert {0} to double.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
@@ -373,7 +385,7 @@ namespace System.Data.SQLite
 		{
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType is not (SQLiteColumnType.Double or SQLiteColumnType.Integer))
 				throw new InvalidCastException("Cannot convert {0} to single.".FormatInvariant(sqliteType));
 			var dbType = GetDbType(ordinal);
@@ -403,7 +415,7 @@ namespace System.Data.SQLite
 		public override bool IsDBNull(int ordinal)
 		{
 			VerifyRead();
-			return NativeMethods.sqlite3_column_type(m_currentStatement, ordinal) == SQLiteColumnType.Null;
+			return GetSqliteColumnType(ordinal) == SQLiteColumnType.Null;
 		}
 
 		public override int FieldCount
@@ -462,7 +474,7 @@ namespace System.Data.SQLite
 		/// until the next row is read.</returns>
 		public unsafe ReadOnlySpan<byte> GetReadOnlySpan(int ordinal)
 		{
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			if (sqliteType != SQLiteColumnType.Blob && sqliteType != SQLiteColumnType.Text)
 				throw new InvalidCastException("Cannot convert {0} to bytes.".FormatInvariant(sqliteType));
 
@@ -478,7 +490,7 @@ namespace System.Data.SQLite
 			if (ordinal < 0 || ordinal > FieldCount)
 				throw new ArgumentOutOfRangeException(nameof(ordinal), "value must be between 0 and {0}.".FormatInvariant(FieldCount - 1));
 
-			var sqliteType = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			var sqliteType = GetSqliteColumnType(ordinal);
 			var dbType = GetDbType(ordinal);
 			if (dbType == DbType.Object)
 				dbType = s_sqliteTypeToDbType[sqliteType];
@@ -612,6 +624,13 @@ namespace System.Data.SQLite
 			}
 			m_columnType[ordinal] = dbType;
 			return dbType;
+		}
+
+		private SQLiteColumnType GetSqliteColumnType(int ordinal)
+		{
+			if (m_sqliteColumnType[ordinal] == default)
+				m_sqliteColumnType[ordinal] = NativeMethods.sqlite3_column_type(m_currentStatement, ordinal);
+			return m_sqliteColumnType[ordinal];
 		}
 
 		private SqliteDatabaseHandle DatabaseHandle => ((SQLiteConnection) m_command.Connection).Handle;
@@ -900,6 +919,7 @@ namespace System.Data.SQLite
 		int m_currentStatementIndex;
 		SqliteStatementHandle m_currentStatement;
 		bool m_hasRead;
+		SQLiteColumnType[] m_sqliteColumnType;
 		DbType?[] m_columnType;
 		Dictionary<string, int> m_columnNames;
 	}
