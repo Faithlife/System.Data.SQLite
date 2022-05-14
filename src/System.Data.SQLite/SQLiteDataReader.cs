@@ -669,7 +669,7 @@ namespace System.Data.SQLite
 #if NET5_0
 		private unsafe void BindBlob(int ordinal, ReadOnlySpan<byte> blob)
 		{
-			if (blob.Length == 0)
+			if (blob.IsEmpty)
 			{
 				byte temp;
 				ThrowOnError(NativeMethods.sqlite3_bind_blob(m_currentStatement, ordinal, &temp, 0, s_sqliteTransient));
