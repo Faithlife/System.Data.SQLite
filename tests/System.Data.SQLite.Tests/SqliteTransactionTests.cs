@@ -89,6 +89,30 @@ namespace System.Data.SQLite.Tests
 			}
 		}
 
+		[Test]
+		public void Deferred()
+		{
+			using var conn1 = new SQLiteConnection(m_csb.ConnectionString);
+			conn1.Open();
+			using var conn2 = new SQLiteConnection(m_csb.ConnectionString);
+			conn2.Open();
+
+			// both transactions should be able to make forward progress
+			using var trans1 = conn1.BeginTransaction(deferred: true);
+			using (var cmd1 = new SQLiteCommand(@"select 1;", conn1, trans1))
+				Assert.AreEqual(1L, cmd1.ExecuteScalar());
+
+			using var trans2 = conn2.BeginTransaction(deferred: true);
+			using (var cmd2 = new SQLiteCommand(@"select 1;", conn2, trans2))
+				Assert.AreEqual(1L, cmd2.ExecuteScalar());
+
+			using (var cmd1 = new SQLiteCommand(@"select 1;", conn1, trans1))
+				Assert.AreEqual(1L, cmd1.ExecuteScalar());
+
+			trans1.Rollback();
+			trans2.Rollback();
+		}
+
 #if !NETFX_CORE
 		[Test, Timeout(5000)]
 		public void OverlappingTransactions()
