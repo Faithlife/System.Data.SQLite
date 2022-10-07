@@ -28,6 +28,8 @@ namespace System.Data.SQLite
 
 		public new SQLiteTransaction BeginTransaction() => (SQLiteTransaction) base.BeginTransaction();
 
+		public SQLiteTransaction BeginTransaction(bool deferred) => BeginTransaction(IsolationLevel.Unspecified, deferred);
+
 		protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
 		{
 			if (isolationLevel == IsolationLevel.Unspecified)
@@ -35,10 +37,16 @@ namespace System.Data.SQLite
 			if (isolationLevel != IsolationLevel.Serializable && isolationLevel != IsolationLevel.ReadCommitted)
 				throw new ArgumentOutOfRangeException("isolationLevel", isolationLevel, "Specified IsolationLevel value is not supported.");
 
+			return BeginTransaction(isolationLevel, isolationLevel != IsolationLevel.Serializable);
+		}
+
+		private SQLiteTransaction BeginTransaction(IsolationLevel isolationLevel, bool deferred)
+		{
 			if (m_transactions.Count == 0)
-				this.ExecuteNonQuery(isolationLevel == IsolationLevel.Serializable ? "BEGIN IMMEDIATE" : "BEGIN");
-			m_transactions.Push(new SQLiteTransaction(this, isolationLevel));
-			return CurrentTransaction;
+				this.ExecuteNonQuery(deferred ? "BEGIN" : "BEGIN IMMEDIATE");
+			var transaction = new SQLiteTransaction(this, isolationLevel);
+			m_transactions.Push(transaction);
+			return transaction;
 		}
 
 		public override void Close() => Dispose();

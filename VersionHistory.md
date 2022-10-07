@@ -1,5 +1,9 @@
 # Version History
 
+## 3.4.0
+
+* Add `SQLiteConnection.BeginTransaction(bool deferred)`: [#53](https://github.com/Faithlife/System.Data.SQLite/pull/53).
+
 ## 3.3.4
 
 * Improve efficiency of calling `IsDBNull` then `GetValue` (for the same field).
