@@ -60,6 +60,10 @@ namespace System.Data.SQLite
 							Thread.Sleep(20);
 							break;
 
+						case SQLiteErrorCode.Interrupt:
+							cancellationToken.ThrowIfCancellationRequested();
+							return null;
+
 						default:
 							throw new SQLiteException(errorCode, m_database);
 						}
