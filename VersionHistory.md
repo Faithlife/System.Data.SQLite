@@ -1,5 +1,9 @@
 # Version History
 
+## 3.4.1
+
+* Handle SQLite interruption in Get statements.
+
 ## 3.4.0
 
 * Add `SQLiteConnection.BeginTransaction(bool deferred)`: [#53](https://github.com/Faithlife/System.Data.SQLite/pull/53).
